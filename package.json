@@ -1,6 +1,6 @@
 {
   "name": "jsson",
-  "displayName": "JSSON Syntax Highlighting",
+  "displayName": "JSSON - Simplified JSON Transpiler",
   "description": "Syntax highlighting for JSSON - JSON Simplified Object Notation",
   "version": "0.0.1",
   "publisher": "carlosedujs",
