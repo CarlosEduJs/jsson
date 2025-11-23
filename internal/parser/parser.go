@@ -176,6 +176,8 @@ func (p *Parser) parsePrefix() ast.Expression {
 		return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 	case token.INT:
 		return p.parseIntegerLiteral()
+	case token.FLOAT:
+		return p.parseFloatLiteral()
 	case token.STRING:
 		return p.parseStringLiteral()
 	case token.TRUE, token.FALSE:
@@ -332,6 +334,17 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 	value, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
 	if err != nil {
 		p.addError(ie.IntegerTooSpicy(p.curToken.Literal))
+		return nil
+	}
+	lit.Value = value
+	return lit
+}
+
+func (p *Parser) parseFloatLiteral() ast.Expression {
+	lit := &ast.FloatLiteral{Token: p.curToken}
+	value, err := strconv.ParseFloat(p.curToken.Literal, 64)
+	if err != nil {
+		p.addError(fmt.Sprintf("could not parse %q as float", p.curToken.Literal))
 		return nil
 	}
 	lit.Value = value

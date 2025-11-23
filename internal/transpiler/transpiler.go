@@ -158,6 +158,8 @@ func (t *Transpiler) errfNode(node ast.Node, format string, args ...interface{})
 			line, col = n.Token.Line, n.Token.Column
 		case *ast.IntegerLiteral:
 			line, col = n.Token.Line, n.Token.Column
+		case *ast.FloatLiteral:
+			line, col = n.Token.Line, n.Token.Column
 		case *ast.StringLiteral:
 			line, col = n.Token.Line, n.Token.Column
 		case *ast.Identifier:
@@ -204,6 +206,8 @@ func (t *Transpiler) errfNodeMsg(node ast.Node, msg string) error {
 		case *ast.IncludeStatement:
 			line, col = n.Token.Line, n.Token.Column
 		case *ast.IntegerLiteral:
+			line, col = n.Token.Line, n.Token.Column
+		case *ast.FloatLiteral:
 			line, col = n.Token.Line, n.Token.Column
 		case *ast.StringLiteral:
 			line, col = n.Token.Line, n.Token.Column
@@ -253,6 +257,8 @@ func (t *Transpiler) errMsg(msg string) error {
 func (t *Transpiler) evalExpression(expr ast.Expression, ctx map[string]interface{}) (interface{}, error) {
 	switch e := expr.(type) {
 	case *ast.IntegerLiteral:
+		return e.Value, nil
+	case *ast.FloatLiteral:
 		return e.Value, nil
 	case *ast.BooleanLiteral:
 		return e.Value, nil

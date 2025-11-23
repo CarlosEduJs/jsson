@@ -103,8 +103,13 @@ func (l *Lexer) NextToken() token.Token {
 			tok.Column = l.column
 			return tok
 		} else if isDigit(l.ch) {
-			tok.Type = token.INT // Default to INT, check for dot later for FLOAT
 			tok.Literal = l.readNumber()
+			// Check if the number contains a decimal point
+			if containsDot(tok.Literal) {
+				tok.Type = token.FLOAT
+			} else {
+				tok.Type = token.INT
+			}
 			tok.Line = l.line
 			tok.Column = l.column
 			return tok
@@ -236,4 +241,13 @@ func isLetter(ch rune) bool {
 
 func isDigit(ch rune) bool {
 	return unicode.IsDigit(ch)
+}
+
+func containsDot(s string) bool {
+	for _, ch := range s {
+		if ch == '.' {
+			return true
+		}
+	}
+	return false
 }
