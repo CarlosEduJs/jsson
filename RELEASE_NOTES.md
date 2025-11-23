@@ -1,92 +1,194 @@
-# JSSON v0.0.1 - Initial Release 🚀
+# 🚀 **JSSON v0.1.0 – The Human JSON Release**
 
-First official release of JSSON (JavaScript Simplified Object Notation) - a transpiler that converts simplified syntax to JSON.
+JSSON (**JavaScript Simplified Object Notation**) is a modern, human-friendly syntax that transpiles directly to JSON — with templates, ranges, includes, maps, and more.
 
-## 🎯 Features
+This is the **first full-featured release** of the language.
 
-- **Simple Syntax**: Write JSON with a cleaner, more readable syntax
-- **Include System**: Import and merge other JSSON files with `#include`
-- **Comments**: Support for single-line (`//`) and multi-line (`/* */`) comments
-- **Type Safety**: Basic type checking during transpilation
-- **Cross-Platform**: Binaries available for Windows, Linux, and macOS
+---
 
-## 📦 Installation
+# ✨ **🎯 Key Features**
 
-Download the appropriate binary for your platform:
+### 🔶 **1. Template Arrays (⚡ Killer Feature)**
 
-- **Windows**: `jsson-v0.0.1-windows-amd64.exe`
-- **Linux**: `jsson-v0.0.1-linux-amd64`
-- **macOS (Intel)**: `jsson-v0.0.1-darwin-amd64`
-- **macOS (Apple Silicon)**: `jsson-v0.0.1-darwin-arm64`
+Generate structured JSON objects using simple row-based syntax:
+
+```jsson
+users [
+  template { name, age, job }
+  João, 19, Student
+  Maria, 25, Teacher
+]
+```
+
+Output:
+
+```json
+{
+  "users": [
+    { "name": "João", "age": 19, "job": "Student" },
+    { "name": "Maria", "age": 25, "job": "Teacher" }
+  ]
+}
+```
+
+---
+
+### 🔶 **2. Map Transformer**
+
+```jsson
+routes [
+  template { path, method }
+
+  map (item) = {
+    path = "/api/" + item.path
+    method = item.method
+  }
+
+  users, GET
+  posts, POST
+]
+```
+
+---
+
+### 🔶 **3. Includes (modularization)**
+
+Supports relative file includes:
+
+```jsson
+include "./config/database.jsson"
+```
+
+Circular include detection ✔
+Include cache ✔
+
+---
+
+### 🔶 **4. Ranges and Step Support**
+
+```jsson
+ports = [ 8080..8085 ]
+even = [ 0..10 step 2 ]
+```
+
+---
+
+### 🔶 **5. Literal Types**
+
+* Strings
+* Integers
+* **Floats (NEW!)**
+* Booleans
+* Objects
+* Arrays
+* Identifiers
+* Member access (`obj.key`)
+* String concatenation (`"a" + b`)
+
+---
+
+### 🔶 **6. Clean Syntax**
+
+No braces required for arrays/objects inside templates.
+Readable. Minimal. Fast to write.
+
+---
+
+### 🔶 **7. Fully JSON-Accurate Output**
+
+The transpiler guarantees 100% valid JSON output.
+
+---
+
+### 🔶 **8. Wizard/Goblin Error Messages™**
+
+Fun, descriptive error reporting:
+
+```
+Syntax wizard: line 3 col 12 — expected '}' — wizard can't find the closing brace
+```
+
+---
+
+# 📦 **Installation**
+
+Download the binary for your OS:
+
+* **Windows:** `jsson-v0.1.0-windows-amd64.exe`
+* **Linux:** `jsson-v0.1.0-linux-amd64`
+* **macOS (Intel):** `jsson-v0.1.0-darwin-amd64`
+* **macOS (Apple Silicon):** `jsson-v0.1.0-darwin-arm64`
 
 ### Linux/macOS
+
 ```bash
-# Download and make executable
-chmod +x jsson-v0.0.1-*
-# Move to PATH (optional)
-sudo mv jsson-v0.0.1-* /usr/local/bin/jsson
+chmod +x jsson-v0.1.0-*
+sudo mv jsson-v0.1.0-* /usr/local/bin/jsson
 ```
 
 ### Windows
+
 ```powershell
-# Rename for easier usage
-Rename-Item jsson-v0.0.1-windows-amd64.exe jsson.exe
-# Add to PATH or use directly
+Rename-Item jsson-v0.1.0-windows-amd64.exe jsson.exe
 ```
 
-## 🚀 Usage
+---
+
+# 🚀 **Usage**
 
 ```bash
 jsson -i input.jsson
 ```
 
-### Options
-- `-i <file>`: Input JSSON file (required)
-- `-include-merge <mode>`: Include merge strategy: `keep` (default), `overwrite`, or `error`
+---
 
-## 📝 Example
+# 📘 **Example**
 
-**Input** (`example.jsson`):
+**example.jsson**
+
 ```jsson
-{
-  name: "JSSON",
-  version: "0.0.1",
-  features: [
-    "Simple syntax",
-    "Comments support",
-    "Include system"
+app {
+  name = "JSSON"
+  version = "0.1.0"
+
+  ports = [ 8080..8083 ]
+
+  authors [
+    template { name, role }
+    Carlos, Creator
+    João, Contributor
   ]
 }
 ```
 
-**Output**:
-```bash
-jsson -i example.jsson
-```
-```json
-{
-  "name": "JSSON",
-  "version": "0.0.1",
-  "features": [
-    "Simple syntax",
-    "Comments support",
-    "Include system"
-  ]
-}
-```
+Output is valid JSON.
 
-## 🎨 VS Code Extension
+---
 
-Install the [JSSON - Simplified JSON Transpiler](https://marketplace.visualstudio.com/items?itemName=carlosedujs.jsson) extension for syntax highlighting and language support!
+# 🎨 **VS Code Extension**
 
-## 📚 Documentation
+Official syntax highlighting + language support:
 
-For more examples and documentation, visit the [GitHub repository](https://github.com/carlosedujs/jsson).
+👉 [https://marketplace.visualstudio.com/items?itemName=carlosedujs.jsson](https://marketplace.visualstudio.com/items?itemName=carlosedujs.jsson)
 
-## 🐛 Known Issues
+---
 
-None reported yet! Please report any issues on GitHub.
+# 📚 Documentation
 
-## 🙏 Acknowledgments
+Docs & playground:
+👉 [https://github.com/carlosedujs/jsson](https://github.com/carlosedujs/jsson)
 
-Thanks to everyone who contributed to making JSSON possible!
+---
+
+# 🐛 Known Issues
+
+* No known issues after float fix
+* Please report anything unexpected in GitHub issues
+
+---
+
+# 🙏 Acknowledgments
+
+Thanks to everyone helping shape this language.
+Special thanks to the wizards, goblins and gremlins of the parser.
+
