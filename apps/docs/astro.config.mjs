@@ -108,7 +108,7 @@ export default defineConfig({
           ],
         },
         { label: "FAQ", slug: "faq" },
-        { label: "Release Notes", slug: "release-notes" },
+        { label: "Changelog", slug: "changelog" },
       ],
       customCss: [
         // Relative path to your custom CSS file
