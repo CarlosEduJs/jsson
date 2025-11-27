@@ -3,7 +3,7 @@ title: Templates Guide
 description: Master JSSON's most powerful feature - template arrays that turn spreadsheet-like data into structured JSON objects.
 ---
 
-import { Code, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Code, Tabs, TabItem } from "@astrojs/starlight/components";
 
 Template arrays are JSSON's superpower! 💪 They let you write data like a spreadsheet and get structured JSON objects. Perfect for seed data, mock APIs, and any tabular information.
 
@@ -11,7 +11,9 @@ Template arrays are JSSON's superpower! 💪 They let you write data like a spre
 
 Imagine you need to create an array of user objects. In JSON:
 
-<Code lang="json" code={`{
+<Code
+  lang="json"
+  code={`{
   "users": [
     {
       "name": "João",
@@ -32,7 +34,8 @@ Imagine you need to create an array of user objects. In JSON:
       "height": 1.80
     }
   ]
-}`} />
+}`}
+/>
 
 That's a LOT of repetition! 😫 Every object repeats the same keys.
 
@@ -85,11 +88,14 @@ The template syntax has two parts:
 1. **Template definition:** `template { field1, field2, field3 }`
 2. **Data rows:** One row per object, values separated by commas
 
-<Code lang="jsson" code={`arrayName [
+<Code
+  lang="jsson"
+  code={`arrayName [
   template { column1, column2, column3 }
   value1, value2, value3
   value4, value5, value6
-]`} />
+]`}
+/>
 
 ## Real-World Examples
 
@@ -149,12 +155,15 @@ The template syntax has two parts:
 
 ### Test Data
 
-<Code lang="jsson" code={`testUsers [
+<Code
+  lang="jsson"
+  code={`testUsers [
   template { email, password, role, active }
   "admin@test.com", "admin123", admin, true
   "user@test.com", "user123", user, true
   "guest@test.com", "guest123", guest, false
-]`} />
+]`}
+/>
 
 Perfect for seeding databases or creating mock data!
 
@@ -256,16 +265,16 @@ The `map` clause lets you transform each row into a richer object. This is where
     email = emp.firstName + "@company.com"
   }
   
-  João, Silva, Engineering
-  Maria, Santos, Marketing
-  Pedro, Costa, Sales
+  João, 25, admin
+  Maria, 30, editor
+  Pedro, 28, viewer
 ]`} />
 
-## Common Use Cases
+### 2. Mock API Responses
 
-### 1. Database Seed Data
-
-<Code lang="jsson" code={`// seed-users.jsson
+<Code
+  lang="jsson"
+  code={`// seed-users.jsson
 users [
   template { email, name, role, verified }
   "admin@app.com", "Admin User", admin, true
@@ -276,7 +285,9 @@ users [
 
 ### 2. Mock API Responses
 
-<Code lang="jsson" code={`// mock-products.jsson
+<Code
+  lang="jsson"
+  code={`// mock-products.jsson
 products [
   template { id, name, category, price, stock }
   
@@ -293,21 +304,27 @@ products [
   1, "Laptop Pro", electronics, 1299.99, 15
   2, "Wireless Mouse", accessories, 29.99, 50
   3, "USB-C Cable", accessories, 12.99, 100
-]`} />
+]`}
+/>
 
 ### 3. Configuration Lists
 
-<Code lang="jsson" code={`// environments.jsson
+<Code
+  lang="jsson"
+  code={`// environments.jsson
 environments [
   template { name, url, apiKey }
   development, "http://localhost:3000", "dev-key-123"
   staging, "https://staging.app.com", "staging-key-456"
   production, "https://app.com", "prod-key-789"
-]`} />
+]`}
+/>
 
 ### 4. Test Cases
 
-<Code lang="jsson" code={`// test-cases.jsson
+<Code
+  lang="jsson"
+  code={`// test-cases.jsson
 loginTests [
   template { email, password, shouldSucceed }
   "valid@test.com", "correct123", true
@@ -315,17 +332,21 @@ loginTests [
   "admin@test.com", "admin123", true
   "", "password", false
   "user@test.com", "", false
-]`} />
+]`}
+/>
 
 ## Tips & Best Practices
 
 ### 1. Use Quotes for Multi-Word Values
 
-<Code lang="jsson" code={`users [
+<Code
+  lang="jsson"
+  code={`users [
   template { name, title, city }
   João, "Software Engineer", "São Paulo"  // Quotes for spaces
   Maria, Developer, Tokyo                  // No quotes needed
-]`} />
+]`}
+/>
 
 ### 2. Keep Templates Simple
 
@@ -343,13 +364,15 @@ users [
 
 // Bad ❌ - Too many fields in template
 users [
-  template { name, age, category, verified, createdAt, updatedAt }
-  João, 25, adult, true, "2025-11-23", "2025-11-23"
+template { name, age, category, verified, createdAt, updatedAt }
+João, 25, adult, true, "2025-11-23", "2025-11-23"
 ]`} />
 
 ### 3. Use Map for Defaults
 
-<Code lang="jsson" code={`products [
+<Code
+  lang="jsson"
+  code={`products [
   template { name, price }
   
   map (p) = {
@@ -362,7 +385,8 @@ users [
   
   Laptop, 999.99
   Mouse, 29.99
-]`} />
+]`}
+/>
 
 ### 4. Combine with Includes
 
@@ -377,18 +401,20 @@ users [
 include "users.jsson"
 
 app {
-  name = "My App"
+name = "My App"
 }`} />
 
 ## When to Use Templates
 
 **Use templates when:**
+
 - ✅ You have multiple objects with the same structure
 - ✅ You're creating seed data or fixtures
 - ✅ You're defining lists of similar items (routes, products, users)
 - ✅ You want to avoid repetitive JSON
 
 **Don't use templates when:**
+
 - ❌ You only have 1-2 objects (just use regular objects)
 - ❌ Each object has a completely different structure
 - ❌ The data is highly nested (use regular objects instead)
@@ -403,11 +429,14 @@ Error: template expects 3 fields, got 2
 
 **Solution:** Make sure each row has the same number of values as the template:
 
-<Code lang="jsson" code={`users [
+<Code
+  lang="jsson"
+  code={`users [
   template { name, age, email }
   João, 25, "joao@test.com"  // ✅ 3 values
   Maria, 30                   // ❌ Only 2 values
-]`} />
+]`}
+/>
 
 ### Missing Quotes
 
@@ -417,11 +446,14 @@ Error: unexpected token
 
 **Solution:** Use quotes for values with spaces or special characters:
 
-<Code lang="jsson" code={`users [
+<Code
+  lang="jsson"
+  code={`users [
   template { name, title }
   João, Software Engineer      // ❌ Space in "Software Engineer"
   João, "Software Engineer"    // ✅ Quoted
-]`} />
+]`}
+/>
 
 ## What's Next?
 

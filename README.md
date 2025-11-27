@@ -1,8 +1,8 @@
-# JSSON - V0.0.3
+# JSSON - V0.0.4
 
 [![JSSON Banner](https://i.postimg.cc/yx4C3YqC/og.png)](https://postimg.cc/WFnHQVb5)
 
-**JSON Simplified Object Notation** - A human-friendly syntax that transpiles to JSON.
+**JavaScript Simplified Object Notation** - A human-friendly syntax that transpiles to JSON, YAML, TOML, and TypeScript.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![VS Code Extension](https://img.shields.io/badge/VS%20Code-Extension-blue)](https://marketplace.visualstudio.com/items?itemName=carlosedujs.jsson)
@@ -15,6 +15,7 @@
 - [Why JSSON?](#why-jsson)
 - [Quick Start](#quick-start)
 - [Features](#features)
+- [Multi-Format Output](#multi-format-output)
 - [Examples](#examples)
 - [Installation](#installation)
 - [Documentation](#documentation)
@@ -27,7 +28,7 @@
 
 ## 🎯 What is JSSON?
 
-JSSON is a **transpiler** that converts human-friendly syntax into standard JSON. It eliminates the pain points of writing JSON manually while maintaining full JSON compatibility.
+JSSON is a **transpiler** that converts human-friendly syntax into standard configuration formats. It eliminates the pain points of writing JSON manually while maintaining full compatibility.
 
 **JSSON Input:**
 
@@ -95,7 +96,7 @@ app {
 ### 3. Transpile to JSON
 
 ```bash
-jsson -i config.jsson
+jsson -i config.jsson > config.json
 ```
 
 **Output:**
@@ -185,11 +186,37 @@ Full support for nested structures:
 
 ```jsson
 config {
-  methods = ["GET", "POST", "PUT"]
+  methods = [ GET, POST, PUT ]
   nested {
-    items = [1, 2, 3]
+    items = [ 1, 2, 3 ]
   }
 }
+```
+
+---
+
+## Multi-Format Output
+
+JSSON isn't just for JSON anymore. Transpile to your favorite format:
+
+### YAML (Infrastructure)
+
+```bash
+jsson -i config.jsson -f yaml > config.yaml
+```
+
+### TOML (Configuration)
+
+```bash
+jsson -i config.jsson -f toml > config.toml
+```
+
+### TypeScript (Frontend)
+
+Generates `as const` objects and type definitions!
+
+```bash
+jsson -i config.jsson -f ts > config.ts
 ```
 
 ---
@@ -255,8 +282,9 @@ go build -o jsson ./cmd/jsson
 **Usage:**
 
 ```bash
-jsson -i input.jsson              # Output to stdout
-jsson -i input.jsson -o output.json  # Output to file
+jsson -i input.jsson > output.json     # JSON (default)
+jsson -i input.jsson -f yaml > out.yaml # YAML
+jsson -i input.jsson -f ts > out.ts     # TypeScript
 ```
 
 ### VS Code Extension

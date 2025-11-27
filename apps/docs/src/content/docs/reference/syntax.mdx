@@ -140,6 +140,34 @@ mixed = [ João, 25, true, 1.75 ]`} />
 
 > **Power move:** The `map` clause lets you transform each row. Add prefixes, compute values, or inject default fields — all in one place!
 
+### Arrays in Objects
+
+You can use arrays directly as values for object properties:
+
+<Code
+  lang="jsson"
+  code={`server {
+  allowedMethods = [ GET, POST ]
+  features = [ logging, metrics ]
+}`}
+/>
+
+### Arrays in Maps
+
+You can also use arrays inside `map` transformations:
+
+<Code
+  lang="jsson"
+  code={`users [
+  template { name }
+  map (u) = {
+    name = u.name
+    roles = [ user, viewer ] // Default roles
+  }
+  João
+]`}
+/>
+
 ## Expressions 🧮
 
 Compute values instead of hardcoding them:

@@ -272,203 +272,28 @@ cities = [ "São Paulo", "Rio de Janeiro", Tokyo ]`} />
   </TabItem>
 </Tabs>
 
-> **Better way:** For arrays of objects, use [template arrays](/guides/templates/) — they're much cleaner!
+### Arrays in Objects
 
-## Comments
-
-Document your configs with comments — they're ignored during transpilation.
-
-<Code lang="jsson" code={`// This is a single-line comment
-
-// Application settings
-app {
-name = "My App" // Inline comments work too!
-version = "1.0.0"
-
-// Server configuration
-server {
-port = 8080 // Default port
-host = localhost
-}
-}`} />
-
-> **Pro Tip:** Use comments to explain _why_ a setting exists, not just _what_ it is.
-
-## Building from Simple to Complex
-
-Let's build a real-world example step by step.
-
-### Step 1: Basic Info
-
-<Code
-  lang="jsson"
-  code={`name = "My Application"
-version = "1.0.0"
-debug = true`}
-/>
-
-### Step 2: Add Objects
-
-<Code lang="jsson" code={`name = "My Application"
-version = "1.0.0"
-debug = true
-
-server {
-host = localhost
-port = 8080
-}`} />
-
-### Step 3: Add Arrays
-
-<Code lang="jsson" code={`name = "My Application"
-version = "1.0.0"
-debug = true
-
-server {
-host = localhost
-port = 8080
-`}/>
-
-### Booleans
+You can use arrays directly as values for object properties:
 
 <Tabs>
   <TabItem label="JSSON">
-    <Code lang="jsson" code={`active = true
-disabled = false
-isAdmin = true
-hasAccess = false`} />
-  </TabItem>
-
-  <TabItem label="JSON Output">
-    <Code lang="json" code={`{
-  "active": true,
-  "disabled": false,
-  "isAdmin": true,
-  "hasAccess": false
-}`} />
-  </TabItem>
-</Tabs>
-
-## Objects
-
-Objects in JSSON are beautifully simple — no colons, no commas, just clean nesting.
-
-### Simple Objects
-
-<Tabs>
-  <TabItem label="JSSON">
-    <Code lang="jsson" code={`user {
-  name = João
-  age = 25
-  email = "joao@example.com"
+    <Code lang="jsson" code={`server {
+  host = localhost
+  port = 8080
+  allowedMethods = [ GET, POST, PUT, DELETE ]
+  features = [ logging, metrics, tracing ]
 }`} />
   </TabItem>
 
   <TabItem label="JSON Output">
     <Code lang="json" code={`{
-  "user": {
-    "name": "João",
-    "age": 25,
-    "email": "joao@example.com"
+  "server": {
+    "host": "localhost",
+    "port": 8080,
+    "allowedMethods": ["GET", "POST", "PUT", "DELETE"],
+    "features": ["logging", "metrics", "tracing"]
   }
-}`} />
-  </TabItem>
-</Tabs>
-
-### Nested Objects
-
-<Tabs>
-  <TabItem label="JSSON">
-    <Code lang="jsson" code={`user {
-  name = João
-  contact {
-    email = "joao@example.com"
-    phone = "+55 11 99999-9999"
-  }
-  preferences {
-    theme = dark
-    language = pt-BR
-    notifications {
-      email = true
-      push = false
-    }
-  }
-}`} />
-  </TabItem>
-
-  <TabItem label="JSON Output">
-    <Code lang="json" code={`{
-  "user": {
-    "name": "João",
-    "contact": {
-      "email": "joao@example.com",
-      "phone": "+55 11 99999-9999"
-    },
-    "preferences": {
-      "theme": "dark",
-      "language": "pt-BR",
-      "notifications": {
-        "email": true,
-        "push": false
-      }
-    }
-  }
-}`} />
-  </TabItem>
-</Tabs>
-
-> **Use Case:** Objects are perfect for configuration files, API responses, and any hierarchical data.
-
-## Arrays
-
-Arrays in JSSON are just like JSON, but cleaner — no quotes needed for simple values!
-
-### Simple Arrays
-
-<Tabs>
-  <TabItem label="JSSON">
-    <Code lang="jsson" code={`// Numbers
-numbers = [ 1, 2, 3, 4, 5 ]
-
-// Strings (no quotes needed!)
-colors = [ red, blue, green, yellow ]
-
-// Mixed types
-mixed = [ João, 25, true, 1.75 ]
-
-// With quotes when needed
-cities = [ "São Paulo", "Rio de Janeiro", Tokyo ]`} />
-
-  </TabItem>
-
-  <TabItem label="JSON Output">
-    <Code lang="json" code={`{
-  "numbers": [1, 2, 3, 4, 5],
-  "colors": ["red", "blue", "green", "yellow"],
-  "mixed": ["João", 25, true, 1.75],
-  "cities": ["São Paulo", "Rio de Janeiro", "Tokyo"]
-}`} />
-  </TabItem>
-</Tabs>
-
-### Arrays of Objects
-
-<Tabs>
-  <TabItem label="JSSON">
-    <Code lang="jsson" code={`users = [
-  { name = João, age = 25 },
-  { name = Maria, age = 30 },
-  { name = Pedro, age = 28 }
-]`} />
-  </TabItem>
-
-  <TabItem label="JSON Output">
-    <Code lang="json" code={`{
-  "users": [
-    { "name": "João", "age": 25 },
-    { "name": "Maria", "age": 30 },
-    { "name": "Pedro", "age": 28 }
-  ]
 }`} />
   </TabItem>
 </Tabs>
@@ -556,6 +381,12 @@ max = 10
 }`} />
 
 See how natural it feels? No JSON ceremony, just clean configuration!
+
+## Multi-Format Output
+
+Remember, JSSON isn't just for JSON! You can transpile all of this to **YAML**, **TOML**, or **TypeScript** too.
+
+See the [Multi-Format Guide](/guides/multi-format/) for details.
 
 ## What's Next?
 

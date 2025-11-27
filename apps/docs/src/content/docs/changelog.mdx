@@ -3,6 +3,40 @@ title: Changelog
 description: List of changes and improvements by version.
 ---
 
+## v0.0.4 — Universal Meta-Format (2025-11-26)
+
+### New Features
+
+#### Multi-Format Transpilation 🚀
+
+JSSON is no longer just for JSON. You can now transpile your JSSON files into 4 different formats:
+
+- **JSON** (Default)
+- **YAML** (`-f yaml`)
+- **TOML** (`-f toml`)
+- **TypeScript** (`-f typescript`)
+
+#### TypeScript Type Generation
+
+When transpiling to TypeScript, JSSON automatically generates:
+
+- `as const` assertions for immutability
+- Exported type definitions (`export type Config = typeof config`)
+- Fully typed objects ready for use in your frontend or backend
+
+### CLI Updates
+
+- Added `-f` / `--format` flag to specify output format.
+- Improved error messages for invalid formats.
+
+### Website & Playground
+
+- **New Playground:** Now supports tabs for JSON, YAML, TOML, and TypeScript outputs.
+- **Privacy & Terms:** Added legal pages to ensure transparency.
+- **Landing Page:** Updated to reflect JSSON's new universal capabilities.
+
+---
+
 ## v0.0.3.1 2025-11-25
 
 ### Bug Fixes
@@ -162,4 +196,4 @@ Future versions may include:
 - Array methods (filter, map, reduce)
 - More advanced control flow
 
-Stay tuned! 
+Stay tuned!

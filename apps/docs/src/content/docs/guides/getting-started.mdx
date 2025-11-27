@@ -3,7 +3,7 @@ title: Getting Started
 description: Get up and running with JSSON in minutes. Learn how to install, write your first JSSON file, and start transpiling to JSON.
 ---
 
-import { Code, Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import { Code, Tabs, TabItem, Steps } from "@astrojs/starlight/components";
 
 Welcome to JSSON! Let's get you writing cleaner, more readable JSON in just a few minutes. 🚀
 
@@ -12,16 +12,19 @@ Welcome to JSSON! Let's get you writing cleaner, more readable JSON in just a fe
 JSSON makes writing JSON feel natural. No more wrestling with quotes, commas, and brackets. Write configuration files the way you think about them — clean, readable, and human-friendly.
 
 **What makes JSSON special:**
+
 - **No quotes needed** for simple values
 - **Template arrays** turn spreadsheet-like data into structured JSON
 - **Map transformations** for powerful data manipulation
 - **Ranges** generate sequences automatically
 - **Includes** split large configs into manageable files
 - **Expressions** compute values on the fly
+- **Multi-Format Output** (JSON, YAML, TOML, TypeScript)
 
 ## What You'll Learn
 
 By the end of this guide, you'll:
+
 - Install the JSSON CLI
 - Write your first JSSON file
 - Transpile it to JSON
@@ -59,6 +62,7 @@ By the end of this guide, you'll:
 </Steps>
 
 > **Building from source?** If you have Go installed, you can build JSSON yourself:
+>
 > ```bash
 > git clone https://github.com/carlosedujs/jsson
 > cd jsson
@@ -77,23 +81,23 @@ app {
 }
 
 server {
-  host = localhost
-  port = 8080
-}`} />
+host = "localhost"
+port = 8080
+}
+`} />
 
-Notice how clean this is? No quotes around keys, no commas, no fuss!
+### Transpile It
 
-## Transpile to JSON
-
-Now let's convert this to JSON:
+Run the CLI to convert it to JSON:
 
 ```bash
-jsson -i config.jsson -o config.json
+jsson -i config.jsson > config.json
 ```
 
-This creates `config.json` with perfect, valid JSON:
+Open `config.json` and see the result:
 
-<Code lang="json" code={`{
+```json
+{
   "app": {
     "name": "My Awesome App",
     "version": "1.0.0",
@@ -103,28 +107,31 @@ This creates `config.json` with perfect, valid JSON:
     "host": "localhost",
     "port": 8080
   }
-}`} />
+}
+```
 
-**That's it!** You just wrote and transpiled your first JSSON file. 🎉
+## Core Concepts
 
-## Understanding the Basics
-
-Let's break down what makes JSSON special:
-
-### 1. No Quotes Needed (Usually)
+### 1. No Quotes Needed
 
 <Tabs>
   <TabItem label="JSSON">
-    <Code lang="jsson" code={`name = João
+    <Code
+      lang="jsson"
+      code={`name = João
 city = "São Paulo"  // Use quotes for spaces
-age = 25`} />
+age = 25`}
+    />
   </TabItem>
   <TabItem label="JSON">
-    <Code lang="json" code={`{
+    <Code
+      lang="json"
+      code={`{
   "name": "João",
   "city": "São Paulo",
   "age": 25
-}`} />
+}`}
+    />
   </TabItem>
 </Tabs>
 
@@ -134,18 +141,24 @@ age = 25`} />
 
 <Tabs>
   <TabItem label="JSSON">
-    <Code lang="jsson" code={`user {
+    <Code
+      lang="jsson"
+      code={`user {
   name = João
   email = joao@example.com
-}`} />
+}`}
+    />
   </TabItem>
   <TabItem label="JSON">
-    <Code lang="json" code={`{
+    <Code
+      lang="json"
+      code={`{
   "user": {
     "name": "João",
     "email": "joao@example.com"
   }
-}`} />
+}`}
+    />
   </TabItem>
 </Tabs>
 
@@ -153,16 +166,22 @@ age = 25`} />
 
 <Tabs>
   <TabItem label="JSSON">
-    <Code lang="jsson" code={`colors = [ red, blue, green ]
+    <Code
+      lang="jsson"
+      code={`colors = [ red, blue, green ]
 numbers = [ 1, 2, 3, 4, 5 ]
-mixed = [ João, 25, true ]`} />
+mixed = [ João, 25, true ]`}
+    />
   </TabItem>
   <TabItem label="JSON">
-    <Code lang="json" code={`{
+    <Code
+      lang="json"
+      code={`{
   "colors": ["red", "blue", "green"],
   "numbers": [1, 2, 3, 4, 5],
   "mixed": ["João", 25, true]
-}`} />
+}`}
+    />
   </TabItem>
 </Tabs>
 
@@ -222,13 +241,13 @@ user {
 
 ## Quick Reference
 
-| Feature | JSSON | JSON |
-|---------|-------|------|
-| **Keys** | `name = value` | `"name": value` |
-| **Strings** | `João` or `"João"` | `"João"` |
-| **Objects** | `obj { ... }` | `"obj": { ... }` |
-| **Arrays** | `[ a, b, c ]` | `["a", "b", "c"]` |
-| **Comments** | `// comment` | ❌ Not supported |
+| Feature      | JSSON              | JSON              |
+| ------------ | ------------------ | ----------------- |
+| **Keys**     | `name = value`     | `"name": value`   |
+| **Strings**  | `João` or `"João"` | `"João"`          |
+| **Objects**  | `obj { ... }`      | `"obj": { ... }`  |
+| **Arrays**   | `[ a, b, c ]`      | `["a", "b", "c"]` |
+| **Comments** | `// comment`       | ❌ Not supported  |
 
 ## Try It Yourself!
 
@@ -252,7 +271,7 @@ luckyNumbers = [ 7, 13, 42 ]`} />
 Then transpile it:
 
 ```bash
-jsson -i practice.jsson -o practice.json
+jsson -i practice.jsson > practice.json
 ```
 
 Open `practice.json` and see the beautiful JSON output!
@@ -263,6 +282,7 @@ Now that you've got the basics down, here's where to go:
 
 - **[Basic Syntax Guide](/guides/basic-syntax/)** — Learn all the syntax features in detail
 - **[Templates Guide](/guides/templates/)** — Discover the power of template arrays for structured data
+- **[Multi-Format Guide](/guides/multi-format/)** — Learn how to output YAML, TOML, and TypeScript
 - **[Syntax Reference](/reference/syntax/)** — Complete reference with all features and examples
 
 Ready to dive deeper? Let's go! 🎯

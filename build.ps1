@@ -1,7 +1,7 @@
 # Build script for JSSON v0.0.3
 # Builds binaries for Windows, Linux, and macOS
 
-$VERSION = "v0.0.3"
+$VERSION = "v0.0.4"
 $OUTPUT_DIR = "dist/$VERSION"
 
 # Create output directory

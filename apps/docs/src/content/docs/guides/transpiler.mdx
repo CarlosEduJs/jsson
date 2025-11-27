@@ -3,16 +3,16 @@ title: Transpiler Usage Guide
 description: Learn how the JSSON transpiler works, how to use it programmatically, and how to extend it for custom output formats.
 ---
 
-import { Code } from '@astrojs/starlight/components';
+import { Code } from "@astrojs/starlight/components";
 
-The JSSON transpiler is the engine that converts your clean JSSON syntax into valid JSON. Let's explore how it works and how to use it! ⚙️
+The JSSON transpiler is the engine that converts your clean JSSON syntax into valid JSON, YAML, TOML, or TypeScript. Let's explore how it works and how to use it! ⚙️
 
 ## How It Works
 
 The transpiler follows a three-stage pipeline:
 
 ```
-JSSON Source → Lexer → Parser → Transpiler → JSON Output
+JSSON Source → Lexer → Parser → Transpiler → Output
 ```
 
 ### 1. Lexer (Tokenization)
@@ -40,9 +40,9 @@ Program
     └── value: StringLiteral("João")
 ```
 
-### 3. Transpiler (JSON Generation)
+### 3. Transpiler (Code Generation)
 
-Converts the AST to JSON:
+Converts the AST to the target format (JSON, YAML, etc.):
 
 ```json
 {
@@ -57,7 +57,14 @@ Converts the AST to JSON:
 The easiest way:
 
 ```bash
+# Default (JSON)
 jsson -i input.jsson -o output.json
+
+# YAML
+jsson -i input.jsson -f yaml
+
+# TypeScript
+jsson -i input.jsson -f ts
 ```
 
 ### Programmatic Usage (Go)
@@ -82,14 +89,14 @@ func main() {
         version = "1.0.0"
     }
     `
-    
+
     // Step 1: Lex
     l := lexer.New(source)
-    
+
     // Step 2: Parse
     p := parser.New(l)
     program := p.ParseProgram()
-    
+
     // Check for parse errors
     if len(p.Errors()) > 0 {
         for _, err := range p.Errors() {
@@ -97,16 +104,19 @@ func main() {
         }
         return
     }
-    
+
     // Step 3: Transpile
-    t := transpiler.New()
-    json, err := t.Transpile(program)
+    // New(program, workingDir, includeMode, sourceFile)
+    t := transpiler.New(program, ".", "keep", "main.jsson")
+
+    // Transpile to JSON
+    json, err := t.Transpile()
     if err != nil {
         fmt.Println("Transpile error:", err)
         return
     }
-    
-    fmt.Println(json)
+
+    fmt.Println(string(json))
 }
 ```
 
@@ -118,6 +128,7 @@ package main
 import (
     "fmt"
     "os"
+    "path/filepath"
     "jsson/internal/lexer"
     "jsson/internal/parser"
     "jsson/internal/transpiler"
@@ -129,49 +140,61 @@ func transpileFile(inputPath, outputPath string) error {
     if err != nil {
         return err
     }
-    
+
     // Lex and parse
     l := lexer.New(string(content))
     l.SetSourceFile(inputPath)  // For better error messages
-    
+
     p := parser.New(l)
     program := p.ParseProgram()
-    
+
     if len(p.Errors()) > 0 {
         for _, err := range p.Errors() {
             fmt.Println(err)
         }
         return fmt.Errorf("parse errors")
     }
-    
+
     // Transpile
-    t := transpiler.New()
-    json, err := t.Transpile(program)
+    workingDir := filepath.Dir(inputPath)
+    t := transpiler.New(program, workingDir, "keep", inputPath)
+
+    json, err := t.Transpile()
     if err != nil {
         return err
     }
-    
-    // Write output
-    return os.WriteFile(outputPath, []byte(json), 0644)
-}
 
-func main() {
-    err := transpileFile("config.jsson", "config.json")
-    if err != nil {
-        fmt.Println("Error:", err)
-        os.Exit(1)
-    }
+    // Write output
+    return os.WriteFile(outputPath, json, 0644)
 }
 ```
 
 ## Output Formats
 
-Currently, JSSON transpiles to JSON. Future versions may support:
+JSSON currently supports transpilation to:
 
-- **YAML** — For Kubernetes configs
-- **TOML** — For Rust/Go configs
-- **XML** — For legacy systems
-- **Custom formats** — Via plugins
+- **JSON** (Default) — For APIs and general config
+- **YAML** — For Kubernetes, CI/CD, and cloud infrastructure
+- **TOML** — For Rust/Go/Python configuration
+- **TypeScript** — For type-safe frontend constants
+
+### Selecting Format
+
+In the Go API, use the specific method for your desired format:
+
+```go
+// JSON
+json, _ := t.Transpile()
+
+// YAML
+yaml, _ := t.TranspileToYAML()
+
+// TOML
+toml, _ := t.TranspileToTOML()
+
+// TypeScript
+ts, _ := t.TranspileToTypeScript()
+```
 
 ## Performance Considerations
 
@@ -189,7 +212,6 @@ The transpiler loads the entire file into memory. For very large files (> 10MB),
 
 1. **Splitting with includes**
 2. **Processing in chunks**
-3. **Streaming (future feature)**
 
 ### Optimization Tips
 
@@ -260,27 +282,6 @@ See the [Errors & Debugging](/reference/errors/) guide for details!
 
 ## Extending the Transpiler
 
-### Custom Output Format (Future)
-
-```go
-// Future API (not yet implemented)
-type OutputFormatter interface {
-    Format(program *ast.Program) (string, error)
-}
-
-type YAMLFormatter struct{}
-
-func (y *YAMLFormatter) Format(program *ast.Program) (string, error) {
-    // Convert AST to YAML
-    return yaml, nil
-}
-
-// Usage
-t := transpiler.New()
-t.SetFormatter(&YAMLFormatter{})
-output, _ := t.Transpile(program)
-```
-
 ### Custom Transformations
 
 You can modify the AST before transpiling:
@@ -303,7 +304,8 @@ func addTimestamp(program *ast.Program) {
 // Use it
 program := p.ParseProgram()
 addTimestamp(program)
-json, _ := t.Transpile(program)
+t := transpiler.New(program, ".", "keep", "main.jsson")
+json, _ := t.Transpile()
 ```
 
 ## Integration Examples
@@ -315,6 +317,7 @@ package main
 
 import (
     "net/http"
+    "io"
     "jsson/internal/lexer"
     "jsson/internal/parser"
     "jsson/internal/transpiler"
@@ -323,61 +326,31 @@ import (
 func transpileHandler(w http.ResponseWriter, r *http.Request) {
     // Read JSSON from request body
     body, _ := io.ReadAll(r.Body)
-    
+
     // Transpile
     l := lexer.New(string(body))
     p := parser.New(l)
     program := p.ParseProgram()
-    
+
     if len(p.Errors()) > 0 {
         http.Error(w, p.Errors()[0], http.StatusBadRequest)
         return
     }
-    
-    t := transpiler.New()
-    json, err := t.Transpile(program)
+
+    t := transpiler.New(program, ".", "keep", "request.jsson")
+    json, err := t.Transpile()
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
-    
+
     w.Header().Set("Content-Type", "application/json")
-    w.Write([]byte(json))
+    w.Write(json)
 }
 
 func main() {
     http.HandleFunc("/transpile", transpileHandler)
     http.ListenAndServe(":8080", nil)
-}
-```
-
-### Build Tool Plugin
-
-```go
-// Webpack/Vite plugin concept
-func JssonPlugin() {
-    return Plugin{
-        Name: "jsson",
-        Transform: func(code, id string) (string, error) {
-            if !strings.HasSuffix(id, ".jsson") {
-                return code, nil
-            }
-            
-            // Transpile JSSON to JSON
-            l := lexer.New(code)
-            p := parser.New(l)
-            program := p.ParseProgram()
-            
-            t := transpiler.New()
-            json, err := t.Transpile(program)
-            if err != nil {
-                return "", err
-            }
-            
-            // Return as JS module
-            return fmt.Sprintf("export default %s", json), nil
-        },
-    }
 }
 ```
 

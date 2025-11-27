@@ -9,17 +9,30 @@ import (
 	"jsson/internal/transpiler"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func main() {
 	inputPtr := flag.String("i", "", "Input JSSON file")
-	// include merge mode: keep (default), overwrite, error
+	formatPtr := flag.String("f", "json", "Output format: json|yaml|toml")
 	mergeMode := flag.String("include-merge", "keep", "Include merge strategy: keep|overwrite|error")
 	flag.Parse()
 
 	if *inputPtr == "" {
 		fmt.Println("Please provide an input file with -i")
 		os.Exit(1)
+	}
+
+	// Validate format
+	format := strings.ToLower(*formatPtr)
+	if format != "json" && format != "yaml" && format != "toml" && format != "typescript" && format != "ts" {
+		fmt.Printf("Invalid format: %s. Must be json, yaml, toml, typescript, or ts\n", *formatPtr)
+		os.Exit(1)
+	}
+
+	// Normalize typescript aliases
+	if format == "ts" {
+		format = "typescript"
 	}
 
 	data, err := ioutil.ReadFile(*inputPtr)
@@ -50,11 +63,23 @@ func main() {
 	}
 
 	t := transpiler.New(program, baseDir, *mergeMode, absInput)
-	jsonOutput, err := t.Transpile()
+
+	var output []byte
+	switch format {
+	case "json":
+		output, err = t.Transpile()
+	case "yaml":
+		output, err = t.TranspileToYAML()
+	case "toml":
+		output, err = t.TranspileToTOML()
+	case "typescript":
+		output, err = t.TranspileToTypeScript()
+	}
+
 	if err != nil {
 		fmt.Printf("Transpilation error: %v\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Println(string(jsonOutput))
+	fmt.Println(string(output))
 }

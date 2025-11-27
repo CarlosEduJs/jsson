@@ -3,13 +3,14 @@ title: Include Modules Guide
 description: Learn how to split large JSSON files into modular, reusable pieces using the include statement.
 ---
 
-import { Code, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Code, Tabs, TabItem } from "@astrojs/starlight/components";
 
 As your configurations grow, keeping everything in one file becomes messy. JSSON's `include` statement lets you split your configs into logical, reusable modules. Let's learn how! 🧩
 
 ## Why Use Includes?
 
 **Without includes:**
+
 ```jsson
 // One massive 500-line config file 😰
 app {
@@ -28,6 +29,7 @@ api {
 ```
 
 **With includes:**
+
 ```jsson
 // main.jsson - Clean and organized! 😎
 include "app.jsson"
@@ -48,7 +50,10 @@ That's it! The contents of the included file are merged into your main file.
 ### Example: Database Config
 
 **database.jsson:**
-<Code lang="jsson" code={`database {
+
+<Code
+  lang="jsson"
+  code={`database {
   host = "localhost"
   port = 5432
   name = myapp_db
@@ -57,9 +62,11 @@ That's it! The contents of the included file are merged into your main file.
     min = 2
     max = 10
   }
-}`} />
+}`}
+/>
 
 **main.jsson:**
+
 <Code lang="jsson" code={`app {
   name = "My Application"
   version = "1.0.0"
@@ -68,7 +75,10 @@ That's it! The contents of the included file are merged into your main file.
 include "database.jsson"`} />
 
 **Result (JSON):**
-<Code lang="json" code={`{
+
+<Code
+  lang="json"
+  code={`{
   "app": {
     "name": "My Application",
     "version": "1.0.0"
@@ -82,7 +92,8 @@ include "database.jsson"`} />
       "max": 10
     }
   }
-}`} />
+}`}
+/>
 
 ## File Paths
 
@@ -117,6 +128,7 @@ project/
 ```
 
 **main.jsson:**
+
 <Code lang="jsson" code={`// Core configuration
 include "app.jsson"
 include "database.jsson"
@@ -130,7 +142,10 @@ include "environments/dev.jsson"`} />
 Let's build a complete application configuration using modules.
 
 ### app.jsson
-<Code lang="jsson" code={`app {
+
+<Code
+  lang="jsson"
+  code={`app {
   name = "E-Commerce Platform"
   version = "2.1.0"
   debug = false
@@ -140,10 +155,14 @@ Let's build a complete application configuration using modules.
     recommendations = true
     analytics = true
   }
-}`} />
+}`}
+/>
 
 ### database.jsson
-<Code lang="jsson" code={`database {
+
+<Code
+  lang="jsson"
+  code={`database {
   primary {
     host = "db.example.com"
     port = 5432
@@ -162,10 +181,14 @@ Let's build a complete application configuration using modules.
     max = 20
     timeout = 30000
   }
-}`} />
+}`}
+/>
 
 ### api.jsson
-<Code lang="jsson" code={`api {
+
+<Code
+  lang="jsson"
+  code={`api {
   baseUrl = "https://api.example.com"
   version = "v2"
   timeout = 5000
@@ -181,10 +204,14 @@ Let's build a complete application configuration using modules.
     requests = 100
     window = 60
   }
-}`} />
+}`}
+/>
 
 ### cache.jsson
-<Code lang="jsson" code={`cache {
+
+<Code
+  lang="jsson"
+  code={`cache {
   redis {
     host = "cache.example.com"
     port = 6379
@@ -195,6 +222,211 @@ Let's build a complete application configuration using modules.
     products = aggressive
     users = moderate
     orders = minimal
+  }
+}`}
+/>
+
+### main.jsson
+
+<Code lang="jsson" code={`// Main configuration file
+include "app.jsson"
+include "database.jsson"
+include "api.jsson"
+include "cache.jsson"
+
+// Additional settings
+monitoring {
+enabled = true
+service = datadog
+apiKey = "your-api-key"
+}`} />
+
+Now you have a clean, modular configuration that's easy to maintain!
+
+## Multiple Includes
+
+You can include as many files as you need:
+
+<Code
+  lang="jsson"
+  code={`include "app.jsson"
+include "database.jsson"
+include "api.jsson"
+include "cache.jsson"
+include "monitoring.jsson"
+include "logging.jsson"`}
+/>
+
+Files are processed in order, top to bottom.
+
+## Environment-Specific Configs
+
+Use includes to handle different environments:
+
+### base.jsson (shared settings)
+
+<Code lang="jsson" code={`app {
+  name = "My App"
+  version = "1.0.0"
+}
+
+features {
+analytics = true
+logging = true
+}`} />
+
+### dev.jsson
+
+<Code lang="jsson" code={`include "base.jsson"
+
+app {
+debug = true
+}
+
+database {
+host = localhost
+port = 5432
+}`} />
+
+### prod.jsson
+
+<Code lang="jsson" code={`include "base.jsson"
+
+app {
+debug = false
+}
+
+database {
+host = "prod-db.example.com"
+port = 5432
+ssl = true
+}`} />
+
+Then use the appropriate file for each environment!
+
+## Best Practices
+
+### 1. Organize by Concern
+
+Group related settings together:
+
+```
+config/
+├── app.jsson          # Application settings
+├── database.jsson     # All database config
+├── api.jsson          # API configuration
+├── auth.jsson         # Authentication
+└── monitoring.jsson   # Monitoring & logging
+```
+
+### 2. Use Descriptive Names
+
+<Code lang="jsson" code={`// Good ✅
+include "database-config.jsson"
+include "api-endpoints.jsson"
+
+// Bad ❌
+include "config1.jsson"
+include "stuff.jsson"`} />
+
+### 3. Keep Includes at the Top
+
+<Code lang="jsson" code={`// Good ✅
+include "database.jsson"
+include "api.jsson"
+
+app {
+name = "My App"
+}
+
+// Bad ❌
+app {
+name = "My App"
+}
+include "database.jsson" // Harder to see what's included`} />
+
+### 4. Don't Nest Too Deeply
+
+<Code lang="jsson" code={`// Avoid this:
+// main.jsson includes config.jsson
+// config.jsson includes database.jsson
+// database.jsson includes pool.jsson
+// pool.jsson includes limits.jsson
+
+// Keep it simple - 1-2 levels max`} />
+
+### 5. Document Your Includes
+
+<Code lang="jsson" code={`// Main configuration
+// Includes: app, database, API, and cache settings
+
+include "app.jsson" // Application configuration
+include "database.jsson" // Database connection and pool
+include "api.jsson" // External API settings
+include "cache.jsson" // Redis cache configuration`} />
+
+## Common Patterns
+
+### Pattern 1: Shared + Environment
+
+```
+config/
+├── shared.jsson       # Common settings
+├── dev.jsson          # Development (includes shared)
+├── staging.jsson      # Staging (includes shared)
+└── prod.jsson         # Production (includes shared)
+```
+
+### Pattern 2: Feature Modules
+
+```
+config/
+├── main.jsson
+└── features/
+    ├── auth.jsson
+    ├── payments.jsson
+    ├── notifications.jsson
+    └── analytics.jsson
+```
+
+### Pattern 3: Service-Based
+
+```
+config/
+├── main.jsson
+└── services/
+    ├── database.jsson
+    ├── cache.jsson
+    ├── queue.jsson
+    └── storage.jsson
+```
+
+## Troubleshooting
+
+### File Not Found
+
+```
+Error: include file not found: database.jsson
+```
+
+**Solution:** Check that:
+
+1. The file exists
+2. The path is correct (relative to the including file)
+3. The file extension is `.jsson`
+
+### Circular Dependencies
+
+```
+Error: circular include detected
+```
+
+**Solution:** Don't have files include each other:
+
+```
+// ❌ Bad
+// a.jsson includes b.jsson
+// b.jsson includes a.jsson
   }
 }`} />
 
@@ -276,12 +508,14 @@ Then use the appropriate file for each environment!
 Group related settings together:
 
 ```
+
 config/
-├── app.jsson          # Application settings
-├── database.jsson     # All database config
-├── api.jsson          # API configuration
-├── auth.jsson         # Authentication
-└── monitoring.jsson   # Monitoring & logging
+├── app.jsson # Application settings
+├── database.jsson # All database config
+├── api.jsson # API configuration
+├── auth.jsson # Authentication
+└── monitoring.jsson # Monitoring & logging
+
 ```
 
 ### 2. Use Descriptive Names
@@ -335,35 +569,41 @@ include "cache.jsson"     // Redis cache configuration`} />
 ### Pattern 1: Shared + Environment
 
 ```
+
 config/
-├── shared.jsson       # Common settings
-├── dev.jsson          # Development (includes shared)
-├── staging.jsson      # Staging (includes shared)
-└── prod.jsson         # Production (includes shared)
+├── shared.jsson # Common settings
+├── dev.jsson # Development (includes shared)
+├── staging.jsson # Staging (includes shared)
+└── prod.jsson # Production (includes shared)
+
 ```
 
 ### Pattern 2: Feature Modules
 
 ```
+
 config/
 ├── main.jsson
 └── features/
-    ├── auth.jsson
-    ├── payments.jsson
-    ├── notifications.jsson
-    └── analytics.jsson
+├── auth.jsson
+├── payments.jsson
+├── notifications.jsson
+└── analytics.jsson
+
 ```
 
 ### Pattern 3: Service-Based
 
 ```
+
 config/
 ├── main.jsson
 └── services/
-    ├── database.jsson
-    ├── cache.jsson
-    ├── queue.jsson
-    └── storage.jsson
+├── database.jsson
+├── cache.jsson
+├── queue.jsson
+└── storage.jsson
+
 ```
 
 ## Troubleshooting
@@ -371,7 +611,9 @@ config/
 ### File Not Found
 
 ```
+
 Error: include file not found: database.jsson
+
 ```
 
 **Solution:** Check that:
@@ -382,18 +624,36 @@ Error: include file not found: database.jsson
 ### Circular Dependencies
 
 ```
+
 Error: circular include detected
+
 ```
 
 **Solution:** Don't have files include each other:
 ```
+
 // ❌ Bad
 // a.jsson includes b.jsson
 // b.jsson includes a.jsson
 
 // ✅ Good
 // main.jsson includes both a.jsson and b.jsson
-```
+
+````
+
+## Includes and Multi-Format
+
+Includes work seamlessly with **all** output formats. The merging happens *before* transpilation, so you can use includes to organize your config and then output to whatever format you need:
+
+```bash
+# Merge includes and output YAML
+jsson -i main.jsson -f yaml > config.yaml
+
+# Merge includes and output TypeScript
+jsson -i main.jsson -f ts > config.ts
+````
+
+This makes JSSON a powerful way to manage complex configurations for any tool!
 
 ## What's Next?
 

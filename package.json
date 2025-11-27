@@ -2,7 +2,7 @@
   "name": "jsson",
   "displayName": "JSSON - Simplified JSON Transpiler",
   "description": "Syntax highlighting for JSSON - JSON Simplified Object Notation",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "publisher": "carlosedujs",
   "icon": "assets/sm.png",
   "engines": {
@@ -25,8 +25,13 @@
     "languages": [
       {
         "id": "jsson",
-        "aliases": ["JSSON", "jsson"],
-        "extensions": [".jsson"],
+        "aliases": [
+          "JSSON",
+          "jsson"
+        ],
+        "extensions": [
+          ".jsson"
+        ],
         "configuration": "./language-configuration.json",
         "icon": {
           "light": "./assets/sm.svg",

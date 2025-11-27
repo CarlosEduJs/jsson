@@ -73,6 +73,7 @@ export default defineConfig({
         {
           label: "Guides",
           items: [
+            { label: "Multi-Format Output", slug: "guides/multi-format" },
             { label: "Templates & Arrays", slug: "guides/templates" },
             { label: "Includes & Modules", slug: "guides/include-modules" },
             { label: "CLI Usage", slug: "guides/cli" },
@@ -84,6 +85,7 @@ export default defineConfig({
           label: "Reference",
           items: [
             { label: "Syntax Reference", slug: "reference/syntax" },
+            { label: "Go API Reference", slug: "api/transpiler" },
             { label: "Errors & Debugging", slug: "reference/errors" },
             { label: "AST Reference", slug: "reference/ast" },
           ],
