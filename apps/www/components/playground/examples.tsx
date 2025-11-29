@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import {
   Sheet,
@@ -11,12 +11,10 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "../ui/sheet";
-import {
-  ChevronRight,
-  BookOpen,
-} from "lucide-react";
+import { ChevronRight, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EXAMPLES } from "./examples-data";
+import { Kbd, KbdGroup } from "../ui/kbd";
 
 interface ExamplesSheetProps {
   onSelect: (code: string) => void;
@@ -30,16 +28,27 @@ export default function ExamplesSheet({ onSelect }: ExamplesSheetProps) {
     setOpen(false);
   };
 
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "e" && e.altKey) {
+        setOpen(true);
+      }
+    };
+
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [open]);
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger
-        render={
-          <Button variant="outline" className="gap-2">
-            <BookOpen className="h-4 w-4" />
-            Examples
-          </Button>
-        }
-      ></SheetTrigger>
+      <SheetTrigger render={<Button variant="secondary" className="gap-2" />}>
+        <BookOpen className="h-4 w-4" />
+        Examples
+        <KbdGroup>
+          <Kbd>ALT</Kbd>
+          <Kbd>E</Kbd>
+        </KbdGroup>
+      </SheetTrigger>
 
       <SheetContent className="sm:max-w-xl overflow-y-auto">
         <SheetHeader className="mb-6">

@@ -4,13 +4,16 @@ import Editor, { useMonaco, OnMount } from "@monaco-editor/react";
 import { useEffect } from "react";
 import { Button } from "../ui/button";
 import ExamplesSheet from "./examples";
+import { Kbd, KbdGroup } from "../ui/kbd";
+import { Play } from "lucide-react";
 
 interface JSSONEditorProps {
   value: string;
   onChange: (value: string | undefined) => void;
+  runCode: () => void;
 }
 
-export function JSSONEditor({ value, onChange }: JSSONEditorProps) {
+export function JSSONEditor({ value, onChange, runCode }: JSSONEditorProps) {
   const monaco = useMonaco();
 
   useEffect(() => {
@@ -105,6 +108,17 @@ export function JSSONEditor({ value, onChange }: JSSONEditorProps) {
     }
   }, [monaco]);
 
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.altKey && e.key === "r") {
+        runCode();
+      }
+    };
+
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [runCode]);
+
   function approximateTokens(text: string) {
     if (!text) return 0;
 
@@ -112,45 +126,57 @@ export function JSSONEditor({ value, onChange }: JSSONEditorProps) {
   }
 
   return (
-    <div className="h-full w-full overflow-hidden bg-card/50 backdrop-blur-sm shadow-sm">
+    <div className="h-full w-full flex flex-col overflow-hidden shadow-sm">
       <div className="flex items-center justify-between px-6 py-2 border-b border-border bg-muted/30">
         <span className="text-xs font-medium text-muted-foreground">
           input.jsson
         </span>
 
         <div className="flex items-center gap-2">
-          <h3 className="text-muted-foreground text-xs border-r pr-2">
-            {value.split("\n").length} lines | {value.length} chars | ~{" "}
-            {approximateTokens(value)} tokens
-          </h3>
-
           <Button variant={"destructive-outline"} onClick={() => onChange("")}>
             Clear
           </Button>
           <ExamplesSheet onSelect={(code) => onChange(code)} />
+          <Button onClick={runCode} size={"sm"}>
+            <Play className="h-4 w-4" />
+            Run
+            <KbdGroup>
+              <Kbd>CTRL</Kbd>
+              <Kbd>ALT</Kbd>
+              <Kbd>R</Kbd>
+            </KbdGroup>
+          </Button>
         </div>
       </div>
-      <Editor
-        height="100%"
-        defaultLanguage="jsson"
-        theme="jsson-dark"
-        value={value}
-        onChange={onChange}
-        options={{
-          minimap: { enabled: false },
-          fontSize: 14,
-          fontFamily: "Geist Mono, monospace",
-          padding: { top: 16 },
-          scrollBeyondLastLine: false,
-          automaticLayout: true,
-          lineNumbers: "on",
-          renderLineHighlight: "all",
-          scrollbar: {
-            vertical: "visible",
-            horizontal: "visible",
-          },
-        }}
-      />
+      <div className="flex-1 min-h-0">
+        <Editor
+          height="100%"
+          defaultLanguage="jsson"
+          theme="jsson-dark"
+          value={value}
+          onChange={onChange}
+          options={{
+            minimap: { enabled: false },
+            fontSize: 14,
+            fontFamily: "Geist Mono, monospace",
+            padding: { top: 16 },
+            scrollBeyondLastLine: false,
+            automaticLayout: true,
+            lineNumbers: "on",
+            renderLineHighlight: "all",
+            scrollbar: {
+              vertical: "visible",
+              horizontal: "visible",
+            },
+          }}
+        />
+      </div>
+      <div className="flex items-center justify-start px-6 py-2 border-t border-border bg-muted/30">
+        <h3 className="text-muted-foreground text-xs">
+          {value.split("\n").length} lines | {value.length} chars | ~{" "}
+          {approximateTokens(value)} tokens
+        </h3>
+      </div>
     </div>
   );
 }

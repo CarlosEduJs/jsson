@@ -58,7 +58,7 @@ export function useTranspiler(initialCode: string = "") {
         loadWasm();
     }, []);
 
-    const transpile = useCallback((sourceCode: string) => {
+    const transpile = useCallback((sourceCode: string, format: string = "json") => {
         if (!isWasmLoaded) return;
 
         setIsTranspiling(true);
@@ -67,7 +67,7 @@ export function useTranspiler(initialCode: string = "") {
         try {
             setTimeout(() => {
                 if (window.transpileJSSON) {
-                    const result = window.transpileJSSON(sourceCode);
+                    const result = window.transpileJSSON(sourceCode, format);
                     if (result.error) {
                         setError(result.error);
                     } else {
@@ -82,16 +82,10 @@ export function useTranspiler(initialCode: string = "") {
         }
     }, [isWasmLoaded]);
 
-    // Debounce transpilation
-    useEffect(() => {
-        if (!isWasmLoaded) return;
 
-        const timer = setTimeout(() => {
-            transpile(code);
-        }, 500); // 500ms debounce
-
-        return () => clearTimeout(timer);
-    }, [code, transpile, isWasmLoaded]);
+    function runCode(format: string = "json") {
+        transpile(code, format);
+    }
 
     return {
         code,
@@ -100,5 +94,6 @@ export function useTranspiler(initialCode: string = "") {
         error,
         isTranspiling,
         isWasmLoaded,
+        runCode,
     };
 }

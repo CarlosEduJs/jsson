@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { CodeBlock } from "../shared/code-block";
+import Editor from "@monaco-editor/react";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import { Button } from "../ui/button";
-import { Copy } from "lucide-react";
+import { Copy, Download } from "lucide-react";
 import { toastManager } from "@/components/ui/toast";
 import {
   Select,
@@ -19,7 +19,7 @@ import {
 import { usePlaygroundContext } from "@/contexts/playground-context";
 
 interface OutputViewerProps {
-  jssonCode: string;
+  output: string;
   error?: string | null;
 }
 
@@ -39,19 +39,17 @@ const structuredFormats = [
 ];
 const typedFormats = [
   {
-    value: "typescript",
+    value: "ts",
     label: "TypeScript",
   },
 ];
 
-export function OutputViewer({ jssonCode, error }: OutputViewerProps) {
+export function OutputViewer({ output, error }: OutputViewerProps) {
   const {
     format,
     setFormat,
     setOutput: setContextOutput,
   } = usePlaygroundContext();
-  const [output, setOutput] = useState("");
-  const [transpileError, setTranspileError] = useState<string | null>(null);
 
   function approxTokens(text: string) {
     if (!text) return 0;
@@ -59,29 +57,22 @@ export function OutputViewer({ jssonCode, error }: OutputViewerProps) {
     return Math.ceil(text.length / 3.5);
   }
 
+  // Map format to Monaco language
+  function getMonacoLanguage(format: string): string {
+    const languageMap: Record<string, string> = {
+      json: "json",
+      yaml: "yaml",
+      toml: "ini",
+      ts: "typescript",
+    };
+    return languageMap[format] || "json";
+  }
+
   useEffect(() => {
-    if (!jssonCode || error) {
-      setOutput("");
-      setContextOutput("");
-      return;
-    }
+    setContextOutput(output);
+  }, [output, setContextOutput]);
 
-    if (window.transpileJSSON) {
-      const result = window.transpileJSSON(jssonCode, format);
-
-      if (result.error) {
-        setTranspileError(result.error);
-        setOutput("");
-        setContextOutput("");
-      } else {
-        setTranspileError(null);
-        setOutput(result.output || "");
-        setContextOutput(result.output || "");
-      }
-    }
-  }, [jssonCode, format, error, setContextOutput]);
-
-  const displayError = error || transpileError;
+  const displayError = error;
 
   const metrics = useMemo(() => {
     if (!output) {
@@ -99,6 +90,33 @@ export function OutputViewer({ jssonCode, error }: OutputViewerProps) {
     };
   }, [output]);
 
+  useEffect(() => {}, [format]);
+
+  function generateDownload() {
+    try {
+      const blob = new Blob([output], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `output.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toastManager.add({
+        title: "Downloaded!",
+        description: "Output downloaded.",
+        type: "success",
+      });
+    } catch (error) {
+      toastManager.add({
+        title: "Error",
+        description: "Failed to download output.",
+        type: "error",
+      });
+    }
+  }
+
   function copyToClipboard() {
     navigator.clipboard.writeText(output);
     toastManager.add({
@@ -108,7 +126,7 @@ export function OutputViewer({ jssonCode, error }: OutputViewerProps) {
   }
 
   return (
-    <div className="h-full w-full flex flex-col  overflow-hidden border-l bg-card/50 backdrop-blur-sm shadow-sm">
+    <div className="h-full w-full flex flex-col border-l overflow-hidden shadow-sm">
       <div className="flex items-center justify-between px-6 py-2 border-b border-border bg-muted/30">
         <div className="flex items-center gap-2">
           <span className="text-xs font-medium text-muted-foreground">
@@ -145,13 +163,6 @@ export function OutputViewer({ jssonCode, error }: OutputViewerProps) {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="text-muted-foreground text-xs border-r pr-3">
-            <span className="font-semibold">{metrics.lines}</span> lines |
-            <span className="font-semibold"> {metrics.chars}</span> chars |
-            <span className="font-semibold"> ~ {approxTokens(output)}</span>{" "}
-            tokens
-          </div>
-
           <Button
             variant="ghost"
             size="sm"
@@ -161,22 +172,50 @@ export function OutputViewer({ jssonCode, error }: OutputViewerProps) {
             <Copy className="h-4 w-4" />
             Copy
           </Button>
+          <Button size="sm" disabled={!output} onClick={generateDownload}>
+            <Download className="h-4 w-4" />
+            Download File
+          </Button>
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto bg-card/50 p-0">
+      <div className="flex-1 min-h-0">
         {displayError ? (
           <div className="p-4 text-red-400 font-mono text-sm">
             Error: {displayError}
           </div>
         ) : (
-          <CodeBlock
-            code={output}
-            language={format === "json" ? "json" : "jsson"}
-            className="h-full rounded-none border-none bg-transparent"
-            showLineNumbers
+          <Editor
+            height="100%"
+            language={getMonacoLanguage(format)}
+            theme="jsson-dark"
+            value={output}
+            options={{
+              readOnly: true,
+              minimap: { enabled: false },
+              fontSize: 14,
+              fontFamily: "Geist Mono, monospace",
+              padding: { top: 16 },
+              scrollBeyondLastLine: false,
+              automaticLayout: true,
+              lineNumbers: "on",
+              renderLineHighlight: "none",
+              scrollbar: {
+                vertical: "visible",
+                horizontal: "visible",
+              },
+            }}
           />
         )}
+      </div>
+
+      <div className="flex items-center justify-end px-6 py-2 border-t border-border bg-muted/30">
+        <div className="text-muted-foreground text-xs">
+          <span className="font-semibold">{metrics.lines}</span> lines |
+          <span className="font-semibold"> {metrics.chars}</span> chars |
+          <span className="font-semibold"> ~ {approxTokens(output)}</span>{" "}
+          tokens
+        </div>
       </div>
     </div>
   );

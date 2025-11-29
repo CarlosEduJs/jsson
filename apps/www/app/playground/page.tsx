@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default function PlaygroundPage() {
   return (
     <PlaygroundProvider>
-      <div className="flex flex-col h-screen bg-background overflow-hidden">
+      <div className="flex flex-col h-screen overflow-hidden">
         <header className="flex items-center justify-between px-6 py-3 border-b border-border bg-background/80 backdrop-blur-md z-10">
           <div className="flex items-center gap-4">
             <Logo size="md" />

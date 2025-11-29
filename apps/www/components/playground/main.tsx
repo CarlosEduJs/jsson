@@ -38,20 +38,31 @@ users [
 ]`;
 
 export default function MainPlayground() {
-  const { code, setCode, output, error } = useTranspiler(DEFAULT_CODE);
-  const { setJssonCode, setOutput } = usePlaygroundContext();
+  const { code, setCode, output, error, runCode } = useTranspiler(DEFAULT_CODE);
+  const { setJssonCode, format } = usePlaygroundContext();
 
   useEffect(() => {
     setJssonCode(code);
   }, [code, setJssonCode]);
 
+  // Auto-transpile when format changes
+  useEffect(() => {
+    if (code) {
+      runCode(format);
+    }
+  }, [format]);
+
   return (
     <main className="flex-1 flex min-h-0">
       <div className="flex-1 min-w-0">
-        <JSSONEditor value={code} onChange={(val) => setCode(val || "")} />
+        <JSSONEditor
+          value={code}
+          onChange={(val) => setCode(val || "")}
+          runCode={() => runCode(format)}
+        />
       </div>
       <div className="flex-1 min-w-0">
-        <OutputViewer jssonCode={code} error={error} />
+        <OutputViewer output={output} error={error} />
       </div>
     </main>
   );
