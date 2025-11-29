@@ -102,7 +102,10 @@ export default defineConfig({
           items: [
             { label: "Overview", slug: "real-world/overview" },
             { label: "Geographic Data", slug: "real-world/geographic-data" },
-            { label: "E-commerce Variants", slug: "real-world/ecommerce-variants" },
+            {
+              label: "E-commerce Variants",
+              slug: "real-world/ecommerce-variants",
+            },
             { label: "Scheduling Matrix", slug: "real-world/scheduling" },
             { label: "Kubernetes Config", slug: "real-world/kubernetes" },
             { label: "API Gateway", slug: "real-world/api-gateway" },
@@ -113,6 +116,7 @@ export default defineConfig({
         },
         { label: "FAQ", slug: "faq" },
         { label: "Changelog", slug: "changelog" },
+        { label: "LLM Docs", link: "/llms.txt/index.txt" },
       ],
       customCss: [
         // Relative path to your custom CSS file
