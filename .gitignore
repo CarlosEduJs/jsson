@@ -1,0 +1,23 @@
+# Node
+node_modules/
+npm-debug.log
+
+# VS Code
+.vscode/
+
+# Build / dist
+dist/
+build/
+out/
+
+# Temporary files
+*.log
+*.tmp
+
+# JSSON test files
+*.json
+*.jsson-output
+
+# Anything huge
+*.bin
+*.dat
