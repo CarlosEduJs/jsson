@@ -1,4 +1,3 @@
-// GLOBAL CONFIGS — O INFERNO COMEÇA AQUI
 universesCount := 20
 galaxiesPerUniverse := 25
 starsPerGalaxy := 180
