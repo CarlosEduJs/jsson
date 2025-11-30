@@ -22,11 +22,11 @@ export function Hero() {
       <Spotlight />
       <div className="container  relative z-10 mx-auto px-4 md:px-6">
         <div className="flex flex-col items-center text-center">
-          <Link href={"https://docs.jssonlang.tech/changelog/#v005-2025-11-27"}>
+          <Link href={"https://docs.jssonlang.tech/changelog/#v0051--parser-bug-fixes-2025-11-29"}>
             <Announcement variant="outline" themed className="max-w-4xl">
               <AnnouncementTag>Latest Update</AnnouncementTag>
               <AnnouncementTitle>
-                v0.0.5 is now available
+                v0.0.5.1 is now available
                 <ArrowUpRightIcon className="ml-2 h-4 w-4" />
               </AnnouncementTitle>
             </Announcement>
