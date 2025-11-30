@@ -1,0 +1,10 @@
+complex {
+  data = (1..5 map (i) = {
+    id = i
+    nested = (1..3 map (j) = {
+      value = i * j
+      range = (i..(i+2))  // Parentheses required for arithmetic
+      conditional = i > j ? "greater" : "less"
+    })
+  })
+}

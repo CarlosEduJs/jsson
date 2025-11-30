@@ -116,22 +116,25 @@ function processDirectory(sourceDir, outputDir) {
 
   for (const entry of entries) {
     const sourcePath = path.join(sourceDir, entry.name);
-    const outputPath = path.join(outputDir, entry.name.replace(".mdx", ".txt"));
 
     if (entry.isDirectory()) {
-      fs.mkdirSync(path.join(outputDir, entry.name), { recursive: true });
-      processDirectory(sourcePath, path.join(outputDir, entry.name));
+      const dirOutputPath = path.join(outputDir, entry.name);
+      fs.mkdirSync(dirOutputPath, { recursive: true });
+      processDirectory(sourcePath, dirOutputPath);
     } else if (entry.name.endsWith(".mdx")) {
       const raw = fs.readFileSync(sourcePath, "utf-8");
       const cleaned = processMDX(raw, entry.name);
 
       const chunks = chunkText(cleaned);
+      const baseName = entry.name.replace(".mdx", "");
+
       if (chunks.length === 1) {
+        const outputPath = path.join(outputDir, `${baseName}.txt`);
         fs.writeFileSync(outputPath, cleaned);
       } else {
         chunks.forEach((chunk, i) => {
-          const part = outputPath.replace(".txt", `.${i + 1}.txt`);
-          fs.writeFileSync(part, chunk);
+          const outputPath = path.join(outputDir, `${baseName}.${i + 1}.txt`);
+          fs.writeFileSync(outputPath, chunk);
         });
       }
 

@@ -1,0 +1,9 @@
+// Test 3: Template with map
+test3 [
+  template { id, value }
+  map (item) = {
+    id = item.id * 10
+    value = item.value + "!"
+  }
+  1, "test"
+]

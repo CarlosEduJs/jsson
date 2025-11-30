@@ -1,0 +1,60 @@
+Parser Improvements• Enhanced parseObjectLiteral to support array literals as property values• Better error messages for syntax issues• Improved handling of nested structures
+
+0.5.4. Documentation• New "Real-World Use Cases" section in docs• Overview page explaining production scenarios• Individual pages for each example with detailed explanations• Updated SEO keywords for better discoverability
+
+0.5.5. Bug Fixes• Fixed parsing of complex nested objects with arrays• Improved transpiler handling of mixed data structures
+
+0.5.6. Performance
+
+JSSON v0.0.3 can now handle even more complex scenarios:• ~500 lines of JSSON → 600+ JSON records• Ratios up to 50,000:1 for large-scale data generation
+
+---
+
+0.6. v0.0.2 — Arithmetic & Conditional Logic (2025-11-24)
+
+0.6.1. Features• Arithmetic operators: +, -, *, /, %• Comparison operators: ==, !=, >, <, >=, <=• Ternary operator: condition ? true : false• Map transformations with conditional logic• String concatenation in expressions
+
+0.6.2. Examples
+
+`jsson
+users [
+  template { name, age }
+
+  map (u) = {
+    name = u.name
+    age = u.age
+    isAdult = u.age >= 18
+    category = u.age >= 18 ? "adult" : "minor"
+  }
+
+  "João", 25
+  "Maria", 16
+]
+`
+
+---
+
+0.7. v0.0.1 — Initial Release (2025-11-23)
+
+0.7.1. Features• Core parser for JSSON syntax• Template arrays for structured data• Range expressions (1..100)• Include statements for file composition• CLI tool for transpilation• Basic data types: strings, numbers, booleans, objects, arrays
+
+0.7.2. Examples
+
+`jsson
+users [
+  template { name, age }
+
+  "João", 19
+  "Maria", 25
+]
+
+ports = 8080..8085
+``
+
+---
+
+0.8. What's Next?
+
+Future versions may include:• Variable declarations• Functions/macros• Array methods (filter, map, reduce)• More advanced control flow
+
+Stay tuned!

@@ -1,9 +1,10 @@
 # JSSON LLM Documentation Index
-Generated: 2025-11-29T17:56:41.297Z
+Generated: 2025-11-30T01:30:30.321Z
 
 ## Files
 - /llms.txt/api/transpiler.txt
-- /llms.txt/changelog.txt
+- /llms.txt/changelog.1.txt
+- /llms.txt/changelog.2.txt
 - /llms.txt/cli/usage.txt
 - /llms.txt/contributing/how-to-contribute.txt
 - /llms.txt/examples/demo.txt

@@ -1,0 +1,13 @@
+colors {
+  primary = "#0070f3"
+  secondary = "#ff4081"
+
+  gray [
+    template { shade, value }
+    map (item) = { 
+      shade = item.shade * 100
+      value = "#" + item.shade + item.shade + item.shade 
+    }
+    1..9
+  ]
+}

@@ -3,6 +3,93 @@ title: Changelog
 description: List of changes and improvements by version.
 ---
 
+## v0.0.5.1 — Parser Bug Fixes (2025-11-29)
+
+### Bug Fixes
+
+#### Nested Ternary Operators 
+
+Fixed parsing of chained ternary expressions. Previously, expressions like `5 > 3 ? 10 > 8 ? "yes" : "maybe" : "no"` would fail with a parser error. Now they work correctly with proper right-associativity.
+
+**Technical Details:**
+
+- Changed precedence to `TERNARY - 1` for both consequence and alternative branches in `parseConditionalExpression`
+- File: `internal/parser/parser.go`
+
+#### Negative Number Ranges
+
+Fixed support for ranges starting with negative numbers. Previously, `-5..5` would fail. Now it works correctly.
+
+**Technical Details:**
+
+- Modified `parsePrefixExpression` to create negative `IntegerLiteral` and `FloatLiteral` directly instead of `BinaryExpression(0 - value)`
+- File: `internal/parser/parser.go`
+
+#### Range-Map Expressions 
+
+Fixed parsing of map expressions applied to ranges. Previously, `1..3 map (x) = x * 2` required parentheses: `(1..3) map (x) = x * 2`. Now it works without parentheses.
+
+**Technical Details:**
+
+- Reorganized operator precedence: `CALL < RANGE < MAP < INDEX`
+- Changed `parseRangeExpression` to use `MAP` precedence for end value parsing
+- File: `internal/parser/parser.go`
+
+**Note:** Arithmetic in range end values requires parentheses for clarity: `i..(i+2)` ✅, not `i..i+2` ❌ (ambiguous)
+
+#### Array Templates with Map in Objects 
+
+Fixed support for array templates with map clauses when used as object properties. Previously, this would fail:
+
+```jsson
+templates {
+  withMap [
+    template { id, value }
+    map (item) = { id = item.id * 10 }
+    1, "test"
+  ]
+}
+```
+
+**Technical Details:**
+
+- Changed `parseObjectLiteral` to call `parseArrayTemplate()` directly instead of `parseArrayLiteral()`
+- File: `internal/parser/parser.go`
+
+#### Error Line Number Reporting
+
+Fixed error messages to show the correct line number instead of always showing `line:1:1`. Now errors accurately point to the exact line and column where the problem occurred.
+
+**Technical Details:**
+
+- Added missing AST node types to error reporting switch cases: `MapExpression`, `ConditionalExpression`, `InterpolatedString`, `BooleanLiteral`
+- File: `internal/transpiler/transpiler.go`
+
+### Examples
+
+```jsson
+// Nested ternaries
+status = age > 18 ? score > 80 ? "excellent" : "good" : "minor"
+
+// Negative ranges
+temperatures = -10..10
+
+// Range-map without parentheses
+doubled = 1..5 map (x) = x * 2
+
+// Templates with map in objects
+config {
+  users [
+    template { id, name }
+    map (u) = { id = u.id * 100, name = u.name }
+    1, "Alice"
+    2, "Bob"
+  ]
+}
+```
+  
+---
+
 ## v0.0.5 — Nested Logic Power-Up (2025-11-28)
 
 ### New Features
