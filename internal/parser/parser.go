@@ -21,6 +21,9 @@ const (
 	PRODUCT     // * / %
 	PREFIX      // -X or !X
 	CALL        // myFunction(X)
+	RANGEEND    // Used internally for parsing range end (allows arithmetic, stops before map)
+	RANGE       // .. (higher than arithmetic so i..i+2 works)
+	MAP         // map (higher than RANGE so range map works)
 	INDEX       // array[index] or obj.prop
 )
 
@@ -40,8 +43,8 @@ var precedences = map[token.TokenType]int{
 	token.MODULO:   PRODUCT,
 	token.QUESTION: TERNARY,
 	token.DOT:      INDEX,
-	token.RANGE:    INDEX,
-	token.MAP:      INDEX, // map binds tightly like a method call
+	token.RANGE:    RANGE,
+	token.MAP:      MAP,
 }
 
 type Parser struct {
@@ -251,17 +254,22 @@ func (p *Parser) parseInfix(left ast.Expression) ast.Expression {
 func (p *Parser) parseRangeExpression(left ast.Expression) ast.Expression {
 	expr := &ast.RangeExpression{Token: p.curToken, Start: left}
 
-	precedence := p.curPrecedence()
 	// move to the token after '..'
 	p.nextToken()
-	// parse end expression
-	expr.End = p.parseExpression(precedence)
+	// parse end expression - use MAP precedence to stop before map
+	// This allows: 1..3 map to parse as (1..3) map, not 1..(3 map)
+	// Note: arithmetic in range end requires parentheses: i..(i+2), not i..i+2 (ambiguous)
+	expr.End = p.parseExpression(MAP)
 
 	// If there's a step clause after end
 	if p.peekToken.Type == token.STEP {
 		p.nextToken() // move to STEP
 		p.nextToken() // move to step value
-		if p.curToken.Type == token.INT {
+
+		// Handle negative step values
+		if p.curToken.Type == token.MINUS {
+			expr.Step = p.parsePrefixExpression()
+		} else if p.curToken.Type == token.INT {
 			expr.Step = p.parseIntegerLiteral()
 		} else {
 			// try parsing any expression as step
@@ -306,7 +314,8 @@ func (p *Parser) parseConditionalExpression(condition ast.Expression) ast.Expres
 	}
 
 	p.nextToken() // consume ?
-	expr.Consequence = p.parseExpression(TERNARY)
+	// Parse consequence with lower precedence to allow nested ternaries
+	expr.Consequence = p.parseExpression(TERNARY - 1)
 
 	if p.peekToken.Type != token.COLON {
 		p.addError(ie.MissingColonInTernary())
@@ -315,7 +324,8 @@ func (p *Parser) parseConditionalExpression(condition ast.Expression) ast.Expres
 
 	p.nextToken() // move to :
 	p.nextToken() // consume :
-	expr.Alternative = p.parseExpression(LOWEST)
+	// Parse alternative with same low precedence for right-associativity
+	expr.Alternative = p.parseExpression(TERNARY - 1)
 
 	return expr
 }
@@ -333,15 +343,36 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 
 func (p *Parser) parsePrefixExpression() ast.Expression {
 	// Handle unary minus for negative numbers
-	expr := &ast.BinaryExpression{
-		Token:    p.curToken,
-		Operator: p.curToken.Literal,
-		Left:     &ast.IntegerLiteral{Token: p.curToken, Value: 0}, // 0 - value
+	p.nextToken() // consume MINUS
+
+	// Check if next token is a number
+	if p.curToken.Type == token.INT {
+		lit := &ast.IntegerLiteral{Token: p.curToken}
+		value, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
+		if err != nil {
+			p.addError(ie.IntegerTooSpicy(p.curToken.Literal))
+			return nil
+		}
+		lit.Value = -value // Negate the value
+		return lit
+	} else if p.curToken.Type == token.FLOAT {
+		lit := &ast.FloatLiteral{Token: p.curToken}
+		value, err := strconv.ParseFloat(p.curToken.Literal, 64)
+		if err != nil {
+			p.addError(fmt.Sprintf("could not parse %q as float", p.curToken.Literal))
+			return nil
+		}
+		lit.Value = -value // Negate the value
+		return lit
 	}
 
-	p.nextToken() // consume MINUS
-	expr.Right = p.parseExpression(PREFIX)
-
+	// For other expressions, use the old binary expression approach
+	expr := &ast.BinaryExpression{
+		Token:    p.curToken,
+		Operator: "-",
+		Left:     &ast.IntegerLiteral{Token: p.curToken, Value: 0}, // 0 - value
+		Right:    p.parseExpression(PREFIX),
+	}
 	return expr
 }
 
@@ -646,9 +677,9 @@ func (p *Parser) parseObjectLiteral() ast.Expression {
 			obj.Properties[key] = val
 			p.nextToken()
 		} else if p.curToken.Type == token.LBRACKET {
-			// Support arrays as object property values
+			// Support array templates as object property values
 			obj.Keys = append(obj.Keys, key)
-			val := p.parseArrayLiteral()
+			val := p.parseArrayTemplate()
 			obj.Properties[key] = val
 			p.nextToken()
 		} else {

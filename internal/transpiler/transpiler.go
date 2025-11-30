@@ -203,6 +203,14 @@ func (t *Transpiler) errfNode(node ast.Node, format string, args ...interface{})
 			line, col = n.Token.Line, n.Token.Column
 		case *ast.MemberExpression:
 			line, col = n.Token.Line, n.Token.Column
+		case *ast.MapExpression:
+			line, col = n.Token.Line, n.Token.Column
+		case *ast.ConditionalExpression:
+			line, col = n.Token.Line, n.Token.Column
+		case *ast.InterpolatedString:
+			line, col = n.Token.Line, n.Token.Column
+		case *ast.BooleanLiteral:
+			line, col = n.Token.Line, n.Token.Column
 		default:
 			line, col = 0, 0
 		}
@@ -251,6 +259,14 @@ func (t *Transpiler) errfNodeMsg(node ast.Node, msg string) error {
 		case *ast.BinaryExpression:
 			line, col = n.Token.Line, n.Token.Column
 		case *ast.MemberExpression:
+			line, col = n.Token.Line, n.Token.Column
+		case *ast.MapExpression:
+			line, col = n.Token.Line, n.Token.Column
+		case *ast.ConditionalExpression:
+			line, col = n.Token.Line, n.Token.Column
+		case *ast.InterpolatedString:
+			line, col = n.Token.Line, n.Token.Column
+		case *ast.BooleanLiteral:
 			line, col = n.Token.Line, n.Token.Column
 		default:
 			line, col = 0, 0

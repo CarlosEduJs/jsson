@@ -1,0 +1,2 @@
+// Test 1: Empty array
+test1 = ([] map (x) = x * 2)

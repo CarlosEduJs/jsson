@@ -1,0 +1,2 @@
+// With explicit parentheses
+test = (1..2 map (x) = ((3..4) map (y) = y))

@@ -1,0 +1,14 @@
+templates {
+  simple [
+    template { id, name }
+    1, "Alice"
+  ]
+  
+  withMap [
+    template { id, value }
+    map (item) = {
+      id = item.id * 10
+    }
+    1, "test"
+  ]
+}

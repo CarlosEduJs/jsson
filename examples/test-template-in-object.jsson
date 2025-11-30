@@ -1,0 +1,13 @@
+templates {
+  // Template with map
+  withMap [
+    template { id, value }
+    map (item) = {
+      id = item.id * 10
+      value = item.value + "!"
+      extra = true
+    }
+    1, "test"
+    2, "demo"
+  ]
+}

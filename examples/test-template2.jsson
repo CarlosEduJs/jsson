@@ -1,0 +1,5 @@
+// Test 2: Simple template
+test2 [
+  template { id, name }
+  1, "Alice"
+]

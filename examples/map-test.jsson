@@ -1,0 +1,19 @@
+mapTests {
+  // Empty array map
+  emptyMap = ([] map (x) = x * 2)
+  
+  // Single element
+  singleMap = ([1] map (x) = x * 2)
+  
+  // Nested maps with same variable name
+  nestedSameVar = (1..3 map (x) = (1..3 map (x) = x * 2))
+  
+  // Map with complex expressions
+  complexMap = (1..5 map (n) = {
+    id = n
+    square = n * n
+    cube = n * n * n
+    isEven = (n % 2) == 0
+    category = n < 3 ? "low" : n < 5 ? "mid" : "high"
+  })
+}

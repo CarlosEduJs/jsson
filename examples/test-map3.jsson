@@ -1,0 +1,2 @@
+// Test 3: Nested maps
+test3 = (1..3 map (x) = (1..3 map (y) = x * y))
