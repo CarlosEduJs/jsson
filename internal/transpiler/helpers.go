@@ -77,22 +77,29 @@ func (t *Transpiler) compareEqual(left, right interface{}) bool {
 
 // compareLess checks if left < right
 func (t *Transpiler) compareLess(left, right interface{}) (bool, error) {
-	// Handle mixed numeric types
-	lFloat, lIsFloat := toFloat(left)
-	rFloat, rIsFloat := toFloat(right)
-	if lIsFloat && rIsFloat {
+	// Check if both values are numeric (int or float)
+	lIsNumeric := false
+	rIsNumeric := false
+
+	switch left.(type) {
+	case int64, int, float64:
+		lIsNumeric = true
+	}
+
+	switch right.(type) {
+	case int64, int, float64:
+		rIsNumeric = true
+	}
+
+	// If both are numeric, convert to float64 and compare
+	if lIsNumeric && rIsNumeric {
+		lFloat, _ := toFloat(left)
+		rFloat, _ := toFloat(right)
 		return lFloat < rFloat, nil
 	}
 
+	// Handle string comparison
 	switch l := left.(type) {
-	case int64:
-		if r, ok := right.(int64); ok {
-			return l < r, nil
-		}
-	case float64:
-		if r, ok := right.(float64); ok {
-			return l < r, nil
-		}
 	case string:
 		if r, ok := right.(string); ok {
 			return l < r, nil
