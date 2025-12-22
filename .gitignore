@@ -23,3 +23,8 @@ bin/
 
 *.exe
 *.vsix
+
+# Test files
+test-*.jsson
+brutal.jsson
+*.ps1
