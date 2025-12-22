@@ -18,6 +18,7 @@ out/
 
 # Anything huge
 *.bin
+bin/
 *.dat
 
 *.exe
