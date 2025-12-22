@@ -26,5 +26,6 @@ bin/
 
 # Test files
 test-*.jsson
+/tests-jsson
 brutal.jsson
 *.ps1
