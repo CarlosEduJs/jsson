@@ -1,3 +1,6 @@
+// User Account Generation
+// Demonstrates generating user accounts with templates
+
 users [
   template { id, department }
 
@@ -9,9 +12,12 @@ users [
     role = "employee"
   }
 
-  // Generate 5 users for Engineering
-  100..104, Engineering
+  // Engineering users
+  101, "Engineering"
+  102, "Engineering"
+  103, "Engineering"
 
-  // Generate 5 users for Sales
-  200..204, Sales
+  // Sales users
+  201, "Sales"
+  202, "Sales"
 ]

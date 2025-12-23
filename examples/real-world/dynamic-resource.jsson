@@ -1,7 +1,10 @@
-resources [
-template { name, type, region }
+// Dynamic Resource Configuration
+// Demonstrates auto-generating resource IDs and tags
 
-map (res) = {
+resources [
+  template { name, type, region }
+  
+  map (res) = {
     // Auto-generate standardized ID: type-name-region
     id = res.type + "-" + res.name + "-" + res.region
     
@@ -12,12 +15,12 @@ map (res) = {
     
     // Add default tags
     tags {
-        managed_by = "jsson"
-        env = "production"
+      managed_by = "jsson"
+      env = "production"
     }
-}
-
-"web-server", ec2, "us-east-1" 
-"db-primary", rds, "us-west-2"
-"cache-cluster", redis, "eu-central-1"
+  }
+  
+  "web-server", "ec2", "us-east-1"
+  "db-primary", "rds", "us-west-2"
+  "cache-cluster", "redis", "eu-central-1"
 ]

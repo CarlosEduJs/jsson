@@ -1,3 +1,6 @@
+// Database Seed Example
+// Demonstrates generating employee data for database seeding
+
 employees [
   template { id, dept, level }
   
@@ -11,14 +14,15 @@ employees [
   }
   
   // Engineering team
-  1000..1004, Engineering, junior
-  1005..1009, Engineering, mid
-  1010..1012, Engineering, senior
+  1001, "Engineering", "junior"
+  1002, "Engineering", "mid"
+  1003, "Engineering", "senior"
+  
   // Sales team
-  2000..2009, Sales, junior
-  2010..2014, Sales, mid
+  2001, "Sales", "junior"
+  2002, "Sales", "mid"
   
   // HR team
-  3000..3002, HR, mid
-  3003..3004, HR, senior
+  3001, "HR", "mid"
+  3002, "HR", "senior"
 ]

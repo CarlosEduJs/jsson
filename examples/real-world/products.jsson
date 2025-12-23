@@ -1,3 +1,8 @@
+// Products Example
+// Demonstrates product catalog with calculated fields
+
+discount := 0.10
+
 products [
   template { id, name, price }
   
@@ -5,10 +10,14 @@ products [
     id = p.id
     name = p.name
     price = p.price
-    discount = p.price > 100 ? 0.10 : 0
-    finalPrice = p.price * (1 - discount)
+    hasDiscount = p.price > 100
+    finalPrice = p.price > 100 ? p.price * (1 - discount) : p.price
     inStock = true
   }
   
-  1..50, "Product", 10..500
+  1, "Laptop", 999.99
+  2, "Mouse", 29.99
+  3, "Keyboard", 79.99
+  4, "Monitor", 299.99
+  5, "Headphones", 149.99
 ]

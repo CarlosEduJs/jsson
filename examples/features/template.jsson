@@ -1,7 +1,10 @@
+// Template Example
+// Demonstrates template arrays for structured data
+
 users [
   template { name, age, job, height }
-  João, 19, Student, 1.75
-  Maria, 25, Teacher, 1.65
-  Pedro, 30, Doctor, 1.80
-  Ana, 22, Nurse, 1.68
+  "João", 19, "Student", 1.75
+  "Maria", 25, "Teacher", 1.65
+  "Pedro", 30, "Doctor", 1.80
+  "Ana", 22, "Nurse", 1.68
 ]
