@@ -1,9 +1,0 @@
-user {
-  name = João
-  age = 20
-  admin = true
-  roles = [ "admin", "editor" ]
-  config {
-    theme = dark
-  }
-}
