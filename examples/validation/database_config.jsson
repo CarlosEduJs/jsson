@@ -1,76 +1,59 @@
-// Example: Database Configuration Generator
-// Generates configurations for multiple database environments
-//
-// Run: jsson -i database_config.jsson -f yaml -schema ../schemas/database.schema.yaml
-
-// Environment-specific settings
-environments := ["development", "staging", "production"]
+// Database Configuration Example
+// Demonstrates database configs using JSSON presets
 
 // Database connection presets
 @preset "postgres_defaults" {
-    type = "postgres"
-    port = 5432
-    ssl = false
-    pool = {
-        min = 2
-        max = 10
-        idleTimeoutMs = 30000
-        acquireTimeoutMs = 10000
-    }
+  type = "postgres"
+  port = 5432
+  ssl = false
+  pool {
+    min = 2
+    max = 10
+    idleTimeoutMs = 30000
+  }
 }
 
 @preset "redis_defaults" {
-    type = "redis"
-    port = 6379
-    ssl = false
-    pool = {
-        min = 1
-        max = 5
-        idleTimeoutMs = 60000
-    }
+  type = "redis"
+  port = 6379
+  ssl = false
 }
 
-// Generate database configurations for each environment
-databases = [| (env)
-    environments
-|] -> (e) [
-    // Primary PostgreSQL database
-    {
-        name = "{e}_primary"
-        @use "postgres_defaults"
-        host = e == "production" ? "db.prod.internal" : "{e}-db.local"
-        database = "app_{e}"
-        username = "app_user"
-        password = "${DB_PASSWORD_{e | uppercase}}"
-        ssl = e == "production"
-        pool = e == "production" ? {
-            min = 5
-            max = 50
-            idleTimeoutMs = 30000
-            acquireTimeoutMs = 5000
-        } : @use "postgres_defaults".pool
-    },
-    // Redis cache
-    {
-        name = "{e}_cache"
-        @use "redis_defaults"
-        host = e == "production" ? "redis.prod.internal" : "{e}-redis.local"
-        database = "0"
-        ssl = e == "production"
-    }
-] | flatten
+// Database configurations for different environments
+databases [
+  template { name, env, host }
+  
+  map (db) = {
+    name = db.name
+    environment = db.env
+    host = db.host
+    config = @use "postgres_defaults"
+    ssl = db.env == "production"
+  }
+  
+  "app_dev", "development", "localhost"
+  "app_staging", "staging", "staging-db.internal"
+  "app_prod", "production", "db.prod.internal"
+]
 
-// Replication settings (production only)
-replication = {
-    enabled = true
-    primary = "production_primary"
-    replicas = ["production_replica_1", "production_replica_2"]
-    strategy = "round-robin"
+// Redis cache configuration
+cache {
+  name = "app_cache"
+  config = @use "redis_defaults"
+  host = "redis.internal"
+}
+
+// Replication settings
+replication {
+  enabled = true
+  primary = "app_prod"
+  replicas = ["replica_1", "replica_2"]
+  strategy = "round-robin"
 }
 
 // Migration settings
-migrations = {
-    enabled = true
-    directory = "./migrations"
-    tableName = "schema_migrations"
+migrations {
+  enabled = true
+  directory = "./migrations"
+  tableName = "schema_migrations"
 }
