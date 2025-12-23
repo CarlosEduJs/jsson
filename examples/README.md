@@ -1,189 +1,69 @@
 # JSSON Examples
 
-This directory contains examples demonstrating JSSON features and use cases.
+This directory contains examples demonstrating JSSON features and real-world use cases.
 
-## Core vs Optional Features
-
-**Core Features** (always available):
-
-- Transpilation to JSON, YAML, TOML, TypeScript
-- Variables and expressions
-- Ranges and map expressions
-- Array templates
-- String interpolation
-- Conditionals
-- Includes
-
-**Optional Features** (opt-in):
-
-- **Presets** - Use `@preset` syntax in your JSSON files when you need reusable configurations
-- **Schema Validation** - Use `-schema` flag when you need to validate output against a JSON/YAML schema
-
-## Directory Structure
+## 📁 Structure
 
 ```
 examples/
-├── current/                 # ✅ Working examples (current version)
-│   ├── simple_config.jsson
-│   ├── invalid_config.jsson
-│   └── README.md
-├── planned/                 # 🚧 Roadmap examples (future syntax)
-│   ├── database_config.jsson
-│   ├── api_config.jsson
-│   └── README.md
-├── schemas/                 # Generic validation schemas
-│   ├── api-config.schema.json
-│   └── database.schema.yaml
-├── real-world/              # Real-world use cases
-├── use-cases/               # Domain-specific examples
-└── *.jsson                  # General feature examples
+├── basics/          # Beginner-friendly examples (start here!)
+├── features/        # Feature demonstrations (maps, templates, presets, etc.)
+├── real-world/      # Real-world use cases
+├── showcase/        # Version showcases
+├── schemas/         # JSON schemas for validation
+└── validation/      # Validation examples
 ```
 
-> **⚠️ Important**: Examples in `planned/` use **unimplemented syntax** from the roadmap.
-> They will **not compile** with the current version. See `ROADMAP.md` for details.
+## 🚀 Getting Started
 
-## Running Examples
+### Basics (Start Here!)
 
-### Current Features (Working Now)
+| File | Description |
+|------|-------------|
+| [01-hello-world.jsson](basics/01-hello-world.jsson) | Your first JSSON file |
+| [02-variables.jsson](basics/02-variables.jsson) | Using variables with `:=` |
+| [03-objects.jsson](basics/03-objects.jsson) | Objects and nesting |
+| [04-arrays.jsson](basics/04-arrays.jsson) | Arrays in JSSON |
+| [05-ranges.jsson](basics/05-ranges.jsson) | Ranges and steps |
+
+### Features
+
+| File | Description |
+|------|-------------|
+| [map.jsson](features/map.jsson) | Basic map transformations |
+| [map-advanced.jsson](features/map-advanced.jsson) | Advanced map usage |
+| [template.jsson](features/template.jsson) | Template arrays |
+| [presets.jsson](features/presets.jsson) | Reusable presets |
+| [ranges.jsson](features/ranges.jsson) | Range expressions |
+| [ternary.jsson](features/ternary.jsson) | Conditional expressions |
+| [streaming-*.jsson](features/) | Streaming for large datasets |
+
+### Real-World Examples
+
+| File | Description |
+|------|-------------|
+| [apiconfig.jsson](real-world/apiconfig.jsson) | API configuration |
+| [database.jsson](real-world/database.jsson) | Database config |
+| [seed.jsson](real-world/seed.jsson) | Database seeding |
+| [k8s-deployment.jsson](real-world/k8s-deployment.jsson) | Kubernetes deployment |
+| [game_macros_presets.jsson](real-world/game_macros_presets.jsson) | Game configuration |
+
+## 🔧 Running Examples
 
 ```bash
-# Simple configuration example
-jsson -i current/simple_config.jsson
+# Transpile to JSON
+jsson -i examples/basics/01-hello-world.jsson
 
-# Different output formats
-jsson -i current/simple_config.jsson -f yaml
-jsson -i current/simple_config.jsson -f toml
-jsson -i current/simple_config.jsson -f ts
+# Transpile to YAML
+jsson -i examples/basics/01-hello-world.jsson -f yaml
+
+# Transpile to TOML
+jsson -i examples/basics/01-hello-world.jsson -f toml
+
+# Validate with schema
+jsson -i examples/real-world/apiconfig.jsson -schema examples/schemas/api-config.json
 ```
 
-### Planned Features (Roadmap)
+## 📚 Programmatic Usage
 
-⚠️ **These will NOT work** - they use unimplemented syntax:
-
-```bash
-# ❌ Will fail - uses list comprehension and @use
-jsson -i planned/database_config.jsson
-
-# ❌ Will fail - uses list comprehension and flatten
-jsson -i planned/api_config.jsson
-```
-
-See `planned/README.md` and `ROADMAP.md` for details on planned features.
-
-## Features Demonstrated
-
-### 1. Presets (`presets_example.jsson`)
-
-Reusable configuration blocks that can be referenced and overridden.
-
-```jsson
-@preset "defaults" {
-    timeout = 30
-    retries = 3
-}
-
-config = @use "defaults" {
-    timeout = 60  // Override specific values
-}
-```
-
-### 2. Ranges and Generation (`ranges.jsson`)
-
-Generate arrays from numeric or string ranges.
-
-```jsson
-// Numeric range
-numbers = [1..10]
-
-// With step
-evens = [2..20..2]
-
-// String range (for IPs, etc)
-servers = ["server-01".."server-10"]
-```
-
-### 3. Map Expressions (`map.jsson`)
-
-Transform arrays with map expressions.
-
-```jsson
-users = [1..5] -> (id) {
-    id = id
-    name = "User {id}"
-    email = "user{id}@example.com"
-}
-```
-
-### 4. Array Templates (`template.jsson`)
-
-Generate structured data from tabular input.
-
-```jsson
-servers = [| (name, ip, port)
-    "web-1",    "10.0.0.1", 80
-    "web-2",    "10.0.0.2", 80
-    "db-1",     "10.0.1.1", 5432
-|]
-```
-
-### 5. Conditionals (`comparison-test.jsson`)
-
-Ternary expressions for conditional values.
-
-```jsson
-env = "production"
-debug = env == "development" ? true : false
-```
-
-### 6. String Interpolation
-
-Template strings with variable substitution.
-
-```jsson
-name = "World"
-greeting = "Hello, {name}!"       // Simple interpolation
-template = `Hello, ${name}!`      // Template string style
-```
-
-## Schema Validation
-
-JSSON supports validating transpiled output against JSON Schema (draft-07) or YAML Schema.
-
-### Supported Validations
-
-- Type checking (string, number, integer, boolean, array, object, null)
-- Required properties
-- Enum values
-- Pattern matching (regex)
-- Min/max for numbers
-- MinLength/maxLength for strings
-- MinItems/maxItems for arrays
-- Unique items
-- Additional properties control
-- allOf, anyOf, oneOf, not
-- if/then/else
-- $ref references
-
-### Custom JSSON Formats
-
-JSSON extends JSON Schema with additional format validators:
-
-- `identifier` - Valid identifier (starts with letter, alphanumeric + underscore)
-- `kebab-case` - Lowercase with hyphens
-- `snake_case` - Lowercase with underscores
-- `camelCase` - Camel case format
-- `PascalCase` - Pascal case format
-- `semver` - Semantic versioning
-- `duration` - Duration string (e.g., "500ms", "2h")
-- `hex-color` - Hex color codes
-- `port` - Valid port number
-- `env-var` - Environment variable name format
-
-Example in schema:
-
-```json
-{
-  "type": "string",
-  "$jsson_format": "semver"
-}
-```
+See the [api-usage/](api-usage/) directory for examples of using JSSON as a Go library.

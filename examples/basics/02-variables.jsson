@@ -1,0 +1,19 @@
+// 02-variables.jsson
+// Demonstra o uso de variáveis em JSSON
+
+// Variáveis locais (use :=)
+base_url := "https://api.example.com"
+version := "v1"
+timeout := 30
+
+// Usando variáveis
+api {
+  url = base_url + "/" + version
+  timeout = timeout
+  retries = 3
+}
+
+// Variáveis em cálculos
+price := 100
+discount := 0.2
+final_price = price - (price * discount)

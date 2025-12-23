@@ -1,0 +1,25 @@
+// 03-objects.jsson
+// Demonstra objetos e aninhamento
+
+// Objeto simples
+user {
+  name = "João"
+  age = 25
+  active = true
+}
+
+// Objetos aninhados
+company {
+  name = "TechCorp"
+  
+  address {
+    street = "Rua Principal, 123"
+    city = "São Paulo"
+    country = "Brazil"
+  }
+  
+  contact {
+    email = "contact@techcorp.com"
+    phone = "+55 11 1234-5678"
+  }
+}

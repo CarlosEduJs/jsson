@@ -1,2 +1,0 @@
-// Test file with non-integer range to trigger Transpile gremlin error
-range = 1.5..10

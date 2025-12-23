@@ -1,0 +1,17 @@
+// 05-ranges.jsson
+// Demonstra ranges em JSSON
+
+// Range simples (gera [1, 2, 3, 4, 5])
+numbers = 1..5
+
+// Range com step (gera [0, 2, 4, 6, 8, 10])
+evens = 0..10 step 2
+
+// Range negativo (gera [-5, -4, -3, -2, -1, 0])
+negatives = -5..0
+
+// Range reverso (gera [10, 9, 8, 7, 6, 5, 4, 3, 2, 1])
+countdown = 10..1
+
+// Portas de rede (gera [8080, 8081, 8082, 8083, 8084, 8085])
+ports = 8080..8085
