@@ -1,56 +1,257 @@
-// JSSON v0.0.6 - Complete feature showcase
+// JSSON v0.0.6 - Complete Feature Showcase
+// This file demonstrates all major features of JSSON v0.0.6
+// Run: jsson -i examples/showcase/v0.0.6.jsson
+// Try: jsson -i examples/showcase/v0.0.6.jsson -f yaml
+// Try: jsson -i examples/showcase/v0.0.6.jsson -f toml
 
-// Boolean literals extras
-settings {
-  debug = yes
-  production = no
-  ssl_enabled = on
-  maintenance = off
-  cache = true
-  logging = false
+// 1. BOOLEAN LITERALS - Multiple ways to express true/false
+boolean_showcase {
+  // Standard booleans
+  standard_true = true
+  standard_false = false
+  
+  // Yes/No style (great for configs)
+  enabled = yes
+  disabled = no
+  
+  // On/Off style (great for flags)
+  feature_flag = on
+  maintenance_mode = off
 }
 
-// Validators - auto-generate valid data
-user {
-  id = @uuid
-  email = @email  
-  website = @url
-  created_at = @datetime
-  birth_date = @date
+// 2. VARIABLES - Local calculations and reuse
+base_port := 8000
+num_servers := 5
+discount_rate := 0.15
+
+server_config {
+  port = base_port
+  admin_port = base_port + 1
+  debug_port = base_port + 2
+  total_servers = num_servers
+  max_connections = num_servers * 1000
 }
 
-server {
+pricing {
+  original_price := 199.99
+  discount = original_price * discount_rate
+  final_price = original_price - original_price * discount_rate
+}
+
+// 3. VALIDATORS - Auto-generate valid data
+validators_showcase {
+  // Identifiers
+  uuid = @uuid
+  email = @email
+  url = @url
+  
+  // Date/Time
+  datetime = @datetime
+  date = @date
+  
+  // Network
   ipv4 = @ipv4
   ipv6 = @ipv6
-  config_file = @filepath
+  
+  // File system
+  filepath = @filepath
+  
+  // Range validators - generate random numbers
+  age = @int(18, 65)
+  price = @float(9.99, 999.99)
+  is_active = @bool
 }
 
-// Multiple users with unique data
-team {
-  lead {
-    id = @uuid
-    email = @email
+// 4. PRESETS - Reusable object templates
+@preset "user_defaults" {
+  role = "user"
+  active = true
+  permissions = ["read"]
+}
+
+@preset "admin_defaults" {
+  role = "admin"
+  active = true
+  permissions = ["read", "write", "delete"]
+}
+
+users_from_presets {
+  regular_user = @use "user_defaults" {
+    name = "John Doe"
+    email = "john@example.com"
   }
   
-  dev1 {
-    id = @uuid
-    email = @email
-  }
-  
-  dev2 {
-    id = @uuid
-    email = @email
+  admin_user = @use "admin_defaults" {
+    name = "Admin"
+    email = "admin@example.com"
+    super_admin = true
   }
 }
 
-// Mix everything
-app {
-  name = "JSSON Demo"
+// 5. RANGES - Generate sequences
+ranges_showcase {
+  // Simple range (inclusive)
+  one_to_five = 1..5
+  
+  // Range with step
+  even_numbers = 0..10 step 2
+  
+  // Reverse range
+  countdown = 10..1
+  
+  // Network ports
+  ports = 8080..8085
+  
+  // Negative range
+  temperature = -10..10
+}
+
+// 6. MAPS - Transform arrays
+map_showcase {
+  // Double each number
+  doubled = (1..5 map (n) = n * 2)
+  
+  // Squares
+  squares = (1..5 map (n) = n * n)
+  
+  // Create objects from range
+  servers = (1..3 map (i) = {
+    id = "server-" + i
+    port = 8000 + i
+    active = true
+  })
+}
+
+// 7. TEMPLATES - Structured data tables
+employees [
+  template { id, name, department, salary }
+  
+  map (e) = {
+    id = e.id
+    name = e.name
+    department = e.department
+    salary = e.salary
+    bonus = e.salary * 0.1
+  }
+  
+  1, "Alice", "Engineering", 95000
+  2, "Bob", "Sales", 75000
+  3, "Charlie", "Marketing", 70000
+]
+
+// 8. TERNARY OPERATORS - Conditional values
+age := 25
+ternary_showcase {
+  // Simple condition
+  is_adult = age >= 18 ? "Yes" : "No"
+  
+  // Nested ternary
+  category = age < 13 ? "child" : age < 20 ? "teen" : age < 60 ? "adult" : "senior"
+  
+  // In calculations
+  discount = age > 60 ? 0.20 : age < 18 ? 0.15 : 0.05
+}
+
+// 9. ARITHMETIC EXPRESSIONS
+math_showcase {
+  // Basic operations
+  sum = 10 + 5
+  difference = 10 - 5
+  product = 10 * 5
+  quotient = 10 / 5
+  remainder = 10 % 3
+  
+  // Parentheses
+  complex = (10 + 5) * 2 - 3
+  
+  // With variables
+  tax_rate := 0.21
+  base_price := 100
+  total_with_tax = base_price * (1 + tax_rate)
+}
+
+// 10. COMPARISON OPERATORS
+comparisons {
+  // Numeric comparisons
+  is_greater = 10 > 5
+  is_less = 3 < 5
+  is_equal = 10 == 10
+  is_not_equal = 10 != 5
+  is_greater_eq = 10 >= 10
+  is_less_eq = 5 <= 10
+  
+  // Int/Float comparison (fixed in v0.0.6!)
+  int_float_compare = 5 < 5.5
+}
+
+// 11. STRING CONCATENATION
+strings_showcase {
+  greeting = "Hello, " + "World!"
+  with_number = "User #" + 42
+  with_variable = "Port: " + base_port
+  complex = "Server on port " + base_port + " with " + num_servers + " instances"
+}
+
+// 12. NESTED STRUCTURES
+app_config {
+  name = "JSSON Showcase"
   version = "0.0.6"
-  uuid = @uuid
-  enabled = yes
-  debug_mode = on
-  admin_contact = @email
-  homepage = @url
-  released_at = @datetime
+  
+  database {
+    host = "localhost"
+    port = 5432
+    credentials {
+      username = "app"
+      password = "${DB_PASSWORD}"
+    }
+  }
+  
+  cache {
+    enabled = yes
+    ttl = 3600
+    driver = "redis"
+  }
+  
+  features {
+    dark_mode = on
+    notifications = yes
+    analytics = off
+  }
+}
+
+// 13. MIXED EXAMPLE - Putting it all together
+@preset "api_endpoint" {
+  method = "GET"
+  auth_required = true
+  rate_limit = 100
+}
+
+api_showcase {
+  version = "v1"
+  base_url = "https://api.example.com"
+  
+  endpoints [
+    template { path, method, public }
+    
+    map (e) = {
+      path = "/api/v1" + e.path
+      method = e.method
+      auth_required = e.public == "no"
+      rate_limit = e.method == "GET" ? 1000 : 100
+    }
+    
+    "/users", "GET", "no"
+    "/users", "POST", "no"
+    "/health", "GET", "yes"
+    "/status", "GET", "yes"
+  ]
+  
+  generated_ids = (1..5 map (n) = @uuid)
+  
+  metadata {
+    created_at = @datetime
+    instance_id = @uuid
+    environment = "production"
+    debug = off
+  }
 }
