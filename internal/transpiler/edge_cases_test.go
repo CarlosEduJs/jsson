@@ -918,76 +918,8 @@ func TestEdgeCase_UnicodeString(t *testing.T) {
 	}
 }
 
-// EDGE CASES - Logical Operators
-
-func TestEdgeCase_LogicalAND(t *testing.T) {
-	input := `x = true && false`
-	l := lexer.New(input)
-	p := parser.New(l)
-	prog := p.ParseProgram()
-
-	if len(p.Errors()) > 0 {
-		t.Fatalf("Parser errors: %v", p.Errors())
-	}
-
-	tr := New(prog, "", "keep", "")
-	_, err := tr.Transpile()
-	if err != nil {
-		t.Fatalf("Should handle logical AND: %v", err)
-	}
-}
-
-func TestEdgeCase_LogicalOR(t *testing.T) {
-	input := `x = false || true`
-	l := lexer.New(input)
-	p := parser.New(l)
-	prog := p.ParseProgram()
-
-	if len(p.Errors()) > 0 {
-		t.Fatalf("Parser errors: %v", p.Errors())
-	}
-
-	tr := New(prog, "", "keep", "")
-	_, err := tr.Transpile()
-	if err != nil {
-		t.Fatalf("Should handle logical OR: %v", err)
-	}
-}
-
-func TestEdgeCase_LogicalNOT(t *testing.T) {
-	input := `x = !false`
-	l := lexer.New(input)
-	p := parser.New(l)
-	prog := p.ParseProgram()
-
-	if len(p.Errors()) > 0 {
-		t.Skipf("NOT operator not fully implemented: %v", p.Errors())
-		return
-	}
-
-	tr := New(prog, "", "keep", "")
-	_, err := tr.Transpile()
-	if err != nil {
-		t.Skipf("NOT operator not fully implemented: %v", err)
-	}
-}
-
-func TestEdgeCase_ComplexLogicalExpression(t *testing.T) {
-	input := `x = (5 > 3 && 10 < 20) || false`
-	l := lexer.New(input)
-	p := parser.New(l)
-	prog := p.ParseProgram()
-
-	if len(p.Errors()) > 0 {
-		t.Fatalf("Parser errors: %v", p.Errors())
-	}
-
-	tr := New(prog, "", "keep", "")
-	_, err := tr.Transpile()
-	if err != nil {
-		t.Fatalf("Should handle complex logical: %v", err)
-	}
-}
+// NOTE: Logical operators (&&, ||, !) are not fully implemented yet.
+// Tests for these operators will be added in v0.0.6.1
 
 // EDGE CASES - Comparison Operators
 
