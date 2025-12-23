@@ -131,3 +131,8 @@ func MissingColonInTernary() string {
 func UnsupportedComparison(left, right interface{}) string {
 	return fmt.Sprintf("can't compare %v and %v — gremlin doesn't know how", left, right)
 }
+
+// UndefinedVariable returns a fun message for undefined variables
+func UndefinedVariable(varName string) string {
+	return fmt.Sprintf("variable %q not found — did you forget to define it?", varName)
+}
