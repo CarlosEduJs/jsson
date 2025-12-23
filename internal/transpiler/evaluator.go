@@ -122,7 +122,7 @@ func (t *Transpiler) evalMapExpression(e *ast.MapExpression, ctx map[string]inte
 	// Iterate and map
 	for _, item := range items {
 		// Create a new scope for the iteration
-		// We copy the current context to allow access to outer variables
+		// Copy the current context to allow access to outer variables (for nested maps)
 		newCtx := make(map[string]interface{})
 		if ctx != nil {
 			for k, v := range ctx {
@@ -191,13 +191,15 @@ func (t *Transpiler) evalIdentifier(e *ast.Identifier, ctx map[string]interface{
 	if val, ok := t.symbolTable[e.Value]; ok {
 		return val, nil
 	}
-	return e.Value, nil
+	// Variable not found - return error instead of the identifier name
+	return nil, t.errfNodeMsg(e, ie.UndefinedVariable(e.Value))
 }
 
 // evalObjectLiteral evaluates an object literal
 func (t *Transpiler) evalObjectLiteral(e *ast.ObjectLiteral, ctx map[string]interface{}) (interface{}, error) {
 	obj := make(map[string]interface{})
 
+	// Create local context, copying parent context first to allow access to outer variables
 	localCtx := make(map[string]interface{})
 	if ctx != nil {
 		for k, v := range ctx {
@@ -205,6 +207,7 @@ func (t *Transpiler) evalObjectLiteral(e *ast.ObjectLiteral, ctx map[string]inte
 		}
 	}
 
+	// Evaluate local declarations and add to context
 	for _, decl := range e.Declarations {
 		val, err := t.evalExpression(decl.Value, localCtx)
 		if err != nil {
