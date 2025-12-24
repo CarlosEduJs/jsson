@@ -822,6 +822,12 @@ func (p *Parser) parseObjectLiteral() ast.Expression {
 		}
 
 		key := p.curToken.Literal
+		// Remove quotes from string keys (e.g., "/transpile" -> /transpile)
+		if p.curToken.Type == token.STRING || p.curToken.Type == token.RAWSTRING {
+			if len(key) >= 2 && key[0] == '"' && key[len(key)-1] == '"' {
+				key = key[1 : len(key)-1]
+			}
+		}
 		p.nextToken() // consume key
 
 		// Check if it's a variable declaration (:=) or property assignment (=)
@@ -937,9 +943,10 @@ func (p *Parser) parseMapExpression(left ast.Expression) ast.Expression {
 }
 
 func (p *Parser) isValidPropertyName() bool {
-	// Allow IDENT and keywords as property names
+	// Allow IDENT, strings, and keywords as property names
 	switch p.curToken.Type {
 	case token.IDENT,
+		token.STRING, token.RAWSTRING,
 		token.TRUE, token.FALSE,
 		token.YES, token.NO, token.ON, token.OFF,
 		token.TEMPLATE, token.MAP, token.INCLUDE, token.STEP,
