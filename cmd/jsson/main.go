@@ -120,9 +120,7 @@ Documentation: https://docs.jssonlang.tech/
 `, Version)
 }
 
-// ============================================================================
 // Transpiler Command
-// ============================================================================
 
 func runTranspiler() {
 	inputPtr := flag.String("i", "", "Input JSSON file")
@@ -252,9 +250,7 @@ func runTranspiler() {
 	fmt.Fprintf(os.Stderr, "✓ Compiled in %v\n", elapsed)
 }
 
-// ============================================================================
 // Server Command
-// ============================================================================
 
 var (
 	serverPort int
@@ -292,9 +288,7 @@ func runServer(args []string) {
 	}
 }
 
-// ============================================================================
 // HTTP Types
-// ============================================================================
 
 type TranspileRequest struct {
 	Source          string `json:"source"`
@@ -362,10 +356,7 @@ type VersionResponse struct {
 	GoVersion     string `json:"go_version"`
 }
 
-// ============================================================================
 // HTTP Handlers
-// ============================================================================
-
 func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if serverCORS {
@@ -621,9 +612,7 @@ func validateWithSchemaHandler(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, http.StatusOK, response)
 }
 
-// ============================================================================
 // Core Functions
-// ============================================================================
 
 func transpileSource(source string, format string, includeMerge string, streaming bool, streamThreshold int64) ([]byte, []string, error) {
 	if format == "" {
