@@ -157,7 +157,7 @@ func TestValidateYAML(t *testing.T) {
 	schema := &Schema{
 		Type: "object",
 		Properties: map[string]*Schema{
-			"name": {Type: "string"},
+			"name":    {Type: "string"},
 			"enabled": {Type: "boolean"},
 		},
 		Required: []string{"name"},
@@ -300,7 +300,7 @@ func TestValidateNestedObject(t *testing.T) {
 
 func TestQuickValidate(t *testing.T) {
 	schemaJSON := `{"type": "string", "minLength": 3}`
-	
+
 	// Valid
 	result := QuickValidateJSON([]byte(`"hello"`), schemaJSON)
 	if !result.Valid {
@@ -316,7 +316,7 @@ func TestQuickValidate(t *testing.T) {
 
 func TestJSSonFormatValidation(t *testing.T) {
 	schema := &Schema{
-		Type:       "string",
+		Type:        "string",
 		JSSonFormat: "macro-id",
 	}
 

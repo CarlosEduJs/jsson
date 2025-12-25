@@ -75,7 +75,7 @@ func (s *Server) errorToDiagnostic(errMsg string, content string) Diagnostic {
 func (s *Server) extractErrorPosition(errMsg, content string) (int, int) {
 	// Format: "Syntax wizard: file:line:col — message" or "Syntax wizard: line:col — message"
 	// Example: "Syntax wizard: test.jsson:20:1 — expected '}' - wizard can't find the closing bracket"
-	
+
 	parts := strings.Split(errMsg, " ")
 	for _, part := range parts {
 		// Look for pattern like "20:1" or "file.jsson:20:1"
