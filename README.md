@@ -131,7 +131,7 @@ See the [Changelog](https://docs.jssonlang.tech/docs/changelog) for full details
 
 ## Contributing
 
-Contributions are welcome! Please read the [Contributing Guide](https://docs.jssonlang.tech/docs/contributing).
+Contributions are welcome! Please read the [Contributing Guide](CONTRIBUTING.md).
 
 ---
 
