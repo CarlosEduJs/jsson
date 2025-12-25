@@ -1,0 +1,12 @@
+// 01-hello-world.jsson
+// O exemplo mais simples de JSSON
+
+// Um objeto simples
+message = "Hello, JSSON!"
+version = "0.0.6"
+
+// Um objeto aninhado
+app {
+  name = "My First App"
+  language = "JSSON"
+}

@@ -1,0 +1,56 @@
+// API Configuration Example
+// Demonstrates generating API configurations using JSSON features
+
+// Variables for configuration
+api_version := "1.0.0"
+base_port := 3000
+
+// Server configurations
+servers [
+  template { name, env, port, protocol }
+  
+  map (s) = {
+    name = s.name
+    environment = s.env
+    host = s.env == "production" ? "api.example.com" : s.env + ".example.com"
+    port = s.port
+    protocol = s.protocol
+  }
+  
+  "dev-server", "development", 3000, "http"
+  "stage-server", "staging", 4000, "http"
+  "prod-server", "production", 443, "https"
+]
+
+// Endpoints configuration
+endpoints [
+  template { path, method, auth }
+  
+  map (e) = {
+    path = "/api" + e.path
+    method = e.method
+    requiresAuth = e.auth
+    rateLimit = e.method == "GET" ? 1000 : 100
+  }
+  
+  "/users", "GET", true
+  "/users", "POST", true
+  "/posts", "GET", false
+  "/posts", "POST", true
+]
+
+// Authentication configuration
+auth {
+  type = "jwt"
+  expiresIn = "7d"
+  issuer = "api.example.com"
+}
+
+// Rate limiting
+rateLimit {
+  windowMs = 60000
+  maxRequests = 100
+  message = "Too many requests, please try again later"
+}
+
+version = api_version

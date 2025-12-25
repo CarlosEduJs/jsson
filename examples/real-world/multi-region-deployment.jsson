@@ -1,0 +1,27 @@
+// Multi-Region Deployment
+// Demonstrates generating server configs for multiple regions
+
+servers [
+  template { id, region, tier }
+  
+  map (s) = {
+    id = "srv-" + s.id
+    region = s.region
+    tier = s.tier
+    replicas = s.tier == "prod" ? 5 : 2
+  }
+  
+  // US East - Production
+  101, "us-east-1", "prod"
+  102, "us-east-1", "prod"
+  
+  // US West - Staging
+  201, "us-west-2", "staging"
+  202, "us-west-2", "staging"
+  
+  // EU - Production
+  301, "eu-central-1", "prod"
+  
+  // APAC - Dev
+  401, "ap-south-1", "dev"
+]

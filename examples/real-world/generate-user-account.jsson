@@ -1,0 +1,23 @@
+// User Account Generation
+// Demonstrates generating user accounts with templates
+
+users [
+  template { id, department }
+
+  map (u) = {
+    id = u.id
+    username = "user_" + u.id
+    email = "user_" + u.id + "@company.com"
+    dept = u.department
+    role = "employee"
+  }
+
+  // Engineering users
+  101, "Engineering"
+  102, "Engineering"
+  103, "Engineering"
+
+  // Sales users
+  201, "Sales"
+  202, "Sales"
+]

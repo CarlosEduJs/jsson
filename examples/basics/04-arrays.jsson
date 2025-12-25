@@ -1,0 +1,18 @@
+// 04-arrays.jsson
+// Demonstra arrays em JSSON
+
+// Array simples
+colors = ["red", "green", "blue"]
+
+// Array de números
+numbers = [1, 2, 3, 4, 5]
+
+// Array de objetos
+users = [
+  { name = "Alice", age = 25 }
+  { name = "Bob", age = 30 }
+  { name = "Charlie", age = 35 }
+]
+
+// Array misto
+mixed = [1, "two", true, { nested = "object" }]

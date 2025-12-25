@@ -1,3 +1,0 @@
-// Simple multiplication by zero test
-x = 5 * 0
-y = 0 * 10

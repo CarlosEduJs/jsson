@@ -1,0 +1,59 @@
+// Database Configuration Example
+// Demonstrates database configs using JSSON presets
+
+// Database connection presets
+@preset "postgres_defaults" {
+  type = "postgres"
+  port = 5432
+  ssl = false
+  pool {
+    min = 2
+    max = 10
+    idleTimeoutMs = 30000
+  }
+}
+
+@preset "redis_defaults" {
+  type = "redis"
+  port = 6379
+  ssl = false
+}
+
+// Database configurations for different environments
+databases [
+  template { name, env, host }
+  
+  map (db) = {
+    name = db.name
+    environment = db.env
+    host = db.host
+    config = @use "postgres_defaults"
+    ssl = db.env == "production"
+  }
+  
+  "app_dev", "development", "localhost"
+  "app_staging", "staging", "staging-db.internal"
+  "app_prod", "production", "db.prod.internal"
+]
+
+// Redis cache configuration
+cache {
+  name = "app_cache"
+  config = @use "redis_defaults"
+  host = "redis.internal"
+}
+
+// Replication settings
+replication {
+  enabled = true
+  primary = "app_prod"
+  replicas = ["replica_1", "replica_2"]
+  strategy = "round-robin"
+}
+
+// Migration settings
+migrations {
+  enabled = true
+  directory = "./migrations"
+  tableName = "schema_migrations"
+}

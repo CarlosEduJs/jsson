@@ -18,7 +18,16 @@ out/
 
 *.jsson-output
 
+
 # Anything huge
 *.bin
+bin/
 *.dat
 
+*.exe
+*.vsix
+
+# Test files
+test-*.jsson
+/tests-jsson
+brutal.jsson
