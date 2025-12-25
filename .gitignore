@@ -29,4 +29,3 @@ bin/
 test-*.jsson
 /tests-jsson
 brutal.jsson
-*.ps1
