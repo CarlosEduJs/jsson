@@ -54,7 +54,7 @@ func generateUUID() string {
 // generateInt generates a random integer between min and max
 func generateInt(args []interface{}) int64 {
 	var min, max int64 = 0, 100 // defaults
-	
+
 	if len(args) >= 2 {
 		if v, ok := args[0].(int64); ok {
 			min = v
@@ -63,18 +63,18 @@ func generateInt(args []interface{}) int64 {
 			max = v
 		}
 	}
-	
+
 	if min >= max {
 		return min
 	}
-	
+
 	return min + mrand.Int63n(max-min+1)
 }
 
 // generateFloat generates a random float between min and max
 func generateFloat(args []interface{}) float64 {
 	var min, max float64 = 0.0, 1.0 // defaults
-	
+
 	if len(args) >= 2 {
 		// Handle both int64 and float64
 		switch v := args[0].(type) {
@@ -83,7 +83,7 @@ func generateFloat(args []interface{}) float64 {
 		case float64:
 			min = v
 		}
-		
+
 		switch v := args[1].(type) {
 		case int64:
 			max = float64(v)
@@ -91,11 +91,11 @@ func generateFloat(args []interface{}) float64 {
 			max = v
 		}
 	}
-	
+
 	if min >= max {
 		return min
 	}
-	
+
 	return min + mrand.Float64()*(max-min)
 }
 
@@ -103,4 +103,3 @@ func generateFloat(args []interface{}) float64 {
 func generateBool() bool {
 	return mrand.Intn(2) == 1
 }
-
