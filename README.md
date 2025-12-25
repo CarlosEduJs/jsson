@@ -1,6 +1,6 @@
 # JSSON
 
-[![JSSON Banner](https://i.postimg.cc/yx4C3YqC/og.png)](https://jssonlang.tech)
+[![JSSON Banner](https://jssonlang.tech/og-image.png)](https://jssonlang.tech)
 
 **JavaScript Simplified Object Notation** — A universal configuration meta-format.
 
@@ -104,16 +104,16 @@ jsson serve
 
 ## Documentation
 
-📚 **Full documentation:** [jssonlang.tech/docs](https://jssonlang.tech/docs)
+📚 **Full documentation:** [docs.jssonlang.tech](https://docs.jssonlang.tech)
 
-- [Getting Started](https://jssonlang.tech/docs/core/guides/getting-started)
-- [Syntax Reference](https://jssonlang.tech/docs/core/reference/syntax)
-- [Presets Guide](https://jssonlang.tech/docs/core/guides/presets)
-- [Validators Guide](https://jssonlang.tech/docs/core/guides/validators)
-- [Patterns & Anti-Patterns](https://jssonlang.tech/docs/core/patterns)
-- [CLI Reference](https://jssonlang.tech/docs/cli)
-- [HTTP Server API](https://jssonlang.tech/docs/server)
-- [VS Code Extension](https://jssonlang.tech/docs/editor)
+- [Getting Started](https://docs.jssonlang.tech/docs/core/guides/getting-started)
+- [Syntax Reference](https://docs.jssonlang.tech/docs/core/reference/syntax)
+- [Presets Guide](https://docs.jssonlang.tech/docs/core/guides/presets)
+- [Validators Guide](https://docs.jssonlang.tech/docs/core/guides/validators)
+- [Patterns & Anti-Patterns](https://docs.jssonlang.tech/docs/core/patterns)
+- [CLI Reference](https://docs.jssonlang.tech/docs/cli)
+- [HTTP Server API](https://docs.jssonlang.tech/docs/server)
+- [VS Code Extension](https://docs.jssonlang.tech/docs/editor)
 
 ---
 
@@ -125,13 +125,13 @@ jsson serve
 - **Minify Flag**: `--minify` for compact JSON output
 - **Bug Fixes**: Int/float comparison, bare identifier handling
 
-See the [Changelog](https://jssonlang.tech/docs/changelog) for full details.
+See the [Changelog](https://docs.jssonlang.tech/docs/changelog) for full details.
 
 ---
 
 ## Contributing
 
-Contributions are welcome! Please read the [Contributing Guide](https://jssonlang.tech/docs/contributing).
+Contributions are welcome! Please read the [Contributing Guide](https://docs.jssonlang.tech/docs/contributing).
 
 ---
 
