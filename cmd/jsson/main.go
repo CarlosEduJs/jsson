@@ -130,6 +130,9 @@ func runTranspiler() {
 	streamThreshold := flag.Int64("stream-threshold", 10000, "Auto-enable streaming for ranges larger than N items")
 	schemaPtr := flag.String("schema", "", "Schema file (JSON/YAML) to validate output against")
 	validateOnly := flag.Bool("validate-only", false, "Only validate, don't output transpiled result")
+	minifyPtr := flag.Bool("m", false, "Minify output (no whitespace)")
+	minifyLong := flag.Bool("minify", false, "Minify output (no whitespace)")
+	indentPtr := flag.Int("indent", 2, "Number of spaces for indentation (default 2)")
 	flag.Parse()
 
 	if *inputPtr == "" {
@@ -182,6 +185,8 @@ func runTranspiler() {
 
 	t := transpiler.New(program, baseDir, *mergeMode, absInput)
 	t.SetStreamingMode(*streamingPtr, *streamThreshold)
+	minify := *minifyPtr || *minifyLong
+	t.SetOutputFormat(minify, *indentPtr)
 
 	startTime := time.Now()
 

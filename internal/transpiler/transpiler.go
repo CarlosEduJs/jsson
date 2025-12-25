@@ -35,6 +35,9 @@ type Transpiler struct {
 	// Streaming support
 	streamingEnabled bool
 	streamThreshold  int64 // Auto-enable streaming if range size > threshold
+	// Output formatting
+	minify     bool
+	indentSize int
 }
 
 // New creates a new Transpiler instance
@@ -53,6 +56,16 @@ func New(program *ast.Program, baseDir string, mergeMode string, sourceFile stri
 		presetTable:      make(map[string]*ast.ObjectLiteral),
 		streamingEnabled: false,
 		streamThreshold:  10000, // Default: auto-enable streaming for ranges > 10k items
+		minify:           false,
+		indentSize:       2,
+	}
+}
+
+// SetOutputFormat configures output formatting (minify and indent size)
+func (t *Transpiler) SetOutputFormat(minify bool, indentSize int) {
+	t.minify = minify
+	if indentSize > 0 {
+		t.indentSize = indentSize
 	}
 }
 
@@ -92,7 +105,18 @@ func (t *Transpiler) Transpile() ([]byte, error) {
 	// Convert any RangeResult to plain slices before JSON marshaling
 	root = t.convertRangeResults(root).(map[string]interface{})
 
-	return json.MarshalIndent(root, "", "  ")
+	if t.minify {
+		return json.Marshal(root)
+	}
+
+	indent := "  "
+	if t.indentSize > 0 {
+		indent = ""
+		for i := 0; i < t.indentSize; i++ {
+			indent += " "
+		}
+	}
+	return json.MarshalIndent(root, "", indent)
 }
 
 // processInclude handles include statements

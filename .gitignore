@@ -15,7 +15,7 @@ out/
 *.tmp
 
 *.jsson-output
-jsson
+
 
 # Anything huge
 *.bin
