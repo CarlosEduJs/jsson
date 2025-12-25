@@ -1,2 +1,0 @@
-// Without outer parentheses
-test = 1..3 map (x) = x * 2

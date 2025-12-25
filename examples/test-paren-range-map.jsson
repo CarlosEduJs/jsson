@@ -1,2 +1,0 @@
-// Explicit parentheses around range
-test = ((1..3) map (x) = x * 2)

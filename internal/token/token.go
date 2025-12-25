@@ -50,6 +50,7 @@ const (
 	RBRACKET = "]"
 	LPAREN   = "("
 	RPAREN   = ")"
+	AT       = "@" // Preset directive prefix
 
 	// Keywords
 	TRUE     = "TRUE"
@@ -58,6 +59,28 @@ const (
 	MAP      = "MAP"
 	INCLUDE  = "INCLUDE"
 	STEP     = "STEP"
+	PRESET   = "PRESET" // @preset directive
+	USE      = "USE"    // @use directive
+
+	// Boolean literals extras
+	YES = "YES"
+	NO  = "NO"
+	ON  = "ON"
+	OFF = "OFF"
+
+	// Validators
+	UUID     = "UUID"
+	EMAIL    = "EMAIL"
+	URL      = "URL"
+	IPV4     = "IPV4"
+	IPV6     = "IPV6"
+	FILEPATH = "FILEPATH"
+	DATE     = "DATE"
+	DATETIME = "DATETIME"
+	REGEX    = "REGEX"
+	VINT     = "VINT"   // @int(min, max)
+	VFLOAT   = "VFLOAT" // @float(min, max)
+	VBOOL    = "VBOOL"  // @bool
 )
 
 var keywords = map[string]TokenType{
@@ -67,6 +90,28 @@ var keywords = map[string]TokenType{
 	"map":      MAP,
 	"include":  INCLUDE,
 	"step":     STEP,
+	"preset":   PRESET,
+	"use":      USE,
+
+	// Boolean literals extras
+	"yes": YES,
+	"no":  NO,
+	"on":  ON,
+	"off": OFF,
+
+	// Validators
+	"uuid":     UUID,
+	"email":    EMAIL,
+	"url":      URL,
+	"ipv4":     IPV4,
+	"ipv6":     IPV6,
+	"filepath": FILEPATH,
+	"date":     DATE,
+	"datetime": DATETIME,
+	"regex":    REGEX,
+	"int":      VINT,
+	"float":    VFLOAT,
+	"bool":     VBOOL,
 }
 
 func LookupIdent(ident string) TokenType {

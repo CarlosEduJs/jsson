@@ -1,0 +1,28 @@
+// Database Seed Example
+// Demonstrates generating employee data for database seeding
+
+employees [
+  template { id, dept, level }
+  
+  map (e) = {
+    id = e.id
+    name = "Employee " + e.id
+    email = "emp" + e.id + "@corp.com"
+    department = e.dept
+    level = e.level
+    salary = e.level == "senior" ? 120000 : e.level == "mid" ? 80000 : 50000
+  }
+  
+  // Engineering team
+  1001, "Engineering", "junior"
+  1002, "Engineering", "mid"
+  1003, "Engineering", "senior"
+  
+  // Sales team
+  2001, "Sales", "junior"
+  2002, "Sales", "mid"
+  
+  // HR team
+  3001, "HR", "mid"
+  3002, "HR", "senior"
+]

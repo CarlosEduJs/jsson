@@ -223,6 +223,8 @@ func (l *Lexer) NextToken() token.Token {
 		} else {
 			tok = l.newToken(token.DOT, string(l.ch))
 		}
+	case '@':
+		tok = l.newToken(token.AT, string(l.ch))
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF

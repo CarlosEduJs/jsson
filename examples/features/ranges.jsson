@@ -1,0 +1,14 @@
+// Ranges Example
+// Demonstrates range expressions in JSSON
+
+// Simple ranges
+ports = 8080..8085
+countdown = 10..1
+
+// Range with step
+evens = 0..10 step 2
+odds = 1..10 step 2
+
+// Ranges in maps
+doubled = (1..5 map (n) = n * 2)
+squares = (1..5 map (n) = n * n)

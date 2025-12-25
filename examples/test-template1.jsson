@@ -1,4 +1,0 @@
-// Test 1: Empty template
-test1 [
-  template { id, name }
-]
