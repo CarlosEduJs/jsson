@@ -1,4 +1,4 @@
-# JSSON v0.0.6 Release Notes
+# JSSON v0.0.6 Release Notes - Presets, Validators, HTTP Server & LSP
 
 ## New Features
 
@@ -30,6 +30,27 @@ user {
 ```
 
 **Available validators:** `@uuid`, `@email`, `@datetime`, `@date`, `@url`, `@ipv4`, `@ipv6`, `@filepath`, `@int(min, max)`, `@float(min, max)`, `@bool`
+
+### Built-in HTTP Server
+Serve your configurations directly via HTTP with zero configuration:
+
+```bash
+# Start the server
+jsson --serve -i config.jsson
+
+# Custom port
+jsson --serve --port 3000 -i config.jsson
+
+# Fetch from any service
+curl http://localhost:8080/config
+```
+
+**Features:**
+- Production-ready lightweight server
+- Hot-reload on file changes
+- CORS support for web clients
+- Multiple output formats (JSON, YAML, TOML)
+- Perfect for distributing configs across infrastructure
 
 ### Boolean Literals
 Use `yes/no` and `on/off` as more readable alternatives to `true/false`:
