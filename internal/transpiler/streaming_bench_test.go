@@ -6,11 +6,11 @@ import (
 	"testing"
 )
 
-// Benchmark large range without streaming
+// Benchmark large range without streaming.
 func BenchmarkLargeRange_NoStreaming(b *testing.B) {
 	input := "data = 0..9999"
 
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		l := lexer.New(input)
 		p := parser.New(l)
 		prog := p.ParseProgram()
@@ -25,11 +25,11 @@ func BenchmarkLargeRange_NoStreaming(b *testing.B) {
 	}
 }
 
-// Benchmark large range with streaming
+// Benchmark large range with streaming.
 func BenchmarkLargeRange_WithStreaming(b *testing.B) {
 	input := "data = 0..9999"
 
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		l := lexer.New(input)
 		p := parser.New(l)
 		prog := p.ParseProgram()
@@ -44,11 +44,11 @@ func BenchmarkLargeRange_WithStreaming(b *testing.B) {
 	}
 }
 
-// Benchmark very large range
+// Benchmark very large range.
 func BenchmarkVeryLargeRange_NoStreaming(b *testing.B) {
 	input := "data = 0..99999"
 
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		l := lexer.New(input)
 		p := parser.New(l)
 		prog := p.ParseProgram()
@@ -63,11 +63,11 @@ func BenchmarkVeryLargeRange_NoStreaming(b *testing.B) {
 	}
 }
 
-// Benchmark map transformation
+// Benchmark map transformation.
 func BenchmarkMapTransform_NoStreaming(b *testing.B) {
 	input := `data = (0..999 map (x) = { id = x, value = x * 2 })`
 
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		l := lexer.New(input)
 		p := parser.New(l)
 		prog := p.ParseProgram()
@@ -82,7 +82,7 @@ func BenchmarkMapTransform_NoStreaming(b *testing.B) {
 	}
 }
 
-// Benchmark template with range
+// Benchmark template with range.
 func BenchmarkTemplate_WithRange(b *testing.B) {
 	input := `users [
   template { id, name }
@@ -90,7 +90,7 @@ func BenchmarkTemplate_WithRange(b *testing.B) {
   0..999, "user"
 ]`
 
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		l := lexer.New(input)
 		p := parser.New(l)
 		prog := p.ParseProgram()
@@ -105,11 +105,11 @@ func BenchmarkTemplate_WithRange(b *testing.B) {
 	}
 }
 
-// Benchmark nested map (matrix generation)
+// Benchmark nested map (matrix generation).
 func BenchmarkNestedMap_SmallMatrix(b *testing.B) {
 	input := `matrix = (0..9 map (y) = (0..9 map (x) = x * y))`
 
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		l := lexer.New(input)
 		p := parser.New(l)
 		prog := p.ParseProgram()

@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-// Test boolean literals extras (yes/no/on/off)
+// Test boolean literals extras (yes/no/on/off).
 func TestBooleanLiteralsExtras(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -70,7 +70,7 @@ func TestBooleanLiteralsExtras(t *testing.T) {
 	}
 }
 
-// Test validator expressions
+// Test validator expressions.
 func TestValidatorExpressions(t *testing.T) {
 	tests := []struct {
 		input        string
@@ -131,7 +131,7 @@ func TestValidatorExpressions(t *testing.T) {
 	}
 }
 
-// Test keywords as property names
+// Test keywords as property names.
 func TestKeywordsAsPropertyNames(t *testing.T) {
 	input := `
 test {
@@ -181,7 +181,7 @@ test {
 	}
 }
 
-// Test regex validator with pattern
+// Test regex validator with pattern.
 func TestRegexValidatorWithPattern(t *testing.T) {
 	input := `cpf = @regex("^\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}$")`
 
@@ -219,7 +219,7 @@ func TestRegexValidatorWithPattern(t *testing.T) {
 	}
 }
 
-// Test mixed boolean literals and validators in object
+// Test mixed boolean literals and validators in object.
 func TestMixedBooleanAndValidators(t *testing.T) {
 	input := `
 config {

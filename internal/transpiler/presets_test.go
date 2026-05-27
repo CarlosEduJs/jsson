@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-// Test basic preset definition and usage
+// Test basic preset definition and usage.
 func TestPresetBasicUsage(t *testing.T) {
 	input := `
 @preset "server-defaults" {
@@ -28,17 +28,18 @@ dev_server = @use "server-defaults"
 	}
 
 	tr := New(program, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("transpiler error: %v", err)
 	}
 
-	var result map[string]interface{}
+	var result map[string]any
 	if err := json.Unmarshal(output, &result); err != nil {
 		t.Fatalf("json unmarshal error: %v", err)
 	}
 
-	devServer, exists := result["dev_server"].(map[string]interface{})
+	devServer, exists := result["dev_server"].(map[string]any)
 	if !exists {
 		t.Fatal("dev_server not found in output")
 	}
@@ -47,15 +48,17 @@ dev_server = @use "server-defaults"
 	if devServer["port"] != float64(8080) {
 		t.Errorf("port wrong. expected=8080 got=%v", devServer["port"])
 	}
+
 	if devServer["host"] != "localhost" {
 		t.Errorf("host wrong. expected=localhost got=%v", devServer["host"])
 	}
+
 	if devServer["timeout"] != float64(30) {
 		t.Errorf("timeout wrong. expected=30 got=%v", devServer["timeout"])
 	}
 }
 
-// Test preset with overrides
+// Test preset with overrides.
 func TestPresetWithOverrides(t *testing.T) {
 	input := `
 @preset "server-defaults" {
@@ -80,17 +83,18 @@ prod_server = @use "server-defaults" {
 	}
 
 	tr := New(program, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("transpiler error: %v", err)
 	}
 
-	var result map[string]interface{}
+	var result map[string]any
 	if err := json.Unmarshal(output, &result); err != nil {
 		t.Fatalf("json unmarshal error: %v", err)
 	}
 
-	prodServer, exists := result["prod_server"].(map[string]interface{})
+	prodServer, exists := result["prod_server"].(map[string]any)
 	if !exists {
 		t.Fatal("prod_server not found in output")
 	}
@@ -99,9 +103,11 @@ prod_server = @use "server-defaults" {
 	if prodServer["port"] != float64(443) {
 		t.Errorf("port not overridden. expected=443 got=%v", prodServer["port"])
 	}
+
 	if prodServer["host"] != "0.0.0.0" {
 		t.Errorf("host not overridden. expected=0.0.0.0 got=%v", prodServer["host"])
 	}
+
 	if prodServer["timeout"] != float64(60) {
 		t.Errorf("timeout not overridden. expected=60 got=%v", prodServer["timeout"])
 	}
@@ -112,7 +118,7 @@ prod_server = @use "server-defaults" {
 	}
 }
 
-// Test legacy @"preset" syntax
+// Test legacy @"preset" syntax.
 func TestPresetLegacySyntax(t *testing.T) {
 	input := `
 @preset "api-config" {
@@ -131,17 +137,18 @@ api = @"api-config"
 	}
 
 	tr := New(program, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("transpiler error: %v", err)
 	}
 
-	var result map[string]interface{}
+	var result map[string]any
 	if err := json.Unmarshal(output, &result); err != nil {
 		t.Fatalf("json unmarshal error: %v", err)
 	}
 
-	api, exists := result["api"].(map[string]interface{})
+	api, exists := result["api"].(map[string]any)
 	if !exists {
 		t.Fatal("api not found in output")
 	}
@@ -149,12 +156,13 @@ api = @"api-config"
 	if api["timeout"] != float64(30) {
 		t.Errorf("timeout wrong. expected=30 got=%v", api["timeout"])
 	}
+
 	if api["retries"] != float64(3) {
 		t.Errorf("retries wrong. expected=3 got=%v", api["retries"])
 	}
 }
 
-// Test preset in nested object
+// Test preset in nested object.
 func TestPresetInNestedObject(t *testing.T) {
 	input := `
 @preset "logging" {
@@ -178,17 +186,18 @@ service {
 	}
 
 	tr := New(program, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("transpiler error: %v", err)
 	}
 
-	var result map[string]interface{}
+	var result map[string]any
 	if err := json.Unmarshal(output, &result); err != nil {
 		t.Fatalf("json unmarshal error: %v", err)
 	}
 
-	service, exists := result["service"].(map[string]interface{})
+	service, exists := result["service"].(map[string]any)
 	if !exists {
 		t.Fatal("service not found in output")
 	}
@@ -197,7 +206,7 @@ service {
 		t.Errorf("name wrong. expected=my-service got=%v", service["name"])
 	}
 
-	logging, exists := service["logging"].(map[string]interface{})
+	logging, exists := service["logging"].(map[string]any)
 	if !exists {
 		t.Fatal("logging not found in service")
 	}
@@ -212,7 +221,7 @@ service {
 	}
 }
 
-// Test multiple presets
+// Test multiple presets.
 func TestMultiplePresets(t *testing.T) {
 	input := `
 @preset "api-defaults" {
@@ -239,39 +248,42 @@ service {
 	}
 
 	tr := New(program, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("transpiler error: %v", err)
 	}
 
-	var result map[string]interface{}
+	var result map[string]any
 	if err := json.Unmarshal(output, &result); err != nil {
 		t.Fatalf("json unmarshal error: %v", err)
 	}
 
-	service, exists := result["service"].(map[string]interface{})
+	service, exists := result["service"].(map[string]any)
 	if !exists {
 		t.Fatal("service not found in output")
 	}
 
-	api, exists := service["api"].(map[string]interface{})
+	api, exists := service["api"].(map[string]any)
 	if !exists {
 		t.Fatal("api not found in service")
 	}
+
 	if api["timeout"] != float64(30) || api["retries"] != float64(3) {
 		t.Errorf("api preset not applied correctly. got=%v", api)
 	}
 
-	logging, exists := service["logging"].(map[string]interface{})
+	logging, exists := service["logging"].(map[string]any)
 	if !exists {
 		t.Fatal("logging not found in service")
 	}
+
 	if logging["level"] != "info" || logging["format"] != "json" {
 		t.Errorf("logging preset not applied correctly. got=%v", logging)
 	}
 }
 
-// Test preset transpilation to YAML format
+// Test preset transpilation to YAML format.
 func TestPresetWithYAMLOutput(t *testing.T) {
 	input := `
 @preset "config" {
@@ -298,12 +310,12 @@ app = @use "config"
 	}
 
 	// Verify JSON contains the data
-	var result map[string]interface{}
-	if err := json.Unmarshal(jsonOutput, &result); err != nil {
+	var result map[string]any
+	if err = json.Unmarshal(jsonOutput, &result); err != nil {
 		t.Fatalf("json unmarshal error: %v", err)
 	}
 
-	app, exists := result["app"].(map[string]interface{})
+	app, exists := result["app"].(map[string]any)
 	if !exists {
 		t.Fatal("app not found in JSON output")
 	}
@@ -326,7 +338,7 @@ app = @use "config"
 	}
 }
 
-// Test preset transpilation to TOML format
+// Test preset transpilation to TOML format.
 func TestPresetWithTOMLOutput(t *testing.T) {
 	input := `
 @preset "database" {
@@ -353,12 +365,12 @@ db = @use "database"
 	}
 
 	// Verify JSON contains the data
-	var result map[string]interface{}
-	if err := json.Unmarshal(jsonOutput, &result); err != nil {
+	var result map[string]any
+	if err = json.Unmarshal(jsonOutput, &result); err != nil {
 		t.Fatalf("json unmarshal error: %v", err)
 	}
 
-	db, exists := result["db"].(map[string]interface{})
+	db, exists := result["db"].(map[string]any)
 	if !exists {
 		t.Fatal("db not found in JSON output")
 	}
@@ -381,7 +393,7 @@ db = @use "database"
 	}
 }
 
-// Test undefined preset reference error
+// Test undefined preset reference error.
 func TestUndefinedPresetReference(t *testing.T) {
 	input := `api = @use "undefined-preset"`
 

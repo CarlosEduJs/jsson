@@ -2,18 +2,21 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
+const testYAML = "yaml"
+
 // ============================================================================
 // HTTP Server Tests
 // ============================================================================
 
 func TestHealthEndpoint(t *testing.T) {
-	req := httptest.NewRequest("GET", "/health", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/health", http.NoBody)
 	w := httptest.NewRecorder()
 
 	healthHandler(w, req)
@@ -31,16 +34,18 @@ func TestHealthEndpoint(t *testing.T) {
 	if healthResp.Status != "healthy" {
 		t.Errorf("expected status 'healthy', got '%s'", healthResp.Status)
 	}
+
 	if healthResp.Service != "jsson" {
 		t.Errorf("expected service 'jsson', got '%s'", healthResp.Service)
 	}
+
 	if healthResp.JssonVersion != Version {
 		t.Errorf("expected jsson version '%s', got '%s'", Version, healthResp.JssonVersion)
 	}
 }
 
 func TestVersionEndpoint(t *testing.T) {
-	req := httptest.NewRequest("GET", "/version", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/version", http.NoBody)
 	w := httptest.NewRecorder()
 
 	versionHandler(w, req)
@@ -58,6 +63,7 @@ func TestVersionEndpoint(t *testing.T) {
 	if versionResp.JssonVersion != Version {
 		t.Errorf("expected jsson version '%s', got '%s'", Version, versionResp.JssonVersion)
 	}
+
 	if versionResp.ServerVersion != ServerVersion {
 		t.Errorf("expected server version '%s', got '%s'", ServerVersion, versionResp.ServerVersion)
 	}
@@ -68,10 +74,14 @@ func TestTranspileEndpoint(t *testing.T) {
 		Source: `app { name = "test" port = 8080 }`,
 		Format: "json",
 	}
-	body, _ := json.Marshal(reqBody)
+	body, err := json.Marshal(reqBody)
+	if err != nil {
+		t.Fatalf("failed to marshal request: %v", err)
+	}
 
-	req := httptest.NewRequest("POST", "/transpile", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/transpile", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
+
 	w := httptest.NewRecorder()
 
 	transpileHandler(w, req)
@@ -100,10 +110,14 @@ func TestTranspileEndpointYAML(t *testing.T) {
 		Source: `config { debug = true }`,
 		Format: "yaml",
 	}
-	body, _ := json.Marshal(reqBody)
+	body, err := json.Marshal(reqBody)
+	if err != nil {
+		t.Fatalf("failed to marshal request: %v", err)
+	}
 
-	req := httptest.NewRequest("POST", "/transpile", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/transpile", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
+
 	w := httptest.NewRecorder()
 
 	transpileHandler(w, req)
@@ -122,7 +136,7 @@ func TestTranspileEndpointYAML(t *testing.T) {
 		t.Errorf("expected success, got errors: %v", transpileResp.Errors)
 	}
 
-	if transpileResp.Format != "yaml" {
+	if transpileResp.Format != testYAML {
 		t.Errorf("expected format 'yaml', got '%s'", transpileResp.Format)
 	}
 
@@ -135,10 +149,14 @@ func TestValidateEndpoint(t *testing.T) {
 	reqBody := ValidateRequest{
 		Source: `app { name = "test" }`,
 	}
-	body, _ := json.Marshal(reqBody)
+	body, err := json.Marshal(reqBody)
+	if err != nil {
+		t.Fatalf("failed to marshal request: %v", err)
+	}
 
-	req := httptest.NewRequest("POST", "/validate", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/validate", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
+
 	w := httptest.NewRecorder()
 
 	validateHandler(w, req)
@@ -162,10 +180,14 @@ func TestValidateEndpointInvalidSyntax(t *testing.T) {
 	reqBody := ValidateRequest{
 		Source: `app { name = `,
 	}
-	body, _ := json.Marshal(reqBody)
+	body, err := json.Marshal(reqBody)
+	if err != nil {
+		t.Fatalf("failed to marshal request: %v", err)
+	}
 
-	req := httptest.NewRequest("POST", "/validate", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/validate", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
+
 	w := httptest.NewRecorder()
 
 	validateHandler(w, req)
@@ -206,10 +228,14 @@ func TestValidateWithSchemaEndpoint(t *testing.T) {
 		}`,
 		OutputFormat: "json",
 	}
-	body, _ := json.Marshal(reqBody)
+	body, err := json.Marshal(reqBody)
+	if err != nil {
+		t.Fatalf("failed to marshal request: %v", err)
+	}
 
-	req := httptest.NewRequest("POST", "/validate-schema", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/validate-schema", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
+
 	w := httptest.NewRecorder()
 
 	validateWithSchemaHandler(w, req)
@@ -250,10 +276,14 @@ func TestValidateWithSchemaEndpointFailure(t *testing.T) {
 		}`,
 		OutputFormat: "json",
 	}
-	body, _ := json.Marshal(reqBody)
+	body, err := json.Marshal(reqBody)
+	if err != nil {
+		t.Fatalf("failed to marshal request: %v", err)
+	}
 
-	req := httptest.NewRequest("POST", "/validate-schema", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/validate-schema", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
+
 	w := httptest.NewRecorder()
 
 	validateWithSchemaHandler(w, req)
@@ -277,11 +307,11 @@ func TestValidateWithSchemaEndpointFailure(t *testing.T) {
 func TestCORSMiddleware(t *testing.T) {
 	serverCORS = true
 
-	handler := corsMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	handler := corsMiddleware(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	req := httptest.NewRequest("GET", "/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/test", http.NoBody)
 	w := httptest.NewRecorder()
 
 	handler(w, req)
@@ -297,11 +327,11 @@ func TestCORSMiddleware(t *testing.T) {
 func TestCORSOptionsRequest(t *testing.T) {
 	serverCORS = true
 
-	handler := corsMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	handler := corsMiddleware(func(_ http.ResponseWriter, _ *http.Request) {
 		t.Error("handler should not be called for OPTIONS request")
 	})
 
-	req := httptest.NewRequest("OPTIONS", "/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodOptions, "/test", http.NoBody)
 	w := httptest.NewRecorder()
 
 	handler(w, req)

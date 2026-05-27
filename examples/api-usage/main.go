@@ -7,7 +7,7 @@ import (
 	"jsson/internal/transpiler"
 )
 
-// Example of using JSSON as a library
+// Example of using JSSON as a library.
 func main() {
 	// JSSON v0.0.6 source with new features
 	source := `
@@ -52,9 +52,11 @@ ports = (8080..8090)
 	// Check for parsing errors
 	if len(p.Errors()) > 0 {
 		fmt.Println("❌ Parser errors:")
+
 		for _, err := range p.Errors() {
 			fmt.Println("  ", err)
 		}
+
 		return
 	}
 
@@ -62,9 +64,11 @@ ports = (8080..8090)
 
 	// Transpile to JSON
 	tr := transpiler.New(program, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		fmt.Printf("❌ Transpile error: %v\n", err)
+
 		return
 	}
 
@@ -75,6 +79,7 @@ ports = (8080..8090)
 	yamlOutput, err := tr.TranspileToYAML()
 	if err != nil {
 		fmt.Printf("❌ YAML transpile error: %v\n", err)
+
 		return
 	}
 
@@ -85,6 +90,7 @@ ports = (8080..8090)
 	tomlOutput, err := tr.TranspileToTOML()
 	if err != nil {
 		fmt.Printf("❌ TOML transpile error: %v\n", err)
+
 		return
 	}
 

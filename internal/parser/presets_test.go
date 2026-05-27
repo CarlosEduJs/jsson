@@ -6,7 +6,9 @@ import (
 	"testing"
 )
 
-// Test @preset statement definition
+const testPresetName = "api-defaults"
+
+// Test @preset statement definition.
 func TestPresetStatement(t *testing.T) {
 	input := `
 @preset "api-defaults" {
@@ -33,7 +35,7 @@ func TestPresetStatement(t *testing.T) {
 		t.Fatalf("stmt not *ast.PresetStatement. got=%T", program.Statements[0])
 	}
 
-	if stmt.Name.Value != "api-defaults" {
+	if stmt.Name.Value != testPresetName {
 		t.Errorf("preset name wrong. expected=api-defaults got=%s", stmt.Name.Value)
 	}
 
@@ -41,7 +43,7 @@ func TestPresetStatement(t *testing.T) {
 		t.Fatal("preset body is nil")
 	}
 
-	expectedProps := map[string]interface{}{
+	expectedProps := map[string]any{
 		"timeout": int64(30),
 		"retries": int64(3),
 		"cache":   true,
@@ -51,6 +53,7 @@ func TestPresetStatement(t *testing.T) {
 		prop, exists := stmt.Body.Properties[key]
 		if !exists {
 			t.Errorf("property '%s' not found in preset body", key)
+
 			continue
 		}
 
@@ -59,8 +62,10 @@ func TestPresetStatement(t *testing.T) {
 			intLit, ok := prop.(*ast.IntegerLiteral)
 			if !ok {
 				t.Errorf("property '%s' not IntegerLiteral. got=%T", key, prop)
+
 				continue
 			}
+
 			if intLit.Value != expected {
 				t.Errorf("property '%s' value wrong. expected=%d got=%d", key, expected, intLit.Value)
 			}
@@ -68,8 +73,10 @@ func TestPresetStatement(t *testing.T) {
 			boolLit, ok := prop.(*ast.BooleanLiteral)
 			if !ok {
 				t.Errorf("property '%s' not BooleanLiteral. got=%T", key, prop)
+
 				continue
 			}
+
 			if boolLit.Value != expected {
 				t.Errorf("property '%s' value wrong. expected=%v got=%v", key, expected, boolLit.Value)
 			}
@@ -77,7 +84,7 @@ func TestPresetStatement(t *testing.T) {
 	}
 }
 
-// Test preset reference with @use syntax
+// Test preset reference with @use syntax.
 func TestPresetReferenceUse(t *testing.T) {
 	input := `dev_api = @use "api-defaults"`
 
@@ -108,7 +115,7 @@ func TestPresetReferenceUse(t *testing.T) {
 		t.Fatalf("value not *ast.PresetReference. got=%T", stmt.Value)
 	}
 
-	if ref.Name.Value != "api-defaults" {
+	if ref.Name.Value != testPresetName {
 		t.Errorf("preset reference name wrong. expected=api-defaults got=%s", ref.Name.Value)
 	}
 
@@ -117,7 +124,7 @@ func TestPresetReferenceUse(t *testing.T) {
 	}
 }
 
-// Test preset reference with legacy @ syntax
+// Test preset reference with legacy @ syntax.
 func TestPresetReferenceLegacy(t *testing.T) {
 	input := `dev_api = @"api-defaults"`
 
@@ -139,12 +146,12 @@ func TestPresetReferenceLegacy(t *testing.T) {
 		t.Fatalf("value not *ast.PresetReference. got=%T", stmt.Value)
 	}
 
-	if ref.Name.Value != "api-defaults" {
+	if ref.Name.Value != testPresetName {
 		t.Errorf("preset reference name wrong. expected=api-defaults got=%s", ref.Name.Value)
 	}
 }
 
-// Test preset reference with overrides
+// Test preset reference with overrides.
 func TestPresetReferenceWithOverrides(t *testing.T) {
 	input := `
 prod_api = @use "api-defaults" {
@@ -170,7 +177,7 @@ prod_api = @use "api-defaults" {
 		t.Fatalf("value not *ast.PresetReference. got=%T", stmt.Value)
 	}
 
-	if ref.Name.Value != "api-defaults" {
+	if ref.Name.Value != testPresetName {
 		t.Errorf("preset reference name wrong. expected=api-defaults got=%s", ref.Name.Value)
 	}
 
@@ -205,7 +212,7 @@ prod_api = @use "api-defaults" {
 	}
 }
 
-// Test preset in nested object
+// Test preset in nested object.
 func TestPresetInNestedObject(t *testing.T) {
 	input := `
 service {
@@ -236,6 +243,7 @@ service {
 	if !exists {
 		t.Fatal("name property not found")
 	}
+
 	strLit, ok := name.(*ast.StringLiteral)
 	if !ok || strLit.Value != "my-service" {
 		t.Errorf("name property wrong. expected=my-service got=%v", name)
@@ -246,16 +254,18 @@ service {
 	if !exists {
 		t.Fatal("api property not found")
 	}
+
 	ref, ok := api.(*ast.PresetReference)
 	if !ok {
 		t.Fatalf("api property not *ast.PresetReference. got=%T", api)
 	}
-	if ref.Name.Value != "api-defaults" {
+
+	if ref.Name.Value != testPresetName {
 		t.Errorf("preset name wrong. expected=api-defaults got=%s", ref.Name.Value)
 	}
 }
 
-// Test multiple presets in one file
+// Test multiple presets in one file.
 func TestMultiplePresets(t *testing.T) {
 	input := `
 @preset "api-defaults" {
@@ -287,7 +297,8 @@ logging = @use "logging"
 	if !ok {
 		t.Fatalf("statement 0 not *ast.PresetStatement. got=%T", program.Statements[0])
 	}
-	if preset1.Name.Value != "api-defaults" {
+
+	if preset1.Name.Value != testPresetName {
 		t.Errorf("preset 1 name wrong. expected=api-defaults got=%s", preset1.Name.Value)
 	}
 
@@ -296,6 +307,7 @@ logging = @use "logging"
 	if !ok {
 		t.Fatalf("statement 1 not *ast.PresetStatement. got=%T", program.Statements[1])
 	}
+
 	if preset2.Name.Value != "logging" {
 		t.Errorf("preset 2 name wrong. expected=logging got=%s", preset2.Name.Value)
 	}
@@ -305,8 +317,9 @@ logging = @use "logging"
 	if !ok {
 		t.Fatalf("statement 2 not *ast.AssignmentStatement. got=%T", program.Statements[2])
 	}
+
 	ref1, ok := usage1.Value.(*ast.PresetReference)
-	if !ok || ref1.Name.Value != "api-defaults" {
+	if !ok || ref1.Name.Value != testPresetName {
 		t.Errorf("usage 1 wrong. expected @use api-defaults")
 	}
 
@@ -315,6 +328,7 @@ logging = @use "logging"
 	if !ok {
 		t.Fatalf("statement 3 not *ast.AssignmentStatement. got=%T", program.Statements[3])
 	}
+
 	ref2, ok := usage2.Value.(*ast.PresetReference)
 	if !ok || ref2.Name.Value != "logging" {
 		t.Errorf("usage 2 wrong. expected @use logging")

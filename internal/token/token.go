@@ -1,9 +1,9 @@
 package token
 
-type TokenType string
+type Type string
 
 type Token struct {
-	Type    TokenType
+	Type    Type
 	Literal string
 	Line    int
 	Column  int
@@ -13,7 +13,7 @@ const (
 	ILLEGAL = "ILLEGAL"
 	EOF     = "EOF"
 
-	// Identifiers + Literals
+	// Identifiers + Literals.
 	IDENT       = "IDENT"       // user, name, age
 	INT         = "INT"         // 123
 	FLOAT       = "FLOAT"       // 123.45
@@ -21,7 +21,7 @@ const (
 	RAWSTRING   = "RAWSTRING"   // """raw text"""
 	TEMPLATESTR = "TEMPLATESTR" // `template ${var}`
 
-	// Operators
+	// Operators.
 	ASSIGN   = "="
 	DECLARE  = ":=" // Variable declaration
 	COLON    = ":"
@@ -42,7 +42,7 @@ const (
 	LAND     = "&&" // Logical AND
 	LOR      = "||" // Logical OR
 
-	// Delimiters
+	// Delimiters.
 	COMMA    = ","
 	LBRACE   = "{"
 	RBRACE   = "}"
@@ -52,7 +52,7 @@ const (
 	RPAREN   = ")"
 	AT       = "@" // Preset directive prefix
 
-	// Keywords
+	// Keywords.
 	TRUE     = "TRUE"
 	FALSE    = "FALSE"
 	TEMPLATE = "TEMPLATE"
@@ -62,13 +62,13 @@ const (
 	PRESET   = "PRESET" // @preset directive
 	USE      = "USE"    // @use directive
 
-	// Boolean literals extras
+	// Boolean literals extras.
 	YES = "YES"
 	NO  = "NO"
 	ON  = "ON"
 	OFF = "OFF"
 
-	// Validators
+	// Validators.
 	UUID     = "UUID"
 	EMAIL    = "EMAIL"
 	URL      = "URL"
@@ -83,7 +83,7 @@ const (
 	VBOOL    = "VBOOL"  // @bool
 )
 
-var keywords = map[string]TokenType{
+var keywords = map[string]Type{
 	"true":     TRUE,
 	"false":    FALSE,
 	"template": TEMPLATE,
@@ -114,9 +114,10 @@ var keywords = map[string]TokenType{
 	"bool":     VBOOL,
 }
 
-func LookupIdent(ident string) TokenType {
+func LookupIdent(ident string) Type {
 	if tok, ok := keywords[ident]; ok {
 		return tok
 	}
+
 	return IDENT
 }

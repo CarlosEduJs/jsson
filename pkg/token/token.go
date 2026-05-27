@@ -4,13 +4,15 @@ package token
 
 import "jsson/internal/token"
 
-// Re-export types
-type Token = token.Token
-type TokenType = token.TokenType
+// Re-export types.
+type (
+	Token = token.Token
+	Type  = token.Type
+)
 
-// Re-export constants
+// Re-export constants.
 const (
-	// Literals
+	// Literals.
 	ILLEGAL = token.ILLEGAL
 	EOF     = token.EOF
 	IDENT   = token.IDENT
@@ -18,7 +20,7 @@ const (
 	FLOAT   = token.FLOAT
 	STRING  = token.STRING
 
-	// Operators
+	// Operators.
 	ASSIGN   = token.ASSIGN
 	DECLARE  = token.DECLARE
 	PLUS     = token.PLUS
@@ -27,7 +29,7 @@ const (
 	SLASH    = token.SLASH
 	MODULO   = token.MODULO
 
-	// Comparison
+	// Comparison.
 	EQ  = token.EQ
 	NEQ = token.NEQ
 	LT  = token.LT
@@ -35,11 +37,11 @@ const (
 	LTE = token.LTE
 	GTE = token.GTE
 
-	// Logical
+	// Logical.
 	LAND = token.LAND
 	LOR  = token.LOR
 
-	// Delimiters
+	// Delimiters.
 	COMMA    = token.COMMA
 	COLON    = token.COLON
 	LBRACE   = token.LBRACE
@@ -53,7 +55,7 @@ const (
 	QUESTION = token.QUESTION
 	AT       = token.AT
 
-	// Keywords
+	// Keywords.
 	INCLUDE  = token.INCLUDE
 	TEMPLATE = token.TEMPLATE
 	MAP      = token.MAP
@@ -63,7 +65,7 @@ const (
 	PRESET   = token.PRESET
 	USE      = token.USE
 
-	// Validators
+	// Validators.
 	UUID     = token.UUID
 	EMAIL    = token.EMAIL
 	URL      = token.URL
@@ -74,7 +76,7 @@ const (
 	DATETIME = token.DATETIME
 	REGEX    = token.REGEX
 
-	// String types
+	// String types.
 	RAWSTRING   = token.RAWSTRING
 	TEMPLATESTR = token.TEMPLATESTR
 )

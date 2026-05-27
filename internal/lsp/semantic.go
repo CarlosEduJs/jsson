@@ -4,30 +4,33 @@ import (
 	"strings"
 )
 
-func (s *Server) handleSemanticTokensFull(id interface{}, params interface{}) error {
-	p, ok := params.(map[string]interface{})
+func (s *Server) handleSemanticTokensFull(id, params any) error {
+	p, ok := params.(map[string]any)
 	if !ok {
-		return s.sendError(id, -32602, "Invalid params")
+		return s.sendError(id, "Invalid params")
 	}
 
-	textDoc, ok := p["textDocument"].(map[string]interface{})
+	textDoc, ok := p["textDocument"].(map[string]any)
 	if !ok {
-		return s.sendError(id, -32602, "Invalid textDocument")
+		return s.sendError(id, "Invalid textDocument")
 	}
 
-	uri := textDoc["uri"].(string)
+	uri, ok := textDoc["uri"].(string)
+	if !ok {
+		return s.sendError(id, "Invalid uri")
+	}
 
 	doc, ok := s.getDocument(uri)
 	if !ok {
-		return s.sendError(id, -32602, "Document not found")
+		return s.sendError(id, "Document not found")
 	}
 
 	tokens := s.generateSemanticTokens(doc.Content)
 
-	response := map[string]interface{}{
+	response := map[string]any{
 		"jsonrpc": "2.0",
 		"id":      id,
-		"result": map[string]interface{}{
+		"result": map[string]any{
 			"data": tokens,
 		},
 	}
@@ -71,11 +74,13 @@ func (s *Server) generateSemanticTokens(content string) []int {
 	prevChar := 0
 
 	for lineNum, line := range lines {
-		if idx := strings.Index(line, ":="); idx != -1 {
-			beforeAssign := line[:idx]
+		if before, _, ok := strings.Cut(line, ":="); ok {
+			beforeAssign := before
+
 			varName := strings.TrimSpace(beforeAssign)
 			if isValidIdentifier(varName) {
 				declaredVars[varName] = true
+
 				tokens = append(tokens,
 					lineNum-prevLine,
 					len(line)-len(strings.TrimLeft(line, " \t"))-prevChar,
@@ -93,9 +98,11 @@ func (s *Server) generateSemanticTokens(content string) []int {
 			if startIdx == -1 {
 				startIdx = strings.Index(line, " zip (")
 			}
+
 			if startIdx != -1 {
 				rest := line[startIdx:]
 				parenStart := strings.Index(rest, "(")
+
 				parenEnd := strings.Index(rest, ")")
 				if parenStart != -1 && parenEnd != -1 {
 					paramsStr := rest[parenStart+1 : parenEnd]
@@ -103,6 +110,7 @@ func (s *Server) generateSemanticTokens(content string) []int {
 						param = strings.TrimSpace(param)
 						if param != "" && isValidIdentifier(param) {
 							scopeParams[param] = true
+
 							paramPos := strings.Index(line, param)
 							if paramPos != -1 {
 								tokens = append(tokens,
@@ -123,18 +131,23 @@ func (s *Server) generateSemanticTokens(content string) []int {
 
 		for param := range scopeParams {
 			idx := 0
+
 			for {
 				pos := strings.Index(line[idx:], param)
 				if pos == -1 {
 					break
 				}
+
 				actualPos := idx + pos
 				if actualPos > 0 && isIdentifierChar(line[actualPos-1]) {
 					idx = actualPos + 1
+
 					continue
 				}
+
 				if actualPos+len(param) < len(line) && isIdentifierChar(line[actualPos+len(param)]) {
 					idx = actualPos + 1
+
 					continue
 				}
 

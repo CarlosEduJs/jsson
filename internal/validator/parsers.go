@@ -1,14 +1,14 @@
 package validator
 
 import (
-	"fmt"
+	"errors"
 	"regexp"
 	"strconv"
 	"strings"
 )
 
-// parseTOML parses a simple TOML string into a map
-func parseTOML(tomlStr string) (map[string]any, error) {
+// parseTOML parses a simple TOML string into a map.
+func parseTOML(tomlStr string) map[string]any {
 	result := make(map[string]any)
 	currentSection := result
 
@@ -31,10 +31,12 @@ func parseTOML(tomlStr string) (map[string]any, error) {
 				if _, exists := currentSection[part]; !exists {
 					currentSection[part] = make(map[string]any)
 				}
+
 				if nextSection, ok := currentSection[part].(map[string]any); ok {
 					currentSection = nextSection
 				}
 			}
+
 			continue
 		}
 
@@ -49,15 +51,16 @@ func parseTOML(tomlStr string) (map[string]any, error) {
 		}
 	}
 
-	return result, nil
+	return result
 }
 
-// parseTOMLValue parses a TOML value string
+// parseTOMLValue parses a TOML value string.
 func parseTOMLValue(value string) any {
 	// String (quoted)
 	if strings.HasPrefix(value, "\"") && strings.HasSuffix(value, "\"") {
 		return strings.Trim(value, "\"")
 	}
+
 	if strings.HasPrefix(value, "'") && strings.HasSuffix(value, "'") {
 		return strings.Trim(value, "'")
 	}
@@ -66,6 +69,7 @@ func parseTOMLValue(value string) any {
 	if value == "true" {
 		return true
 	}
+
 	if value == "false" {
 		return false
 	}
@@ -74,6 +78,7 @@ func parseTOMLValue(value string) any {
 	if i, err := strconv.ParseInt(value, 10, 64); err == nil {
 		return i
 	}
+
 	if f, err := strconv.ParseFloat(value, 64); err == nil {
 		return f
 	}
@@ -86,10 +91,12 @@ func parseTOMLValue(value string) any {
 		}
 		// Simple split by comma (doesn't handle nested arrays well)
 		parts := strings.Split(inner, ",")
+
 		arr := make([]any, 0, len(parts))
 		for _, part := range parts {
 			arr = append(arr, parseTOMLValue(strings.TrimSpace(part)))
 		}
+
 		return arr
 	}
 
@@ -97,7 +104,7 @@ func parseTOMLValue(value string) any {
 	return value
 }
 
-// parseTypeScript parses TypeScript const/interface to extract data
+// parseTypeScript parses TypeScript const/interface to extract data.
 func parseTypeScript(tsStr string) (map[string]any, error) {
 	result := make(map[string]any)
 
@@ -123,13 +130,13 @@ func parseTypeScript(tsStr string) (map[string]any, error) {
 	}
 
 	if len(result) == 0 {
-		return nil, fmt.Errorf("no valid TypeScript data found")
+		return nil, errors.New("no valid TypeScript data found")
 	}
 
 	return result, nil
 }
 
-// parseTypeScriptObject parses a simple TypeScript object literal
+// parseTypeScriptObject parses a simple TypeScript object literal.
 func parseTypeScriptObject(objStr string) map[string]any {
 	result := make(map[string]any)
 
@@ -165,7 +172,7 @@ func parseTypeScriptObject(objStr string) map[string]any {
 	return result
 }
 
-// parseTypeScriptValue parses a TypeScript value
+// parseTypeScriptValue parses a TypeScript value.
 func parseTypeScriptValue(value string) any {
 	// Remove trailing comma if present
 	value = strings.TrimSuffix(value, ",")
@@ -175,9 +182,11 @@ func parseTypeScriptValue(value string) any {
 	if strings.HasPrefix(value, "\"") && strings.HasSuffix(value, "\"") {
 		return strings.Trim(value, "\"")
 	}
+
 	if strings.HasPrefix(value, "'") && strings.HasSuffix(value, "'") {
 		return strings.Trim(value, "'")
 	}
+
 	if strings.HasPrefix(value, "`") && strings.HasSuffix(value, "`") {
 		return strings.Trim(value, "`")
 	}
@@ -186,12 +195,13 @@ func parseTypeScriptValue(value string) any {
 	if value == "true" {
 		return true
 	}
+
 	if value == "false" {
 		return false
 	}
 
 	// Null/undefined
-	if value == "null" || value == "undefined" {
+	if value == typeNull || value == "undefined" {
 		return nil
 	}
 
@@ -199,6 +209,7 @@ func parseTypeScriptValue(value string) any {
 	if i, err := strconv.ParseInt(value, 10, 64); err == nil {
 		return i
 	}
+
 	if f, err := strconv.ParseFloat(value, 64); err == nil {
 		return f
 	}

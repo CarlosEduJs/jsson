@@ -13,10 +13,16 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-// TranspileToTOML converts the transpiled data to TOML format
+const (
+	mergeModeKeep      = "keep"
+	mergeModeOverwrite = "overwrite"
+	mergeModeError     = "error"
+)
+
+// TranspileToTOML converts the transpiled data to TOML format.
 func (t *Transpiler) TranspileToTOML() ([]byte, error) {
 	// First, transpile to the internal representation
-	root := make(map[string]interface{})
+	root := make(map[string]any)
 
 	for _, stmt := range t.program.Statements {
 		switch s := stmt.(type) {
@@ -29,17 +35,21 @@ func (t *Transpiler) TranspileToTOML() ([]byte, error) {
 			if err != nil {
 				return nil, err
 			}
+
 			t.symbolTable[s.Name.Value] = val
 		case *ast.AssignmentStatement:
 			key := s.Name.Value
+
 			val, err := t.evalExpression(s.Value, nil)
 			if err != nil {
 				return nil, err
 			}
+
 			root[key] = val
 		case *ast.IncludeStatement:
 			// Handle includes (same logic as JSON transpiler)
 			includePath := s.Path.Value
+
 			var includeAbs string
 			if filepath.IsAbs(includePath) {
 				includeAbs = filepath.Clean(includePath)
@@ -57,6 +67,7 @@ func (t *Transpiler) TranspileToTOML() ([]byte, error) {
 						root[k] = v
 					}
 				}
+
 				break
 			}
 
@@ -65,15 +76,19 @@ func (t *Transpiler) TranspileToTOML() ([]byte, error) {
 			data, err := os.ReadFile(includeAbs)
 			if err != nil {
 				t.inProgress[includeAbs] = false
+
 				return nil, t.errfNode(s, "could not read include file %q — gremlin can't find it: %v", s.Path.Value, err)
 			}
 
 			l := lexer.New(string(data))
 			l.SetSourceFile(includeAbs)
 			p := parser.New(l)
+
 			prog := p.ParseProgram()
+
 			if len(p.Errors()) > 0 {
 				t.inProgress[includeAbs] = false
+
 				return nil, t.errfNode(s, "parser errors in included file %q — wizard got confused: %v", s.Path.Value, p.Errors())
 			}
 
@@ -85,12 +100,14 @@ func (t *Transpiler) TranspileToTOML() ([]byte, error) {
 			incJSON, err := incT.Transpile()
 			if err != nil {
 				t.inProgress[includeAbs] = false
+
 				return nil, t.errfNode(s, "transpile error in included file %q: %v", s.Path.Value, err)
 			}
 
-			var incRoot map[string]interface{}
+			var incRoot map[string]any
 			if err := json.Unmarshal(incJSON, &incRoot); err != nil {
 				t.inProgress[includeAbs] = false
+
 				return nil, t.errfNode(s, "invalid json from include %q: %v", s.Path.Value, err)
 			}
 
@@ -99,16 +116,17 @@ func (t *Transpiler) TranspileToTOML() ([]byte, error) {
 
 			for k, v := range incRoot {
 				switch t.mergeMode {
-				case "keep":
+				case mergeModeKeep:
 					if _, exists := root[k]; !exists {
 						root[k] = v
 					}
-				case "overwrite":
+				case mergeModeOverwrite:
 					root[k] = v
-				case "error":
+				case mergeModeError:
 					if _, exists := root[k]; exists {
 						return nil, t.errfNode(s, "include merge conflict for key %q from %s", k, includeAbs)
 					}
+
 					root[k] = v
 				default:
 					if _, exists := root[k]; !exists {
@@ -120,13 +138,17 @@ func (t *Transpiler) TranspileToTOML() ([]byte, error) {
 	}
 
 	// Convert any RangeResult to plain arrays
-	root = t.convertRangeResults(root).(map[string]interface{})
+	if r, ok := t.convertRangeResults(root).(map[string]any); ok {
+		root = r
+	}
 
 	// Marshal to TOML
 	var buf bytes.Buffer
+
 	encoder := toml.NewEncoder(&buf)
 	if err := encoder.Encode(root); err != nil {
 		return nil, err
 	}
+
 	return buf.Bytes(), nil
 }

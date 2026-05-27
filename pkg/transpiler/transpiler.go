@@ -4,11 +4,13 @@ package transpiler
 
 import "jsson/internal/transpiler"
 
-// Re-export types
-type Transpiler = transpiler.Transpiler
-type RangeResult = transpiler.RangeResult
+// Re-export types.
+type (
+	Transpiler  = transpiler.Transpiler
+	RangeResult = transpiler.RangeResult
+)
 
-// Re-export functions
+// Re-export functions.
 var New = transpiler.New
 
 // Note: Transpiler methods like TranspileToYAML(), TranspileToTOML(),

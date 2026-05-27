@@ -7,33 +7,41 @@ import (
 )
 
 // evalStringRange handles ranges of strings with numeric suffixes (e.g., IP addresses)
-// Example: "192.168.1.100".."192.168.1.109" generates ["192.168.1.100", "192.168.1.101", ...]
-func (t *Transpiler) evalStringRange(start, end string, stepV interface{}, node ast.Node) (interface{}, error) {
+// Example: "192.168.1.100".."192.168.1.109" generates ["192.168.1.100", "192.168.1.101", ...].
+func (t *Transpiler) evalStringRange(start, end string, stepV any, node ast.Node) (any, error) {
 	// Find the numeric suffix in both strings
 	// We'll look for the last sequence of digits
-	var startPrefix, endPrefix string
-	var startNum, endNum int64
-	var foundStart, foundEnd bool
+	var (
+		startPrefix, endPrefix string
+		startNum, endNum       int64
+		foundStart, foundEnd   bool
+	)
 
 	// Extract numeric suffix from start
+
 	for i := len(start) - 1; i >= 0; i-- {
 		if start[i] < '0' || start[i] > '9' {
 			// Found non-digit, extract number after this position
 			if i < len(start)-1 {
 				startPrefix = start[:i+1]
+
 				numStr := start[i+1:]
 				if n, err := fmt.Sscanf(numStr, "%d", &startNum); n == 1 && err == nil {
 					foundStart = true
 				}
 			}
+
 			break
 		}
+
 		if i == 0 {
 			// Entire string is a number
 			startPrefix = ""
+
 			if n, err := fmt.Sscanf(start, "%d", &startNum); n == 1 && err == nil {
 				foundStart = true
 			}
+
 			break
 		}
 	}
@@ -43,18 +51,23 @@ func (t *Transpiler) evalStringRange(start, end string, stepV interface{}, node 
 		if end[i] < '0' || end[i] > '9' {
 			if i < len(end)-1 {
 				endPrefix = end[:i+1]
+
 				numStr := end[i+1:]
 				if n, err := fmt.Sscanf(numStr, "%d", &endNum); n == 1 && err == nil {
 					foundEnd = true
 				}
 			}
+
 			break
 		}
+
 		if i == 0 {
 			endPrefix = ""
+
 			if n, err := fmt.Sscanf(end, "%d", &endNum); n == 1 && err == nil {
 				foundEnd = true
 			}
+
 			break
 		}
 	}
@@ -69,6 +82,7 @@ func (t *Transpiler) evalStringRange(start, end string, stepV interface{}, node 
 
 	// Determine step
 	step := int64(1)
+
 	if stepV != nil {
 		if st, ok := stepV.(int64); ok {
 			step = st
@@ -90,7 +104,8 @@ func (t *Transpiler) evalStringRange(start, end string, stepV interface{}, node 
 	padding := len(startStr)
 
 	// Generate range
-	res := make([]interface{}, 0)
+	res := make([]any, 0)
+
 	if step > 0 {
 		for i := startNum; i <= endNum; i += step {
 			// Format with zero-padding if original had it
@@ -113,9 +128,10 @@ func (t *Transpiler) evalStringRange(start, end string, stepV interface{}, node 
 	return res, nil
 }
 
-// evalIntegerRange evaluates an integer range expression
-func (t *Transpiler) evalIntegerRange(sInt, eInt int64, stepV interface{}, node ast.Node) (interface{}, error) {
+// evalIntegerRange evaluates an integer range expression.
+func (t *Transpiler) evalIntegerRange(sInt, eInt int64, stepV any, node ast.Node) (any, error) {
 	step := int64(1)
+
 	if stepV != nil {
 		if st, ok := stepV.(int64); ok {
 			step = st
@@ -132,7 +148,8 @@ func (t *Transpiler) evalIntegerRange(sInt, eInt int64, stepV interface{}, node 
 		return nil, t.errfNodeMsg(node, ie.StepCannotBeZero())
 	}
 
-	res := make([]interface{}, 0)
+	res := make([]any, 0)
+
 	if step > 0 {
 		for i := sInt; i <= eInt; i += step {
 			res = append(res, i)
@@ -142,5 +159,6 @@ func (t *Transpiler) evalIntegerRange(sInt, eInt int64, stepV interface{}, node 
 			res = append(res, i)
 		}
 	}
+
 	return RangeResult{Values: res}, nil
 }

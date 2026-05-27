@@ -8,34 +8,34 @@ import (
 	"testing"
 )
 
-// Test boolean literals transpilation
+// Test boolean literals transpilation.
 func TestBooleanLiteralsTranspilation(t *testing.T) {
 	tests := []struct {
 		input    string
-		expected map[string]interface{}
+		expected map[string]any
 	}{
 		{
 			input: `test { enabled = yes }`,
-			expected: map[string]interface{}{
-				"test": map[string]interface{}{"enabled": true},
+			expected: map[string]any{
+				"test": map[string]any{"enabled": true},
 			},
 		},
 		{
 			input: `test { disabled = no }`,
-			expected: map[string]interface{}{
-				"test": map[string]interface{}{"disabled": false},
+			expected: map[string]any{
+				"test": map[string]any{"disabled": false},
 			},
 		},
 		{
 			input: `test { active = on }`,
-			expected: map[string]interface{}{
-				"test": map[string]interface{}{"active": true},
+			expected: map[string]any{
+				"test": map[string]any{"active": true},
 			},
 		},
 		{
 			input: `test { inactive = off }`,
-			expected: map[string]interface{}{
-				"test": map[string]interface{}{"inactive": false},
+			expected: map[string]any{
+				"test": map[string]any{"inactive": false},
 			},
 		},
 	}
@@ -50,25 +50,28 @@ func TestBooleanLiteralsTranspilation(t *testing.T) {
 		}
 
 		tr := New(program, "", "keep", "")
+
 		output, err := tr.Transpile()
 		if err != nil {
 			t.Fatalf("transpiler error for '%s': %v", tt.input, err)
 		}
 
-		var result map[string]interface{}
+		var result map[string]any
 		if err := json.Unmarshal(output, &result); err != nil {
 			t.Fatalf("json unmarshal error for '%s': %v", tt.input, err)
 		}
 
-		testObj := result["test"].(map[string]interface{})
-		expectedObj := tt.expected["test"].(map[string]interface{})
+		testObj, _ := result["test"].(map[string]any)
+		expectedObj, _ := tt.expected["test"].(map[string]any)
 
 		for key, expectedVal := range expectedObj {
 			actualVal, exists := testObj[key]
 			if !exists {
 				t.Errorf("key '%s' not found in output for '%s'", key, tt.input)
+
 				continue
 			}
+
 			if actualVal != expectedVal {
 				t.Errorf("value wrong for '%s'. key=%s expected=%v got=%v",
 					tt.input, key, expectedVal, actualVal)
@@ -77,24 +80,25 @@ func TestBooleanLiteralsTranspilation(t *testing.T) {
 	}
 }
 
-// Test validator value generation
+// Test validator value generation.
 func TestValidatorValueGeneration(t *testing.T) {
 	tests := []struct {
 		input        string
 		key          string
-		validateFunc func(interface{}) bool
+		validateFunc func(any) bool
 		description  string
 	}{
 		{
 			input: `test { id = @uuid }`,
 			key:   "id",
-			validateFunc: func(v interface{}) bool {
+			validateFunc: func(v any) bool {
 				s, ok := v.(string)
 				if !ok {
 					return false
 				}
 				// UUID format: 8-4-4-4-12 hex chars
 				parts := strings.Split(s, "-")
+
 				return len(parts) == 5 && len(parts[0]) == 8 && len(parts[1]) == 4
 			},
 			description: "UUID should have format xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
@@ -102,8 +106,9 @@ func TestValidatorValueGeneration(t *testing.T) {
 		{
 			input: `test { email = @email }`,
 			key:   "email",
-			validateFunc: func(v interface{}) bool {
+			validateFunc: func(v any) bool {
 				s, ok := v.(string)
+
 				return ok && strings.Contains(s, "@") && strings.Contains(s, ".")
 			},
 			description: "Email should contain @ and .",
@@ -111,8 +116,9 @@ func TestValidatorValueGeneration(t *testing.T) {
 		{
 			input: `test { website = @url }`,
 			key:   "website",
-			validateFunc: func(v interface{}) bool {
+			validateFunc: func(v any) bool {
 				s, ok := v.(string)
+
 				return ok && (strings.HasPrefix(s, "http://") || strings.HasPrefix(s, "https://"))
 			},
 			description: "URL should start with http:// or https://",
@@ -120,12 +126,14 @@ func TestValidatorValueGeneration(t *testing.T) {
 		{
 			input: `test { ip = @ipv4 }`,
 			key:   "ip",
-			validateFunc: func(v interface{}) bool {
+			validateFunc: func(v any) bool {
 				s, ok := v.(string)
 				if !ok {
 					return false
 				}
+
 				parts := strings.Split(s, ".")
+
 				return len(parts) == 4
 			},
 			description: "IPv4 should have 4 octets",
@@ -133,7 +141,7 @@ func TestValidatorValueGeneration(t *testing.T) {
 		{
 			input: `test { created = @date }`,
 			key:   "created",
-			validateFunc: func(v interface{}) bool {
+			validateFunc: func(v any) bool {
 				s, ok := v.(string)
 				if !ok {
 					return false
@@ -146,7 +154,7 @@ func TestValidatorValueGeneration(t *testing.T) {
 		{
 			input: `test { timestamp = @datetime }`,
 			key:   "timestamp",
-			validateFunc: func(v interface{}) bool {
+			validateFunc: func(v any) bool {
 				s, ok := v.(string)
 				if !ok {
 					return false
@@ -168,17 +176,18 @@ func TestValidatorValueGeneration(t *testing.T) {
 		}
 
 		tr := New(program, "", "keep", "")
+
 		output, err := tr.Transpile()
 		if err != nil {
 			t.Fatalf("transpiler error for '%s': %v", tt.input, err)
 		}
 
-		var result map[string]interface{}
+		var result map[string]any
 		if err := json.Unmarshal(output, &result); err != nil {
 			t.Fatalf("json unmarshal error for '%s': %v", tt.input, err)
 		}
 
-		testObj, ok := result["test"].(map[string]interface{})
+		testObj, ok := result["test"].(map[string]any)
 		if !ok {
 			t.Fatalf("result['test'] not a map for '%s'", tt.input)
 		}
@@ -186,6 +195,7 @@ func TestValidatorValueGeneration(t *testing.T) {
 		value, exists := testObj[tt.key]
 		if !exists {
 			t.Errorf("key '%s' not found in output for '%s'", tt.key, tt.input)
+
 			continue
 		}
 
@@ -196,7 +206,7 @@ func TestValidatorValueGeneration(t *testing.T) {
 	}
 }
 
-// Test unique UUID generation
+// Test unique UUID generation.
 func TestUniqueUUIDGeneration(t *testing.T) {
 	input := `
 users {
@@ -214,28 +224,32 @@ users {
 	}
 
 	tr := New(program, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("transpiler error: %v", err)
 	}
 
-	var result map[string]interface{}
+	var result map[string]any
 	if err := json.Unmarshal(output, &result); err != nil {
 		t.Fatalf("json unmarshal error: %v", err)
 	}
 
-	users := result["users"].(map[string]interface{})
+	users, _ := result["users"].(map[string]any)
 
-	uuid1 := users["user1"].(map[string]interface{})["id"].(string)
-	uuid2 := users["user2"].(map[string]interface{})["id"].(string)
-	uuid3 := users["user3"].(map[string]interface{})["id"].(string)
+	user1, _ := users["user1"].(map[string]any)
+	user2, _ := users["user2"].(map[string]any)
+	user3, _ := users["user3"].(map[string]any)
+	uuid1, _ := user1["id"].(string)
+	uuid2, _ := user2["id"].(string)
+	uuid3, _ := user3["id"].(string)
 
 	if uuid1 == uuid2 || uuid1 == uuid3 || uuid2 == uuid3 {
 		t.Errorf("UUIDs should be unique. got: %s, %s, %s", uuid1, uuid2, uuid3)
 	}
 }
 
-// Test keywords as property names
+// Test keywords as property names.
 func TestKeywordsAsPropertyNamesTranspilation(t *testing.T) {
 	input := `
 test {
@@ -254,17 +268,18 @@ test {
 	}
 
 	tr := New(program, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("transpiler error: %v", err)
 	}
 
-	var result map[string]interface{}
+	var result map[string]any
 	if err := json.Unmarshal(output, &result); err != nil {
 		t.Fatalf("json unmarshal error: %v", err)
 	}
 
-	testObj := result["test"].(map[string]interface{})
+	testObj, _ := result["test"].(map[string]any)
 
 	expectedKeys := map[string]string{
 		"uuid":  "custom-uuid",
@@ -277,8 +292,10 @@ test {
 		actualVal, exists := testObj[key]
 		if !exists {
 			t.Errorf("key '%s' not found in output", key)
+
 			continue
 		}
+
 		if actualVal != expectedVal {
 			t.Errorf("value wrong for key '%s'. expected=%s got=%v",
 				key, expectedVal, actualVal)
@@ -286,7 +303,7 @@ test {
 	}
 }
 
-// Test mixed features (boolean literals + validators)
+// Test mixed features (boolean literals + validators).
 func TestMixedFeaturesV006(t *testing.T) {
 	input := `
 app {
@@ -308,17 +325,18 @@ app {
 	}
 
 	tr := New(program, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("transpiler error: %v", err)
 	}
 
-	var result map[string]interface{}
+	var result map[string]any
 	if err := json.Unmarshal(output, &result); err != nil {
 		t.Fatalf("json unmarshal error: %v", err)
 	}
 
-	app := result["app"].(map[string]interface{})
+	app, _ := result["app"].(map[string]any)
 
 	// Check string
 	if app["name"] != "TestApp" {
@@ -329,12 +347,15 @@ app {
 	if app["enabled"] != true {
 		t.Errorf("enabled should be true, got=%v", app["enabled"])
 	}
+
 	if app["debug"] != true {
 		t.Errorf("debug should be true, got=%v", app["debug"])
 	}
+
 	if app["active"] != true {
 		t.Errorf("active should be true, got=%v", app["active"])
 	}
+
 	if app["inactive"] != false {
 		t.Errorf("inactive should be false, got=%v", app["inactive"])
 	}

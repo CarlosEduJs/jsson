@@ -4,7 +4,7 @@ package validator
 
 import "jsson/internal/validator"
 
-// Re-export types
+// Re-export types.
 type (
 	Validator        = validator.Validator
 	ValidationResult = validator.ValidationResult
@@ -13,17 +13,17 @@ type (
 	ValidationRule   = validator.ValidationRule
 )
 
-// Re-export constructor
+// Re-export constructor.
 var New = validator.New
 
-// Re-export quick validation functions
+// Re-export quick validation functions.
 var (
 	QuickValidate     = validator.QuickValidate
 	QuickValidateJSON = validator.QuickValidateJSON
 	QuickValidateYAML = validator.QuickValidateYAML
 )
 
-// Re-export inline validators
+// Re-export inline validators.
 var (
 	ValidateUUID     = validator.ValidateUUID
 	ValidateEmail    = validator.ValidateEmail
@@ -36,7 +36,7 @@ var (
 	ValidateRegex    = validator.ValidateRegex
 )
 
-// Re-export format validators
+// Re-export format validators.
 var (
 	ValidateFormat  = validator.ValidateFormat
 	IsValidEmail    = validator.IsValidEmail

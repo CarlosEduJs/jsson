@@ -8,13 +8,14 @@ import (
 
 func TestJSONStreamWriter_BasicArray(t *testing.T) {
 	var buf bytes.Buffer
+
 	w := NewJSONStreamWriter(&buf)
 
 	if err := w.WriteArrayStart(); err != nil {
 		t.Fatalf("WriteArrayStart failed: %v", err)
 	}
 
-	items := []interface{}{1, 2, 3, 4, 5}
+	items := []any{1, 2, 3, 4, 5}
 	for _, item := range items {
 		if err := w.WriteArrayItem(item); err != nil {
 			t.Fatalf("WriteArrayItem failed: %v", err)
@@ -32,7 +33,8 @@ func TestJSONStreamWriter_BasicArray(t *testing.T) {
 
 	// Should contain all numbers
 	for _, item := range items {
-		if !bytes.Contains(buf.Bytes(), []byte(string(rune(item.(int)+'0')))) {
+		itemInt, _ := item.(int)
+		if !bytes.Contains(buf.Bytes(), []byte(string(rune(itemInt+'0')))) {
 			t.Logf("Output: %s", output)
 		}
 	}
@@ -40,6 +42,7 @@ func TestJSONStreamWriter_BasicArray(t *testing.T) {
 
 func TestJSONStreamWriter_BasicObject(t *testing.T) {
 	var buf bytes.Buffer
+
 	w := NewJSONStreamWriter(&buf)
 
 	if err := w.WriteObjectStart(); err != nil {
@@ -49,6 +52,7 @@ func TestJSONStreamWriter_BasicObject(t *testing.T) {
 	if err := w.WriteObjectKey("name"); err != nil {
 		t.Fatalf("WriteObjectKey failed: %v", err)
 	}
+
 	if err := w.WriteObjectValue("John"); err != nil {
 		t.Fatalf("WriteObjectValue failed: %v", err)
 	}
@@ -56,6 +60,7 @@ func TestJSONStreamWriter_BasicObject(t *testing.T) {
 	if err := w.WriteObjectKey("age"); err != nil {
 		t.Fatalf("WriteObjectKey failed: %v", err)
 	}
+
 	if err := w.WriteObjectValue(30); err != nil {
 		t.Fatalf("WriteObjectValue failed: %v", err)
 	}
@@ -68,9 +73,11 @@ func TestJSONStreamWriter_BasicObject(t *testing.T) {
 	if !bytes.Contains(buf.Bytes(), []byte("name")) {
 		t.Errorf("Output missing 'name' key: %s", output)
 	}
+
 	if !bytes.Contains(buf.Bytes(), []byte("John")) {
 		t.Errorf("Output missing 'John' value: %s", output)
 	}
+
 	if !bytes.Contains(buf.Bytes(), []byte("age")) {
 		t.Errorf("Output missing 'age' key: %s", output)
 	}
@@ -80,6 +87,7 @@ func TestRangeIterator_Forward(t *testing.T) {
 	iter := NewRangeIterator(0, 5, 1)
 
 	expected := []int64{0, 1, 2, 3, 4, 5}
+
 	var result []int64
 
 	for {
@@ -87,6 +95,7 @@ func TestRangeIterator_Forward(t *testing.T) {
 		if !ok {
 			break
 		}
+
 		result = append(result, val)
 	}
 
@@ -105,6 +114,7 @@ func TestRangeIterator_Backward(t *testing.T) {
 	iter := NewRangeIterator(5, 0, -1)
 
 	expected := []int64{5, 4, 3, 2, 1, 0}
+
 	var result []int64
 
 	for {
@@ -112,6 +122,7 @@ func TestRangeIterator_Backward(t *testing.T) {
 		if !ok {
 			break
 		}
+
 		result = append(result, val)
 	}
 
@@ -130,6 +141,7 @@ func TestRangeIterator_Step(t *testing.T) {
 	iter := NewRangeIterator(0, 10, 2)
 
 	expected := []int64{0, 2, 4, 6, 8, 10}
+
 	var result []int64
 
 	for {
@@ -137,6 +149,7 @@ func TestRangeIterator_Step(t *testing.T) {
 		if !ok {
 			break
 		}
+
 		result = append(result, val)
 	}
 
@@ -166,15 +179,18 @@ func TestTranspiler_SetStreamingMode(t *testing.T) {
 
 	// Enable streaming
 	tr.SetStreamingMode(true, 5000)
+
 	if !tr.streamingEnabled {
 		t.Error("Streaming should be enabled")
 	}
+
 	if tr.streamThreshold != 5000 {
 		t.Errorf("Expected threshold 5000, got %d", tr.streamThreshold)
 	}
 
 	// Disable streaming
 	tr.SetStreamingMode(false, 0)
+
 	if tr.streamingEnabled {
 		t.Error("Streaming should be disabled")
 	}

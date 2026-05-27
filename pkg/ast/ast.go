@@ -4,7 +4,7 @@ package ast
 
 import "jsson/internal/ast"
 
-// Re-export types
+// Re-export types.
 type (
 	Node       = ast.Node
 	Statement  = ast.Statement

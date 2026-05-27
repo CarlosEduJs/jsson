@@ -4,8 +4,8 @@ package parser
 
 import "jsson/internal/parser"
 
-// Re-export types
+// Re-export types.
 type Parser = parser.Parser
 
-// Re-export functions
+// Re-export functions.
 var New = parser.New

@@ -5,34 +5,49 @@ import (
 	"strings"
 )
 
-func (s *Server) handleHover(id interface{}, params interface{}) error {
-	p, ok := params.(map[string]interface{})
+func (s *Server) handleHover(id, params any) error {
+	p, ok := params.(map[string]any)
 	if !ok {
-		return s.sendError(id, -32602, "Invalid params")
+		return s.sendError(id, "Invalid params")
 	}
 
-	textDoc, ok := p["textDocument"].(map[string]interface{})
+	textDoc, ok := p["textDocument"].(map[string]any)
 	if !ok {
-		return s.sendError(id, -32602, "Invalid textDocument")
+		return s.sendError(id, "Invalid textDocument")
 	}
 
-	position, ok := p["position"].(map[string]interface{})
+	position, ok := p["position"].(map[string]any)
 	if !ok {
-		return s.sendError(id, -32602, "Invalid position")
+		return s.sendError(id, "Invalid position")
 	}
 
-	uri := textDoc["uri"].(string)
-	line := int(position["line"].(float64))
-	character := int(position["character"].(float64))
+	uri, ok := textDoc["uri"].(string)
+	if !ok {
+		return s.sendError(id, "Invalid uri")
+	}
+
+	lineFloat, ok := position["line"].(float64)
+	if !ok {
+		return s.sendError(id, "Invalid line")
+	}
+
+	line := int(lineFloat)
+
+	charFloat, ok := position["character"].(float64)
+	if !ok {
+		return s.sendError(id, "Invalid character")
+	}
+
+	character := int(charFloat)
 
 	doc, ok := s.getDocument(uri)
 	if !ok {
-		return s.sendError(id, -32602, "Document not found")
+		return s.sendError(id, "Document not found")
 	}
 
 	hoverInfo := s.getHoverInfo(doc.Content, line, character)
 
-	response := map[string]interface{}{
+	response := map[string]any{
 		"jsonrpc": "2.0",
 		"id":      id,
 		"result":  hoverInfo,
@@ -41,8 +56,8 @@ func (s *Server) handleHover(id interface{}, params interface{}) error {
 	return s.writeMessage(response)
 }
 
-// getHoverInfo returns hover information for the given position
-func (s *Server) getHoverInfo(content string, line, character int) interface{} {
+// getHoverInfo returns hover information for the given position.
+func (s *Server) getHoverInfo(content string, line, character int) any {
 	lines := strings.Split(content, "\n")
 	if line >= len(lines) {
 		return nil
@@ -62,8 +77,8 @@ func (s *Server) getHoverInfo(content string, line, character int) interface{} {
 	// Check if it's a parameter in a map/zip expression
 	paramInfo := s.getParameterInfo(currentLine, word, character)
 	if paramInfo != "" {
-		return map[string]interface{}{
-			"contents": map[string]interface{}{
+		return map[string]any{
+			"contents": map[string]any{
 				"kind":  "markdown",
 				"value": paramInfo,
 			},
@@ -73,8 +88,8 @@ func (s *Server) getHoverInfo(content string, line, character int) interface{} {
 	// Check if it's a variable declaration or usage
 	varInfo := s.getVariableInfo(content, word, line)
 	if varInfo != "" {
-		return map[string]interface{}{
-			"contents": map[string]interface{}{
+		return map[string]any{
+			"contents": map[string]any{
 				"kind":  "markdown",
 				"value": varInfo,
 			},
@@ -84,8 +99,8 @@ func (s *Server) getHoverInfo(content string, line, character int) interface{} {
 	// Check for object/array names
 	objInfo := s.getObjectInfo(content, word, line)
 	if objInfo != "" {
-		return map[string]interface{}{
-			"contents": map[string]interface{}{
+		return map[string]any{
+			"contents": map[string]any{
 				"kind":  "markdown",
 				"value": objInfo,
 			},
@@ -98,19 +113,18 @@ func (s *Server) getHoverInfo(content string, line, character int) interface{} {
 		return nil
 	}
 
-	return map[string]interface{}{
-		"contents": map[string]interface{}{
+	return map[string]any{
+		"contents": map[string]any{
 			"kind":  "markdown",
 			"value": doc,
 		},
 	}
 }
 
-// getParameterInfo returns information about a parameter in map/zip
+// getParameterInfo returns information about a parameter in map/zip.
 func (s *Server) getParameterInfo(line, paramName string, character int) string {
 	// Check if we're inside a map or zip expression
 	// Pattern: (... map (param) = ...) or (... zip (param1, param2) = ...)
-
 	// Look backwards from cursor position for "map (" or "zip ("
 	beforeCursor := line[:character]
 
@@ -119,6 +133,7 @@ func (s *Server) getParameterInfo(line, paramName string, character int) string 
 		startParen := strings.LastIndex(beforeCursor, "(")
 		if startParen != -1 {
 			afterParen := line[startParen:]
+
 			endParen := strings.Index(afterParen, ")")
 			if endParen != -1 {
 				paramsSection := afterParen[1:endParen]
@@ -137,7 +152,7 @@ func (s *Server) getParameterInfo(line, paramName string, character int) string 
 
 	return ""
 } // getVariableInfo returns information about a variable
-func (s *Server) getVariableInfo(content, varName string, currentLine int) string {
+func (s *Server) getVariableInfo(content, varName string, _ int) string {
 	lines := strings.Split(content, "\n")
 
 	// Look for variable declaration
@@ -146,6 +161,7 @@ func (s *Server) getVariableInfo(content, varName string, currentLine int) strin
 			parts := strings.Split(line, ":=")
 			if len(parts) == 2 {
 				value := strings.TrimSpace(parts[1])
+
 				return fmt.Sprintf("# Variable: `%s`\n\n**Declared at line %d**\n\n```jsson\n%s\n```\n\n**Value:** `%s`",
 					varName, i+1, strings.TrimSpace(line), value)
 			}
@@ -155,8 +171,8 @@ func (s *Server) getVariableInfo(content, varName string, currentLine int) strin
 	return ""
 }
 
-// getObjectInfo returns information about an object or array
-func (s *Server) getObjectInfo(content, name string, currentLine int) string {
+// getObjectInfo returns information about an object or array.
+func (s *Server) getObjectInfo(content, name string, _ int) string {
 	lines := strings.Split(content, "\n")
 
 	for i, line := range lines {
@@ -207,12 +223,12 @@ func (s *Server) getWordAtPosition(line string, character int) string {
 	return line[start:end]
 }
 
-// isIdentifierChar checks if a character is valid in an identifier
+// isIdentifierChar checks if a character is valid in an identifier.
 func isIdentifierChar(c byte) bool {
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_'
 }
 
-// getDocumentation returns documentation for a keyword or symbol
+// getDocumentation returns documentation for a keyword or symbol.
 func (s *Server) getDocumentation(word string) string {
 	docs := map[string]string{
 		"template": "# template\n\nDefines a template for structured data in arrays.\n\n**Example:**\n```jsson\nusers [\n  template { name, age }\n  \n  John, 25\n  Jane, 30\n]\n```",

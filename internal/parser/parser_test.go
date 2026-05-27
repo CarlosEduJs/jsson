@@ -11,9 +11,11 @@ func TestParseRangeExpression(t *testing.T) {
 	input := "p = 8080..8085"
 	// Debug: dump lexer tokens
 	ld := lexer.New(input)
+
 	for {
 		tok := ld.NextToken()
 		t.Logf("tok: %#v", tok)
+
 		if tok.Type == token.EOF {
 			break
 		}
@@ -21,7 +23,9 @@ func TestParseRangeExpression(t *testing.T) {
 
 	l := lexer.New(input)
 	p := New(l)
+
 	program := p.ParseProgram()
+
 	if len(p.Errors()) != 0 {
 		t.Fatalf("parser errors: %v", p.Errors())
 	}
@@ -44,10 +48,12 @@ func TestParseRangeExpression(t *testing.T) {
 	if !ok || start.Value != 8080 {
 		t.Fatalf("range start wrong. expected=8080 got=%v", re.Start)
 	}
+
 	end, ok := re.End.(*ast.IntegerLiteral)
 	if !ok || end.Value != 8085 {
 		t.Fatalf("range end wrong. expected=8085 got=%v", re.End)
 	}
+
 	if re.Step != nil {
 		t.Fatalf("expected nil step, got=%v", re.Step)
 	}
@@ -57,7 +63,9 @@ func TestParseRangeWithStep(t *testing.T) {
 	input := "s = 0..10 step 2"
 	l := lexer.New(input)
 	p := New(l)
+
 	program := p.ParseProgram()
+
 	if len(p.Errors()) != 0 {
 		t.Fatalf("parser errors: %v", p.Errors())
 	}
@@ -76,10 +84,12 @@ func TestParseRangeWithStep(t *testing.T) {
 	if !ok || start.Value != 0 {
 		t.Fatalf("range start wrong. expected=0 got=%v", re.Start)
 	}
+
 	end, ok := re.End.(*ast.IntegerLiteral)
 	if !ok || end.Value != 10 {
 		t.Fatalf("range end wrong. expected=10 got=%v", re.End)
 	}
+
 	step, ok := re.Step.(*ast.IntegerLiteral)
 	if !ok || step.Value != 2 {
 		t.Fatalf("range step wrong. expected=2 got=%v", re.Step)
@@ -90,7 +100,9 @@ func TestParseIncludeStatement(t *testing.T) {
 	input := "include \"db.jsson\""
 	l := lexer.New(input)
 	p := New(l)
+
 	program := p.ParseProgram()
+
 	if len(p.Errors()) != 0 {
 		t.Fatalf("parser errors: %v", p.Errors())
 	}
