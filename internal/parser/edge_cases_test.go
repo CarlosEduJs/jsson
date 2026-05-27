@@ -755,15 +755,15 @@ func TestValidatorStructurePreservation(t *testing.T) {
 		t.Fatalf("Expected 2 args, got %d", len(validator.Args))
 	}
 
-	arg1, ok1 := validator.Args[0].(int64)
-	arg2, ok2 := validator.Args[1].(int64)
+	arg1, ok1 := validator.Args[0].(*ast.IntegerLiteral)
+	arg2, ok2 := validator.Args[1].(*ast.IntegerLiteral)
 
 	if !ok1 || !ok2 {
-		t.Fatalf("Expected int64 args, got %T and %T", validator.Args[0], validator.Args[1])
+		t.Fatalf("Expected IntegerLiteral args, got %T and %T", validator.Args[0], validator.Args[1])
 	}
 
-	if arg1 != 10 || arg2 != 100 {
-		t.Errorf("Expected args [10, 100], got [%d, %d]", arg1, arg2)
+	if arg1.Value != 10 || arg2.Value != 100 {
+		t.Errorf("Expected args [10, 100], got [%d, %d]", arg1.Value, arg2.Value)
 	}
 }
 

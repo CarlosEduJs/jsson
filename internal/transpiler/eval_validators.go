@@ -54,16 +54,22 @@ func generateUUID() string {
 }
 
 // generateInt generates a random integer between min and max.
-func generateInt(args []any) int64 {
+func generateInt(args []ast.Expression) int64 {
 	var minVal, maxVal int64 = 0, 100 // defaults
 
 	if len(args) >= 2 {
-		if v, ok := args[0].(int64); ok {
-			minVal = v
+		switch lit := args[0].(type) {
+		case *ast.IntegerLiteral:
+			minVal = lit.Value
+		case *ast.FloatLiteral:
+			minVal = int64(lit.Value)
 		}
 
-		if v, ok := args[1].(int64); ok {
-			maxVal = v
+		switch lit := args[1].(type) {
+		case *ast.IntegerLiteral:
+			maxVal = lit.Value
+		case *ast.FloatLiteral:
+			maxVal = int64(lit.Value)
 		}
 	}
 
@@ -80,23 +86,22 @@ func generateInt(args []any) int64 {
 }
 
 // generateFloat generates a random float between min and max.
-func generateFloat(args []any) float64 {
+func generateFloat(args []ast.Expression) float64 {
 	minVal, maxVal := 0.0, 1.0 // defaults
 
 	if len(args) >= 2 {
-		// Handle both int64 and float64
-		switch v := args[0].(type) {
-		case int64:
-			minVal = float64(v)
-		case float64:
-			minVal = v
+		switch lit := args[0].(type) {
+		case *ast.IntegerLiteral:
+			minVal = float64(lit.Value)
+		case *ast.FloatLiteral:
+			minVal = lit.Value
 		}
 
-		switch v := args[1].(type) {
-		case int64:
-			maxVal = float64(v)
-		case float64:
-			maxVal = v
+		switch lit := args[1].(type) {
+		case *ast.IntegerLiteral:
+			maxVal = float64(lit.Value)
+		case *ast.FloatLiteral:
+			maxVal = lit.Value
 		}
 	}
 

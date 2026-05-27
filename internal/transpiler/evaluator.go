@@ -145,11 +145,14 @@ func (t *Transpiler) evalInterpolatedString(e *ast.InterpolatedString, ctx map[s
 
 	for _, part := range e.Parts {
 		switch p := part.(type) {
-		case string:
-			result.WriteString(p)
-		case ast.Expression:
-			if ident, ok := p.(*ast.Identifier); ok {
+		case ast.TextPart:
+			result.WriteString(p.Value)
+		case ast.ExprPart:
+			expr := p.Expr
+
+			if ident, ok := expr.(*ast.Identifier); ok {
 				found := false
+
 				if ctx != nil {
 					_, found = ctx[ident.Value]
 				}
@@ -160,7 +163,6 @@ func (t *Transpiler) evalInterpolatedString(e *ast.InterpolatedString, ctx map[s
 						result.WriteString(ident.Value)
 						result.WriteString("}")
 					} else {
-						// Raw string uses {var}
 						result.WriteString("{")
 						result.WriteString(ident.Value)
 						result.WriteString("}")
@@ -170,7 +172,7 @@ func (t *Transpiler) evalInterpolatedString(e *ast.InterpolatedString, ctx map[s
 				}
 			}
 
-			val, err := t.evalExpression(p, ctx)
+			val, err := t.evalExpression(expr, ctx)
 			if err != nil {
 				return nil, err
 			}
@@ -267,12 +269,25 @@ func (t *Transpiler) evalRangeExpression(e *ast.RangeExpression, ctx map[string]
 		return nil, err
 	}
 
-	var stepV any
+	var stepV *int64
 	if e.Step != nil {
-		stepV, err = t.evalExpression(e.Step, ctx)
+		sv, err := t.evalExpression(e.Step, ctx)
 		if err != nil {
 			return nil, err
 		}
+
+		var s int64
+
+		switch v := sv.(type) {
+		case int64:
+			s = v
+		case float64:
+			s = int64(v)
+		default:
+			return nil, t.errfNode(e, "step must be a number, got %T", sv)
+		}
+
+		stepV = &s
 	}
 
 	// Check if both start and end are strings (String Range)

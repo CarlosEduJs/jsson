@@ -259,25 +259,34 @@ func (p *Parser) parseValidator() ast.Expression {
 		p.nextToken() // consume (
 
 		// Parse arguments
-		args := []any{}
+		args := []ast.Expression{}
 
 		for p.curToken.Type != token.RPAREN && p.curToken.Type != token.EOF {
 			// Handle string arguments (for @regex)
 			switch p.curToken.Type {
 			case token.STRING, token.RAWSTRING:
 				validator.Pattern = p.curToken.Literal
-				args = append(args, p.curToken.Literal)
+				args = append(args, &ast.StringLiteral{
+					Token: p.curToken,
+					Value: p.curToken.Literal,
+				})
 			case token.INT:
 				// Parse integer argument
 				val, err := strconv.ParseInt(p.curToken.Literal, 10, 64)
 				if err == nil {
-					args = append(args, val)
+					args = append(args, &ast.IntegerLiteral{
+						Token: p.curToken,
+						Value: val,
+					})
 				}
 			case token.FLOAT:
 				// Parse float argument
 				val, err := strconv.ParseFloat(p.curToken.Literal, 64)
 				if err == nil {
-					args = append(args, val)
+					args = append(args, &ast.FloatLiteral{
+						Token: p.curToken,
+						Value: val,
+					})
 				}
 			}
 
@@ -722,7 +731,7 @@ func (p *Parser) parseStringLiteral() ast.Expression {
 func (p *Parser) parseTemplateString(content string) ast.Expression {
 	interp := &ast.InterpolatedString{
 		Token: p.curToken,
-		Parts: []any{},
+		Parts: []ast.InterpolatedPart{},
 	}
 
 	var currentText strings.Builder
@@ -733,14 +742,13 @@ func (p *Parser) parseTemplateString(content string) ast.Expression {
 		if i < len(content)-1 && content[i] == '$' && content[i+1] == '{' {
 			// Save any accumulated text
 			if currentText.Len() > 0 {
-				interp.Parts = append(interp.Parts, currentText.String())
+				interp.Parts = append(interp.Parts, ast.TextPart{Value: currentText.String()})
 				currentText.Reset()
 			}
 
 			// Find matching }
 			depth := 1
 			start := i + 2 // skip ${
-
 			i += 2
 			for i < len(content) && depth > 0 {
 				switch content[i] {
@@ -749,10 +757,8 @@ func (p *Parser) parseTemplateString(content string) ast.Expression {
 				case '}':
 					depth--
 				}
-
 				i++
 			}
-
 			if depth == 0 {
 				// Parse the expression inside ${}
 				exprText := content[start:i]
@@ -762,7 +768,7 @@ func (p *Parser) parseTemplateString(content string) ast.Expression {
 
 				// Check if parsing was successful
 				if expr != nil && len(exprParser.Errors()) == 0 {
-					interp.Parts = append(interp.Parts, expr)
+					interp.Parts = append(interp.Parts, ast.ExprPart{Expr: expr})
 				} else {
 					// Failed to parse, treat as literal text
 					currentText.WriteString("${")
@@ -775,14 +781,13 @@ func (p *Parser) parseTemplateString(content string) ast.Expression {
 			}
 		} else {
 			currentText.WriteByte(content[i])
-
 			i++
 		}
 	}
 
 	// Add any remaining text
 	if currentText.Len() > 0 {
-		interp.Parts = append(interp.Parts, currentText.String())
+		interp.Parts = append(interp.Parts, ast.TextPart{Value: currentText.String()})
 	}
 
 	return interp
@@ -792,7 +797,7 @@ func (p *Parser) parseTemplateString(content string) ast.Expression {
 func (p *Parser) parseInterpolatedString(content string) ast.Expression {
 	interp := &ast.InterpolatedString{
 		Token: p.curToken,
-		Parts: []any{},
+		Parts: []ast.InterpolatedPart{},
 	}
 
 	var currentText strings.Builder
@@ -803,7 +808,7 @@ func (p *Parser) parseInterpolatedString(content string) ast.Expression {
 		if content[i] == '{' {
 			// Save any accumulated text
 			if currentText.Len() > 0 {
-				interp.Parts = append(interp.Parts, currentText.String())
+				interp.Parts = append(interp.Parts, ast.TextPart{Value: currentText.String()})
 				currentText.Reset()
 			}
 
@@ -831,7 +836,7 @@ func (p *Parser) parseInterpolatedString(content string) ast.Expression {
 				expr := exprParser.parseExpression(LOWEST)
 
 				if expr != nil && len(exprParser.Errors()) == 0 {
-					interp.Parts = append(interp.Parts, expr)
+					interp.Parts = append(interp.Parts, ast.ExprPart{Expr: expr})
 				} else {
 					// Failed to parse, treat as literal text
 					currentText.WriteString("{")
@@ -851,7 +856,7 @@ func (p *Parser) parseInterpolatedString(content string) ast.Expression {
 
 	// Add any remaining text
 	if currentText.Len() > 0 {
-		interp.Parts = append(interp.Parts, currentText.String())
+		interp.Parts = append(interp.Parts, ast.TextPart{Value: currentText.String()})
 	}
 
 	return interp

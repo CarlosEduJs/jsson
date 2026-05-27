@@ -8,7 +8,7 @@ import (
 
 // evalStringRange handles ranges of strings with numeric suffixes (e.g., IP addresses)
 // Example: "192.168.1.100".."192.168.1.109" generates ["192.168.1.100", "192.168.1.101", ...].
-func (t *Transpiler) evalStringRange(start, end string, stepV any, node ast.Node) (any, error) {
+func (t *Transpiler) evalStringRange(start, end string, stepV *int64, node ast.Node) (any, error) {
 	// Find the numeric suffix in both strings
 	// We'll look for the last sequence of digits
 	var (
@@ -81,17 +81,19 @@ func (t *Transpiler) evalStringRange(start, end string, stepV any, node ast.Node
 	}
 
 	// Determine step
-	step := int64(1)
+	var step int64
 
 	if stepV != nil {
-		if st, ok := stepV.(int64); ok {
-			step = st
-		} else {
-			return nil, t.errfNode(node, "step must be an integer for string ranges")
+		step = *stepV
+
+		if step == 0 {
+			return nil, t.errfNode(node, "step cannot be zero")
 		}
 	} else {
 		if startNum > endNum {
 			step = -1
+		} else {
+			step = 1
 		}
 	}
 
@@ -129,18 +131,20 @@ func (t *Transpiler) evalStringRange(start, end string, stepV any, node ast.Node
 }
 
 // evalIntegerRange evaluates an integer range expression.
-func (t *Transpiler) evalIntegerRange(sInt, eInt int64, stepV any, node ast.Node) (any, error) {
-	step := int64(1)
+func (t *Transpiler) evalIntegerRange(sInt, eInt int64, stepV *int64, node ast.Node) (any, error) {
+	var step int64
 
 	if stepV != nil {
-		if st, ok := stepV.(int64); ok {
-			step = st
-		} else {
-			return nil, t.errfNodeMsg(node, ie.StepNotInteger(stepV))
+		step = *stepV
+
+		if step == 0 {
+			return nil, t.errfNodeMsg(node, ie.StepCannotBeZero())
 		}
 	} else {
 		if sInt > eInt {
 			step = -1
+		} else {
+			step = 1
 		}
 	}
 
