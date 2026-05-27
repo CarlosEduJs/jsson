@@ -1,37 +1,28 @@
 package lsp
 
 import (
+	"encoding/json"
 	"strings"
 )
 
-func (s *Server) handleSemanticTokensFull(id, params any) error {
-	p, ok := params.(map[string]any)
-	if !ok {
+func (s *Server) handleSemanticTokensFull(id, raw json.RawMessage) error {
+	var params SemanticTokensParams
+	if err := json.Unmarshal(raw, &params); err != nil {
 		return s.sendError(id, "Invalid params")
 	}
 
-	textDoc, ok := p["textDocument"].(map[string]any)
-	if !ok {
-		return s.sendError(id, "Invalid textDocument")
-	}
-
-	uri, ok := textDoc["uri"].(string)
-	if !ok {
-		return s.sendError(id, "Invalid uri")
-	}
-
-	doc, ok := s.getDocument(uri)
+	doc, ok := s.getDocument(params.TextDocument.URI)
 	if !ok {
 		return s.sendError(id, "Document not found")
 	}
 
 	tokens := s.generateSemanticTokens(doc.Content)
 
-	response := map[string]any{
-		"jsonrpc": "2.0",
-		"id":      id,
-		"result": map[string]any{
-			"data": tokens,
+	response := ResponseMessage{
+		JSONRPC: "2.0",
+		ID:      id,
+		Result: SemanticTokens{
+			Data: tokens,
 		},
 	}
 

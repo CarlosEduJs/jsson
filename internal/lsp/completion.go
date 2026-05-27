@@ -1,6 +1,7 @@
 package lsp
 
 import (
+	"encoding/json"
 	"strings"
 )
 
@@ -22,54 +23,25 @@ const (
 	CompletionItemKindSnippet  = 15
 )
 
-func (s *Server) handleCompletion(id, params any) error {
-	p, ok := params.(map[string]any)
-	if !ok {
+func (s *Server) handleCompletion(id, raw json.RawMessage) error {
+	var params CompletionParams
+	if err := json.Unmarshal(raw, &params); err != nil {
 		return s.sendError(id, "Invalid params")
 	}
 
-	textDoc, ok := p["textDocument"].(map[string]any)
-	if !ok {
-		return s.sendError(id, "Invalid textDocument")
-	}
-
-	position, ok := p["position"].(map[string]any)
-	if !ok {
-		return s.sendError(id, "Invalid position")
-	}
-
-	uri, ok := textDoc["uri"].(string)
-	if !ok {
-		return s.sendError(id, "Invalid uri")
-	}
-
-	lineFloat, ok := position["line"].(float64)
-	if !ok {
-		return s.sendError(id, "Invalid line")
-	}
-
-	line := int(lineFloat)
-
-	charFloat, ok := position["character"].(float64)
-	if !ok {
-		return s.sendError(id, "Invalid character")
-	}
-
-	character := int(charFloat)
-
-	doc, ok := s.getDocument(uri)
+	doc, ok := s.getDocument(params.TextDocument.URI)
 	if !ok {
 		return s.sendError(id, "Document not found")
 	}
 
-	items := s.getCompletionItems(doc.Content, line, character)
+	items := s.getCompletionItems(doc.Content, params.Position.Line, params.Position.Character)
 
-	response := map[string]any{
-		"jsonrpc": "2.0",
-		"id":      id,
-		"result": map[string]any{
-			"isIncomplete": false,
-			"items":        items,
+	response := ResponseMessage{
+		JSONRPC: "2.0",
+		ID:      id,
+		Result: CompletionList{
+			IsIncomplete: false,
+			Items:        items,
 		},
 	}
 
@@ -394,13 +366,13 @@ func isValidIdentifier(s string) bool {
 }
 
 // sendError sends an error response.
-func (s *Server) sendError(id any, message string) error {
-	response := map[string]any{
-		"jsonrpc": "2.0",
-		"id":      id,
-		"error": map[string]any{
-			"code":    -32602,
-			"message": message,
+func (s *Server) sendError(id json.RawMessage, message string) error {
+	response := ResponseMessage{
+		JSONRPC: "2.0",
+		ID:      id,
+		Error: &ErrorObject{
+			Code:    -32602,
+			Message: message,
 		},
 	}
 

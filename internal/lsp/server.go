@@ -2,7 +2,6 @@ package lsp
 
 import (
 	"bufio"
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -57,7 +56,7 @@ func (s *Server) Start() error {
 	}
 }
 
-func (s *Server) readMessage() (map[string]any, error) {
+func (s *Server) readMessage() (*RequestMessage, error) {
 	reader := bufio.NewReader(s.reader)
 
 	headers := make(map[string]string)
@@ -97,12 +96,12 @@ func (s *Server) readMessage() (map[string]any, error) {
 		return nil, err
 	}
 
-	var msg map[string]any
+	var msg RequestMessage
 	if err := json.Unmarshal(content, &msg); err != nil {
 		return nil, err
 	}
 
-	return msg, nil
+	return &msg, nil
 }
 
 func (s *Server) writeMessage(msg any) error {
@@ -126,76 +125,68 @@ func (s *Server) writeMessage(msg any) error {
 	return nil
 }
 
-func (s *Server) handleMessage(msg map[string]any) error {
-	method, ok := msg["method"].(string)
-	if !ok {
-		return nil
-	}
+func (s *Server) handleMessage(msg *RequestMessage) error {
+	log.Printf("Received method: %s", msg.Method)
 
-	id := msg["id"]
-	params := msg["params"]
-
-	log.Printf("Received method: %s", method)
-
-	switch method {
+	switch msg.Method {
 	case "initialize":
-		return s.handleInitialize(id, params)
+		return s.handleInitialize(msg.ID, msg.Params)
 	case "initialized":
 		return nil
 	case "textDocument/didOpen":
-		return s.handleDidOpen(params)
+		return s.handleDidOpen(msg.Params)
 	case "textDocument/didChange":
-		return s.handleDidChange(params)
+		return s.handleDidChange(msg.Params)
 	case "textDocument/didClose":
-		return s.handleDidClose(params)
+		return s.handleDidClose(msg.Params)
 	case "textDocument/completion":
-		return s.handleCompletion(id, params)
+		return s.handleCompletion(msg.ID, msg.Params)
 	case "textDocument/hover":
-		return s.handleHover(id, params)
+		return s.handleHover(msg.ID, msg.Params)
 	case "textDocument/semanticTokens/full":
-		return s.handleSemanticTokensFull(id, params)
+		return s.handleSemanticTokensFull(msg.ID, msg.Params)
 	case "shutdown":
-		return s.handleShutdown(id)
+		return s.handleShutdown(msg.ID)
 	case "exit":
 		return io.EOF
 	default:
-		log.Printf("Unhandled method: %s", method)
+		log.Printf("Unhandled method: %s", msg.Method)
 
 		return nil
 	}
 }
 
-func (s *Server) handleInitialize(id, _ any) error {
-	response := map[string]any{
-		"jsonrpc": "2.0",
-		"id":      id,
-		"result": map[string]any{
-			"capabilities": map[string]any{
-				"textDocumentSync": map[string]any{
-					"openClose": true,
-					"change":    1,
+func (s *Server) handleInitialize(id, _ json.RawMessage) error {
+	response := ResponseMessage{
+		JSONRPC: "2.0",
+		ID:      id,
+		Result: InitializeResult{
+			Capabilities: ServerCapabilities{
+				TextDocumentSync: TextDocumentSyncOptions{
+					OpenClose: true,
+					Change:    1,
 				},
-				"completionProvider": map[string]any{
-					"triggerCharacters": []string{".", ":", "="},
+				CompletionProvider: &CompletionOptions{
+					TriggerCharacters: []string{".", ":", "="},
 				},
-				"hoverProvider": true,
-				"semanticTokensProvider": map[string]any{
-					"legend": map[string]any{
-						"tokenTypes": []string{
+				HoverProvider: true,
+				SemanticTokensProvider: &SemanticTokensOptions{
+					Legend: SemanticTokensLegend{
+						TokenTypes: []string{
 							"namespace", "type", "class", "enum", "interface",
 							"struct", "typeParameter", "parameter", "variable", "property",
 							"enumMember", "event", "function", "method", "macro",
 							"keyword", "modifier", "comment", "string", "number",
 							"regexp", "operator",
 						},
-						"tokenModifiers": []string{},
+						TokenModifiers: []string{},
 					},
-					"full": true,
+					Full: true,
 				},
 			},
-			"serverInfo": map[string]any{
-				"name":    "jsson-lsp",
-				"version": "0.0.6",
+			ServerInfo: ServerInfo{
+				Name:    "jsson-lsp",
+				Version: "0.0.6",
 			},
 		},
 	}
@@ -204,125 +195,65 @@ func (s *Server) handleInitialize(id, _ any) error {
 }
 
 // handleDidOpen handles textDocument/didOpen notification.
-func (s *Server) handleDidOpen(params any) error {
-	p, ok := params.(map[string]any)
-	if !ok {
-		return errors.New("invalid params")
+func (s *Server) handleDidOpen(raw json.RawMessage) error {
+	var params DidOpenTextDocumentParams
+	if err := json.Unmarshal(raw, &params); err != nil {
+		return err
 	}
-
-	textDoc, ok := p["textDocument"].(map[string]any)
-	if !ok {
-		return errors.New("invalid textDocument")
-	}
-
-	uri, ok := textDoc["uri"].(string)
-	if !ok {
-		return errors.New("invalid textDocument uri")
-	}
-
-	text, ok := textDoc["text"].(string)
-	if !ok {
-		return errors.New("invalid textDocument text")
-	}
-
-	versionFloat, ok := textDoc["version"].(float64)
-	if !ok {
-		return errors.New("invalid textDocument version")
-	}
-
-	version := int(versionFloat)
 
 	s.mu.Lock()
-	s.documents[uri] = &Document{
-		URI:     uri,
-		Content: text,
-		Version: version,
+	s.documents[params.TextDocument.URI] = &Document{
+		URI:     params.TextDocument.URI,
+		Content: params.TextDocument.Text,
+		Version: params.TextDocument.Version,
 	}
 	s.mu.Unlock()
 
-	return s.publishDiagnostics(uri, text)
+	return s.publishDiagnostics(params.TextDocument.URI, params.TextDocument.Text)
 }
 
 // handleDidChange handles textDocument/didChange notification.
-func (s *Server) handleDidChange(params any) error {
-	p, ok := params.(map[string]any)
-	if !ok {
-		return errors.New("invalid params")
+func (s *Server) handleDidChange(raw json.RawMessage) error {
+	var params DidChangeTextDocumentParams
+	if err := json.Unmarshal(raw, &params); err != nil {
+		return err
 	}
 
-	textDoc, ok := p["textDocument"].(map[string]any)
-	if !ok {
-		return errors.New("invalid textDocument")
-	}
-
-	uri, ok := textDoc["uri"].(string)
-	if !ok {
-		return errors.New("invalid textDocument uri")
-	}
-
-	versionFloat, ok := textDoc["version"].(float64)
-	if !ok {
-		return errors.New("invalid textDocument version")
-	}
-
-	version := int(versionFloat)
-
-	changes, ok := p["contentChanges"].([]any)
-	if !ok || len(changes) == 0 {
-		return errors.New("invalid contentChanges")
-	}
-
-	change, ok := changes[0].(map[string]any)
-	if !ok {
-		return errors.New("invalid contentChange")
-	}
-
-	text, ok := change["text"].(string)
-	if !ok {
-		return errors.New("invalid change text")
+	if len(params.ContentChanges) == 0 {
+		return nil
 	}
 
 	s.mu.Lock()
-	s.documents[uri] = &Document{
-		URI:     uri,
-		Content: text,
-		Version: version,
+	s.documents[params.TextDocument.URI] = &Document{
+		URI:     params.TextDocument.URI,
+		Content: params.ContentChanges[0].Text,
+		Version: params.TextDocument.Version,
 	}
 	s.mu.Unlock()
 
-	return s.publishDiagnostics(uri, text)
+	return s.publishDiagnostics(params.TextDocument.URI, params.ContentChanges[0].Text)
 }
 
 // handleDidClose handles textDocument/didClose notification.
-func (s *Server) handleDidClose(params any) error {
-	p, ok := params.(map[string]any)
-	if !ok {
-		return errors.New("invalid params")
-	}
-
-	textDoc, ok := p["textDocument"].(map[string]any)
-	if !ok {
-		return errors.New("invalid textDocument")
-	}
-
-	uri, ok := textDoc["uri"].(string)
-	if !ok {
-		return errors.New("invalid textDocument uri")
+func (s *Server) handleDidClose(raw json.RawMessage) error {
+	var params DidCloseTextDocumentParams
+	if err := json.Unmarshal(raw, &params); err != nil {
+		return err
 	}
 
 	s.mu.Lock()
-	delete(s.documents, uri)
+	delete(s.documents, params.TextDocument.URI)
 	s.mu.Unlock()
 
 	return nil
 }
 
 // handleShutdown handles the shutdown request.
-func (s *Server) handleShutdown(id any) error {
-	response := map[string]any{
-		"jsonrpc": "2.0",
-		"id":      id,
-		"result":  nil,
+func (s *Server) handleShutdown(id json.RawMessage) error {
+	response := ResponseMessage{
+		JSONRPC: "2.0",
+		ID:      id,
+		Result:  nil,
 	}
 
 	return s.writeMessage(response)
@@ -346,5 +277,4 @@ func (s *Server) parseDocument(content string) []string {
 	_ = p.ParseProgram()
 
 	return p.Errors()
-} // Context is required by some functions but not used
-var _ = context.Background()
+}
