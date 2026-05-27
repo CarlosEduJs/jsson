@@ -166,3 +166,52 @@ func (t *Transpiler) evalIntegerRange(sInt, eInt int64, stepV *int64, node ast.N
 
 	return RangeResult{Values: res}, nil
 }
+
+// evalRangeExpression evaluates a range expression.
+func (t *Transpiler) evalRangeExpression(e *ast.RangeExpression, ctx map[string]any) (any, error) {
+	startV, err := t.evalExpression(e.Start, ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	endV, err := t.evalExpression(e.End, ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var stepV *int64
+	if e.Step != nil {
+		sv, err := t.evalExpression(e.Step, ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		var s int64
+
+		switch v := sv.(type) {
+		case int64:
+			s = v
+		case float64:
+			s = int64(v)
+		default:
+			return nil, t.errfNode(e, "step must be a number, got %T", sv)
+		}
+
+		stepV = &s
+	}
+
+	if startStr, ok1 := startV.(string); ok1 {
+		if endStr, ok2 := endV.(string); ok2 {
+			return t.evalStringRange(startStr, endStr, stepV, e)
+		}
+	}
+
+	sInt, ok1 := startV.(int64)
+
+	eInt, ok2 := endV.(int64)
+	if !ok1 || !ok2 {
+		return nil, t.errfNodeMsg(e, ie.RangeBoundsNotIntegers(startV, endV))
+	}
+
+	return t.evalIntegerRange(sInt, eInt, stepV, e)
+}
