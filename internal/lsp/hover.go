@@ -1,63 +1,35 @@
 package lsp
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 )
 
-func (s *Server) handleHover(id, params any) error {
-	p, ok := params.(map[string]any)
-	if !ok {
+func (s *Server) handleHover(id, raw json.RawMessage) error {
+	var params HoverParams
+	if err := json.Unmarshal(raw, &params); err != nil {
 		return s.sendError(id, "Invalid params")
 	}
 
-	textDoc, ok := p["textDocument"].(map[string]any)
-	if !ok {
-		return s.sendError(id, "Invalid textDocument")
-	}
-
-	position, ok := p["position"].(map[string]any)
-	if !ok {
-		return s.sendError(id, "Invalid position")
-	}
-
-	uri, ok := textDoc["uri"].(string)
-	if !ok {
-		return s.sendError(id, "Invalid uri")
-	}
-
-	lineFloat, ok := position["line"].(float64)
-	if !ok {
-		return s.sendError(id, "Invalid line")
-	}
-
-	line := int(lineFloat)
-
-	charFloat, ok := position["character"].(float64)
-	if !ok {
-		return s.sendError(id, "Invalid character")
-	}
-
-	character := int(charFloat)
-
-	doc, ok := s.getDocument(uri)
+	doc, ok := s.getDocument(params.TextDocument.URI)
 	if !ok {
 		return s.sendError(id, "Document not found")
 	}
 
-	hoverInfo := s.getHoverInfo(doc.Content, line, character)
+	hoverInfo := s.getHoverInfo(doc.Content, params.Position.Line, params.Position.Character)
 
-	response := map[string]any{
-		"jsonrpc": "2.0",
-		"id":      id,
-		"result":  hoverInfo,
+	response := ResponseMessage{
+		JSONRPC: "2.0",
+		ID:      id,
+		Result:  hoverInfo,
 	}
 
 	return s.writeMessage(response)
 }
 
 // getHoverInfo returns hover information for the given position.
-func (s *Server) getHoverInfo(content string, line, character int) any {
+func (s *Server) getHoverInfo(content string, line, character int) *Hover {
 	lines := strings.Split(content, "\n")
 	if line >= len(lines) {
 		return nil
@@ -77,10 +49,10 @@ func (s *Server) getHoverInfo(content string, line, character int) any {
 	// Check if it's a parameter in a map/zip expression
 	paramInfo := s.getParameterInfo(currentLine, word, character)
 	if paramInfo != "" {
-		return map[string]any{
-			"contents": map[string]any{
-				"kind":  "markdown",
-				"value": paramInfo,
+		return &Hover{
+			Contents: MarkupContent{
+				Kind:  "markdown",
+				Value: paramInfo,
 			},
 		}
 	}
@@ -88,10 +60,10 @@ func (s *Server) getHoverInfo(content string, line, character int) any {
 	// Check if it's a variable declaration or usage
 	varInfo := s.getVariableInfo(content, word, line)
 	if varInfo != "" {
-		return map[string]any{
-			"contents": map[string]any{
-				"kind":  "markdown",
-				"value": varInfo,
+		return &Hover{
+			Contents: MarkupContent{
+				Kind:  "markdown",
+				Value: varInfo,
 			},
 		}
 	}
@@ -99,10 +71,10 @@ func (s *Server) getHoverInfo(content string, line, character int) any {
 	// Check for object/array names
 	objInfo := s.getObjectInfo(content, word, line)
 	if objInfo != "" {
-		return map[string]any{
-			"contents": map[string]any{
-				"kind":  "markdown",
-				"value": objInfo,
+		return &Hover{
+			Contents: MarkupContent{
+				Kind:  "markdown",
+				Value: objInfo,
 			},
 		}
 	}
@@ -113,10 +85,10 @@ func (s *Server) getHoverInfo(content string, line, character int) any {
 		return nil
 	}
 
-	return map[string]any{
-		"contents": map[string]any{
-			"kind":  "markdown",
-			"value": doc,
+	return &Hover{
+		Contents: MarkupContent{
+			Kind:  "markdown",
+			Value: doc,
 		},
 	}
 }

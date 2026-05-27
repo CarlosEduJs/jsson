@@ -12,16 +12,6 @@ type Diagnostic struct {
 	Source   string `json:"source"`
 }
 
-type Range struct {
-	Start Position `json:"start"`
-	End   Position `json:"end"`
-}
-
-type Position struct {
-	Line      int `json:"line"`
-	Character int `json:"character"`
-}
-
 const (
 	SeverityError   = 1
 	SeverityWarning = 2
@@ -38,12 +28,12 @@ func (s *Server) publishDiagnostics(uri, content string) error {
 		diagnostics = append(diagnostics, diag)
 	}
 
-	notification := map[string]any{
-		"jsonrpc": "2.0",
-		"method":  "textDocument/publishDiagnostics",
-		"params": map[string]any{
-			"uri":         uri,
-			"diagnostics": diagnostics,
+	notification := NotificationMessage{
+		JSONRPC: "2.0",
+		Method:  "textDocument/publishDiagnostics",
+		Params: PublishDiagnosticsParams{
+			URI:         uri,
+			Diagnostics: diagnostics,
 		},
 	}
 
