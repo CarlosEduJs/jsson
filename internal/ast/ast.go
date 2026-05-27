@@ -154,11 +154,28 @@ func (sl *StringLiteral) TokenLiteral() string      { return sl.Token.Literal }
 func (sl *StringLiteral) Position() (line, col int) { return sl.Token.Line, sl.Token.Column }
 func (sl *StringLiteral) String() string            { return sl.Token.Literal }
 
+// InterpolatedPart is either a literal text string or an Expression.
+type InterpolatedPart interface {
+	isPart()
+}
+
+type TextPart struct {
+	Value string
+}
+
+func (TextPart) isPart() {}
+
+type ExprPart struct {
+	Expr Expression
+}
+
+func (ExprPart) isPart() {}
+
 type ValidatorExpression struct {
 	Token   token.Token
 	Type    string
 	Pattern string
-	Args    []any // For validators like @int(min, max), @float(min, max)
+	Args    []Expression // For validators like @int(min, max), @float(min, max)
 }
 
 func (ve *ValidatorExpression) expressionNode()           {}
@@ -176,11 +193,10 @@ func (ve *ValidatorExpression) String() string {
 	return "@" + ve.Type
 }
 
-// InterpolatedString represents a raw string with {var} interpolations
-// Example: """Hello {user.name}, balance: {user.balance * 10}""".
+// InterpolatedString represents a string with ${var} or {var} interpolations.
 type InterpolatedString struct {
 	Token token.Token
-	Parts []any // alternating string and Expression
+	Parts []InterpolatedPart
 }
 
 func (is *InterpolatedString) expressionNode()           {}
@@ -191,11 +207,11 @@ func (is *InterpolatedString) String() string {
 
 	for _, part := range is.Parts {
 		switch p := part.(type) {
-		case string:
-			out.WriteString(p)
-		case Expression:
+		case TextPart:
+			out.WriteString(p.Value)
+		case ExprPart:
 			out.WriteString("{")
-			out.WriteString(p.String())
+			out.WriteString(p.Expr.String())
 			out.WriteString("}")
 		}
 	}

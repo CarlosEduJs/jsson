@@ -331,12 +331,12 @@ type TranspileRequest struct {
 }
 
 type TranspileResponse struct {
-	Success         bool     `json:"success"`
-	Output          any      `json:"output,omitempty"`
-	OutputRaw       string   `json:"output_raw,omitempty"`
-	Format          string   `json:"format"`
-	Errors          []string `json:"errors,omitempty"`
-	TranspileTimeMs float64  `json:"transpile_time_ms"`
+	Success         bool            `json:"success"`
+	Output          json.RawMessage `json:"output,omitempty"`
+	OutputRaw       string          `json:"output_raw,omitempty"`
+	Format          string          `json:"format"`
+	Errors          []string        `json:"errors,omitempty"`
+	TranspileTimeMs float64         `json:"transpile_time_ms"`
 }
 
 type ValidateRequest struct {
@@ -359,7 +359,7 @@ type ValidateWithSchemaResponse struct {
 	Valid           bool              `json:"valid"`
 	Errors          []ValidationError `json:"errors,omitempty"`
 	Warnings        []ValidationError `json:"warnings,omitempty"`
-	TranspiledData  any               `json:"transpiled_data,omitempty"`
+	TranspiledData  json.RawMessage   `json:"transpiled_data,omitempty"`
 	Format          string            `json:"format"`
 	SchemaType      string            `json:"schema_type"`
 	TranspileTimeMs float64           `json:"transpile_time_ms"`
@@ -497,11 +497,10 @@ func transpileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if format == formatJSON {
-		var jsonOutput any
-		if err := json.Unmarshal(output, &jsonOutput); err != nil {
-			response.OutputRaw = string(output)
+		if json.Valid(output) {
+			response.Output = json.RawMessage(output)
 		} else {
-			response.Output = jsonOutput
+			response.OutputRaw = string(output)
 		}
 	} else {
 		response.OutputRaw = string(output)
@@ -658,9 +657,8 @@ func validateWithSchemaHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if result.Valid && outputFormat == "json" {
-		var jsonData any
-		if json.Unmarshal(output, &jsonData) == nil {
-			response.TranspiledData = jsonData
+		if json.Valid(output) {
+			response.TranspiledData = json.RawMessage(output)
 		}
 	}
 
