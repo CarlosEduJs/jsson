@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-// Test for bug fix: arithmetic operations with variables
+// Test for bug fix: arithmetic operations with variables.
 func TestVariableArithmetic_BasicOperations(t *testing.T) {
 	input := `
 price = 100
@@ -26,6 +26,7 @@ final = total - discount
 	}
 
 	tr := New(prog, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
@@ -35,6 +36,7 @@ final = total - discount
 	if !strings.Contains(string(output), `"total": 115`) {
 		t.Errorf("Expected total=115, got: %s", string(output))
 	}
+
 	if !strings.Contains(string(output), `"final": 95`) {
 		t.Errorf("Expected final=95, got: %s", string(output))
 	}
@@ -60,6 +62,7 @@ mod = a % b
 	}
 
 	tr := New(prog, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
@@ -69,9 +72,11 @@ mod = a % b
 	if !strings.Contains(string(output), `"sum": 13`) {
 		t.Errorf("Expected sum=13, got: %s", string(output))
 	}
+
 	if !strings.Contains(string(output), `"diff": 7`) {
 		t.Errorf("Expected diff=7, got: %s", string(output))
 	}
+
 	if !strings.Contains(string(output), `"prod": 30`) {
 		t.Errorf("Expected prod=30, got: %s", string(output))
 	}
@@ -93,6 +98,7 @@ result = z - 5
 	}
 
 	tr := New(prog, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
@@ -120,6 +126,7 @@ doubled = withDiscount * 2
 	}
 
 	tr := New(prog, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)

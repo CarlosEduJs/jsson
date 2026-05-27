@@ -6,10 +6,10 @@ import (
 	"reflect"
 	"regexp"
 
-	"gopkg.in/yaml.v3"
+	yamlv3 "gopkg.in/yaml.v3"
 )
 
-// Validate validates data against a schema
+// Validate validates data against a schema.
 func (v *Validator) Validate(data []byte, schema *Schema, format string) *ValidationResult {
 	result := &ValidationResult{
 		Valid:  true,
@@ -17,25 +17,28 @@ func (v *Validator) Validate(data []byte, schema *Schema, format string) *Valida
 		Format: format,
 	}
 
-	var parsedData any
-	var err error
+	var (
+		parsedData any
+		err        error
+	)
 
 	switch format {
 	case "json":
 		err = json.Unmarshal(data, &parsedData)
 	case "yaml":
-		err = yaml.Unmarshal(data, &parsedData)
+		err = yamlv3.Unmarshal(data, &parsedData)
 		if err == nil {
 			parsedData = normalizeData(parsedData)
 		}
 	case "toml":
-		parsedData, err = parseTOML(string(data))
+		parsedData = parseTOML(string(data))
+		err = nil
 	case "typescript", "ts":
 		parsedData, err = parseTypeScript(string(data))
 	default:
 		err = json.Unmarshal(data, &parsedData)
 		if err != nil {
-			err = yaml.Unmarshal(data, &parsedData)
+			err = yamlv3.Unmarshal(data, &parsedData)
 			if err == nil {
 				parsedData = normalizeData(parsedData)
 			}
@@ -48,34 +51,36 @@ func (v *Validator) Validate(data []byte, schema *Schema, format string) *Valida
 			Path:    "$",
 			Message: fmt.Sprintf("Failed to parse %s: %s", format, err.Error()),
 		})
+
 		return result
 	}
 
 	v.validateValue(parsedData, schema, "$", result)
+
 	return result
 }
 
-// ValidateJSON validates JSON data against a schema
+// ValidateJSON validates JSON data against a schema.
 func (v *Validator) ValidateJSON(data []byte, schema *Schema) *ValidationResult {
 	return v.Validate(data, schema, "json")
 }
 
-// ValidateYAML validates YAML data against a schema
+// ValidateYAML validates YAML data against a schema.
 func (v *Validator) ValidateYAML(data []byte, schema *Schema) *ValidationResult {
 	return v.Validate(data, schema, "yaml")
 }
 
-// ValidateTOML validates TOML data against a schema
+// ValidateTOML validates TOML data against a schema.
 func (v *Validator) ValidateTOML(data []byte, schema *Schema) *ValidationResult {
 	return v.Validate(data, schema, "toml")
 }
 
-// ValidateTypeScript validates TypeScript data against a schema
+// ValidateTypeScript validates TypeScript data against a schema.
 func (v *Validator) ValidateTypeScript(data []byte, schema *Schema) *ValidationResult {
 	return v.Validate(data, schema, "typescript")
 }
 
-// validateValue recursively validates a value against a schema
+// validateValue recursively validates a value against a schema.
 func (v *Validator) validateValue(value any, schema *Schema, path string, result *ValidationResult) {
 	if schema == nil {
 		return
@@ -90,6 +95,7 @@ func (v *Validator) validateValue(value any, schema *Schema, path string, result
 				Message: fmt.Sprintf("Value must be equal to constant %v", schema.Const),
 				Value:   value,
 			})
+
 			return
 		}
 	}
@@ -97,12 +103,15 @@ func (v *Validator) validateValue(value any, schema *Schema, path string, result
 	// Check enum
 	if len(schema.Enum) > 0 {
 		found := false
+
 		for _, enumVal := range schema.Enum {
 			if deepEqual(value, enumVal) {
 				found = true
+
 				break
 			}
 		}
+
 		if !found {
 			result.Valid = false
 			result.Errors = append(result.Errors, ValidationError{
@@ -110,6 +119,7 @@ func (v *Validator) validateValue(value any, schema *Schema, path string, result
 				Message: fmt.Sprintf("Value must be one of: %v", schema.Enum),
 				Value:   value,
 			})
+
 			return
 		}
 	}
@@ -117,13 +127,16 @@ func (v *Validator) validateValue(value any, schema *Schema, path string, result
 	// Check oneOf
 	if len(schema.OneOf) > 0 {
 		validCount := 0
+
 		for _, subSchema := range schema.OneOf {
 			subResult := &ValidationResult{Valid: true, Errors: []ValidationError{}}
 			v.validateValue(value, subSchema, path, subResult)
+
 			if subResult.Valid {
 				validCount++
 			}
 		}
+
 		if validCount != 1 {
 			result.Valid = false
 			result.Errors = append(result.Errors, ValidationError{
@@ -131,6 +144,7 @@ func (v *Validator) validateValue(value any, schema *Schema, path string, result
 				Message: "Value must match exactly one of the oneOf schemas",
 				Value:   value,
 			})
+
 			return
 		}
 	}
@@ -138,14 +152,18 @@ func (v *Validator) validateValue(value any, schema *Schema, path string, result
 	// Check anyOf
 	if len(schema.AnyOf) > 0 {
 		validAny := false
+
 		for _, subSchema := range schema.AnyOf {
 			subResult := &ValidationResult{Valid: true, Errors: []ValidationError{}}
 			v.validateValue(value, subSchema, path, subResult)
+
 			if subResult.Valid {
 				validAny = true
+
 				break
 			}
 		}
+
 		if !validAny {
 			result.Valid = false
 			result.Errors = append(result.Errors, ValidationError{
@@ -153,6 +171,7 @@ func (v *Validator) validateValue(value any, schema *Schema, path string, result
 				Message: "Value must match at least one of the anyOf schemas",
 				Value:   value,
 			})
+
 			return
 		}
 	}
@@ -168,6 +187,7 @@ func (v *Validator) validateValue(value any, schema *Schema, path string, result
 	if schema.Not != nil {
 		subResult := &ValidationResult{Valid: true, Errors: []ValidationError{}}
 		v.validateValue(value, schema.Not, path, subResult)
+
 		if subResult.Valid {
 			result.Valid = false
 			result.Errors = append(result.Errors, ValidationError{
@@ -175,6 +195,7 @@ func (v *Validator) validateValue(value any, schema *Schema, path string, result
 				Message: "Value must not match the 'not' schema",
 				Value:   value,
 			})
+
 			return
 		}
 	}
@@ -185,7 +206,7 @@ func (v *Validator) validateValue(value any, schema *Schema, path string, result
 	}
 }
 
-// validateType validates the type of a value
+// validateType validates the type of a value.
 func (v *Validator) validateType(value any, schema *Schema, path string, result *ValidationResult) {
 	actualType := getType(value)
 
@@ -199,25 +220,27 @@ func (v *Validator) validateType(value any, schema *Schema, path string, result 
 				Value:   value,
 			})
 		}
+
 		return
 	}
 
 	// Type validation
 	validType := false
+
 	switch schema.Type {
-	case "string":
-		validType = actualType == "string"
-	case "number":
-		validType = actualType == "number" || actualType == "integer"
-	case "integer":
-		validType = actualType == "integer" || (actualType == "number" && isInteger(value))
+	case typeString:
+		validType = actualType == typeString
+	case typeNumber:
+		validType = actualType == typeNumber || actualType == typeInteger
+	case typeInteger:
+		validType = actualType == typeInteger || (actualType == typeNumber && isInteger(value))
 	case "boolean":
 		validType = actualType == "boolean"
-	case "array":
-		validType = actualType == "array"
-	case "object":
-		validType = actualType == "object"
-	case "null":
+	case typeArray:
+		validType = actualType == typeArray
+	case typeObject:
+		validType = actualType == typeObject
+	case typeNull:
 		validType = value == nil
 	}
 
@@ -228,23 +251,29 @@ func (v *Validator) validateType(value any, schema *Schema, path string, result 
 			Message: fmt.Sprintf("Expected type '%s', got '%s'", schema.Type, actualType),
 			Value:   value,
 		})
+
 		return
 	}
 
 	// Type-specific validations
 	switch schema.Type {
-	case "string":
-		v.validateString(value.(string), schema, path, result)
-	case "number", "integer":
+	case typeString:
+		strValue, ok := value.(string)
+		if !ok {
+			return
+		}
+
+		v.validateString(strValue, schema, path, result)
+	case typeNumber, typeInteger:
 		v.validateNumber(value, schema, path, result)
-	case "array":
+	case typeArray:
 		v.validateArray(value, schema, path, result)
-	case "object":
+	case typeObject:
 		v.validateObject(value, schema, path, result)
 	}
 }
 
-// validateString validates a string value
+// validateString validates a string value.
 func (v *Validator) validateString(value string, schema *Schema, path string, result *ValidationResult) {
 	// Check minLength
 	if schema.MinLength != nil && len(value) < *schema.MinLength {
@@ -290,7 +319,7 @@ func (v *Validator) validateString(value string, schema *Schema, path string, re
 	}
 }
 
-// validateNumber validates a numeric value
+// validateNumber validates a numeric value.
 func (v *Validator) validateNumber(value any, schema *Schema, path string, result *ValidationResult) {
 	num := toFloat64(value)
 
@@ -315,14 +344,15 @@ func (v *Validator) validateNumber(value any, schema *Schema, path string, resul
 	}
 }
 
-// validateArray validates an array value
+// validateArray validates an array value.
 func (v *Validator) validateArray(value any, schema *Schema, path string, result *ValidationResult) {
 	// Handle both []any and []interface{}
 	var arr []any
+
 	rv := reflect.ValueOf(value)
 	if rv.Kind() == reflect.Slice {
 		arr = make([]any, rv.Len())
-		for i := 0; i < rv.Len(); i++ {
+		for i := range rv.Len() {
 			arr[i] = rv.Index(i).Interface()
 		}
 	} else {
@@ -332,6 +362,7 @@ func (v *Validator) validateArray(value any, schema *Schema, path string, result
 			Message: "Expected array type",
 			Value:   value,
 		})
+
 		return
 	}
 
@@ -358,6 +389,7 @@ func (v *Validator) validateArray(value any, schema *Schema, path string, result
 	// Check uniqueItems
 	if schema.UniqueItems {
 		seen := make(map[string]bool)
+
 		for i, item := range arr {
 			key := fmt.Sprintf("%v", item)
 			if seen[key] {
@@ -368,6 +400,7 @@ func (v *Validator) validateArray(value any, schema *Schema, path string, result
 					Value:   item,
 				})
 			}
+
 			seen[key] = true
 		}
 	}
@@ -381,7 +414,7 @@ func (v *Validator) validateArray(value any, schema *Schema, path string, result
 	}
 }
 
-// validateObject validates an object value
+// validateObject validates an object value.
 func (v *Validator) validateObject(value any, schema *Schema, path string, result *ValidationResult) {
 	obj, ok := value.(map[string]any)
 	if !ok {
@@ -391,6 +424,7 @@ func (v *Validator) validateObject(value any, schema *Schema, path string, resul
 			Message: "Expected object type",
 			Value:   value,
 		})
+
 		return
 	}
 

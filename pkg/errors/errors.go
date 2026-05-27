@@ -4,7 +4,7 @@ package errors
 
 import "jsson/internal/errors"
 
-// Re-export functions
+// Re-export functions.
 var (
 	FormatContext      = errors.FormatContext
 	LexerError         = errors.LexerError

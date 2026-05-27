@@ -22,6 +22,7 @@ type Lexer struct {
 func New(input string) *Lexer {
 	l := &Lexer{input: input, line: 1, column: 0, errors: []string{}}
 	l.readChar()
+
 	return l
 }
 
@@ -34,6 +35,7 @@ func (l *Lexer) readChar() {
 		l.position = l.readPosition
 		l.readPosition += width
 	}
+
 	l.column++
 }
 
@@ -135,12 +137,15 @@ func (l *Lexer) NextToken() token.Token {
 		// Check for triple-quoted raw string
 		if l.peekChar() == '"' {
 			l.readChar() // consume second "
+
 			if l.peekChar() == '"' {
 				l.readChar() // consume third "
 				// This is a raw string """..."""
 				lit, ok := l.readRawString()
 				tok.Line = l.line
+
 				tok.Column = l.column
+
 				if !ok {
 					msg := l.lexErrMsg(ie.UnterminatedString())
 					l.errors = append(l.errors, msg)
@@ -149,6 +154,7 @@ func (l *Lexer) NextToken() token.Token {
 					tok.Type = token.RAWSTRING
 					tok.Literal = lit
 				}
+
 				return tok
 			}
 			// Only two quotes, backtrack
@@ -159,12 +165,15 @@ func (l *Lexer) NextToken() token.Token {
 			tok.Line = l.line
 			tok.Column = l.column
 			l.readChar() // consume the second quote to be ready for next token
+
 			return tok
 		}
 		// Regular string
 		lit, ok := l.readString()
 		tok.Line = l.line
+
 		tok.Column = l.column
+
 		if !ok {
 			msg := l.lexErrMsg(ie.UnterminatedString())
 			l.errors = append(l.errors, msg)
@@ -173,17 +182,21 @@ func (l *Lexer) NextToken() token.Token {
 			tok.Type = token.STRING
 			tok.Literal = lit
 		}
+
 		return tok
 	case '`':
 		// Check for triple-backtick raw string
 		if l.peekChar() == '`' {
 			l.readChar() // consume second `
+
 			if l.peekChar() == '`' {
 				l.readChar() // consume third `
 				// This is a raw string ```...```
 				lit, ok := l.readTripleBacktickString()
 				tok.Line = l.line
+
 				tok.Column = l.column
+
 				if !ok {
 					msg := l.lexErrMsg(ie.UnterminatedString())
 					l.errors = append(l.errors, msg)
@@ -192,6 +205,7 @@ func (l *Lexer) NextToken() token.Token {
 					tok.Type = token.RAWSTRING
 					tok.Literal = lit
 				}
+
 				return tok
 			}
 			// Only two backticks, treat as empty template string
@@ -199,12 +213,15 @@ func (l *Lexer) NextToken() token.Token {
 			tok.Literal = ""
 			tok.Line = l.line
 			tok.Column = l.column
+
 			return tok
 		}
 		// Single backtick = template string with interpolation
 		lit, ok := l.readTemplateString()
 		tok.Line = l.line
+
 		tok.Column = l.column
+
 		if !ok {
 			msg := l.lexErrMsg(ie.UnterminatedString())
 			l.errors = append(l.errors, msg)
@@ -213,6 +230,7 @@ func (l *Lexer) NextToken() token.Token {
 			tok.Type = token.TEMPLATESTR
 			tok.Literal = lit
 		}
+
 		return tok
 	case '.':
 		if l.peekChar() == '.' {
@@ -231,13 +249,15 @@ func (l *Lexer) NextToken() token.Token {
 		tok.Line = l.line
 		tok.Column = l.column
 	default:
-		if isLetter(l.ch) {
+		switch {
+		case isLetter(l.ch):
 			tok.Literal = l.readIdentifier()
 			tok.Type = token.LookupIdent(tok.Literal)
 			tok.Line = l.line
 			tok.Column = l.column
+
 			return tok
-		} else if isDigit(l.ch) {
+		case isDigit(l.ch):
 			tok.Literal = l.readNumber()
 			// Check if the number contains a decimal point
 			if containsDot(tok.Literal) {
@@ -245,10 +265,12 @@ func (l *Lexer) NextToken() token.Token {
 			} else {
 				tok.Type = token.INT
 			}
+
 			tok.Line = l.line
 			tok.Column = l.column
+
 			return tok
-		} else {
+		default:
 			msg := l.lexErrMsg(ie.IllegalCharacter(l.ch))
 			l.errors = append(l.errors, msg)
 			tok = l.newToken(token.ILLEGAL, msg)
@@ -256,18 +278,21 @@ func (l *Lexer) NextToken() token.Token {
 	}
 
 	l.readChar()
+
 	return tok
 }
 
-func (l *Lexer) newToken(tokenType token.TokenType, literal string) token.Token {
+func (l *Lexer) newToken(tokenType token.Type, literal string) token.Token {
 	return token.Token{Type: tokenType, Literal: literal, Line: l.line, Column: l.column}
 }
 
 func (l *Lexer) readIdentifier() string {
 	start := l.position
+
 	for isLetter(l.ch) || isDigit(l.ch) {
 		l.readChar()
 	}
+
 	return l.input[start:l.position]
 }
 
@@ -278,31 +303,38 @@ func (l *Lexer) readNumber() string {
 		runes = append(runes, l.ch)
 		l.readChar()
 	}
+
 	if l.ch == '.' && isDigit(l.peekChar()) {
 		runes = append(runes, l.ch)
 		l.readChar() // consume .
+
 		for isDigit(l.ch) {
 			runes = append(runes, l.ch)
 			l.readChar()
 		}
 	}
+
 	return string(runes)
 }
 
 func (l *Lexer) readString() (string, bool) {
 	// consume opening quote
 	l.readChar()
+
 	var runes []rune
 
 	for {
 		if l.ch == '"' {
 			// consume closing quote and return content
 			l.readChar()
+
 			return string(runes), true
 		}
+
 		if l.ch == '\\' {
 			// Handle escape sequences
 			l.readChar()
+
 			switch l.ch {
 			case 'n':
 				runes = append(runes, '\n')
@@ -314,43 +346,50 @@ func (l *Lexer) readString() (string, bool) {
 				runes = append(runes, '\\')
 			default:
 				// Unknown escape, keep literal backslash and char
-				runes = append(runes, '\\')
-				runes = append(runes, l.ch)
+				runes = append(runes, '\\', l.ch)
 			}
+
 			l.readChar()
+
 			continue
 		}
+
 		if l.ch == 0 {
 			// unterminated
 			return "", false
 		}
+
 		runes = append(runes, l.ch)
 		l.readChar()
 	}
 }
 
 // readRawString reads a triple-quoted raw string ("""...""")
-// It preserves ALL content literally - no escape processing
+// It preserves ALL content literally - no escape processing.
 func (l *Lexer) readRawString() (string, bool) {
 	// Opening """ already consumed
 	l.readChar() // move past third quote
+
 	var runes []rune
 
 	for {
 		// Check for closing """
 		if l.ch == '"' && l.peekChar() == '"' {
 			l.readChar() // consume first "
+
 			if l.peekChar() == '"' {
 				l.readChar() // consume second "
 				l.readChar() // consume third "
+
 				return string(runes), true
 			}
 			// Only two quotes, add them and continue
-			runes = append(runes, '"')
-			runes = append(runes, l.ch)
+			runes = append(runes, '"', l.ch)
 			l.readChar()
+
 			continue
 		}
+
 		if l.ch == 0 {
 			// unterminated
 			return "", false
@@ -360,24 +399,28 @@ func (l *Lexer) readRawString() (string, bool) {
 			l.line++
 			l.column = 0
 		}
+
 		runes = append(runes, l.ch)
 		l.readChar()
 	}
 }
 
 // readTemplateString reads a backtick template string (`...`)
-// Preserves content including ${...} for later interpolation parsing
+// Preserves content including ${...} for later interpolation parsing.
 func (l *Lexer) readTemplateString() (string, bool) {
 	// consume opening backtick
 	l.readChar()
+
 	var runes []rune
 
 	for {
 		if l.ch == '`' {
 			// consume closing backtick and return content
 			l.readChar()
+
 			return string(runes), true
 		}
+
 		if l.ch == 0 {
 			// unterminated
 			return "", false
@@ -387,33 +430,38 @@ func (l *Lexer) readTemplateString() (string, bool) {
 			l.line++
 			l.column = 0
 		}
+
 		runes = append(runes, l.ch)
 		l.readChar()
 	}
 }
 
 // readTripleBacktickString reads a triple-backtick raw string (```...```)
-// Preserves ALL content literally - no interpolation
+// Preserves ALL content literally - no interpolation.
 func (l *Lexer) readTripleBacktickString() (string, bool) {
 	// Opening ``` already consumed
 	l.readChar() // move past third backtick
+
 	var runes []rune
 
 	for {
 		// Check for closing ```
 		if l.ch == '`' && l.peekChar() == '`' {
 			l.readChar() // consume first `
+
 			if l.peekChar() == '`' {
 				l.readChar() // consume second `
 				l.readChar() // consume third `
+
 				return string(runes), true
 			}
 			// Only two backticks, add them and continue
-			runes = append(runes, '`')
-			runes = append(runes, l.ch)
+			runes = append(runes, '`', l.ch)
 			l.readChar()
+
 			continue
 		}
+
 		if l.ch == 0 {
 			// unterminated
 			return "", false
@@ -423,28 +471,22 @@ func (l *Lexer) readTripleBacktickString() (string, bool) {
 			l.line++
 			l.column = 0
 		}
+
 		runes = append(runes, l.ch)
 		l.readChar()
 	}
 }
 
-func (l *Lexer) lexErrf(format string, args ...interface{}) string {
-	msg := fmt.Sprintf(format, args...)
-	if l.SourceFile != "" {
-		ctx := ie.FormatContext(l.SourceFile, l.line, l.column)
-		return fmt.Sprintf("Lex goblin: %s — %s", ctx, msg)
-	}
-	ctx := fmt.Sprintf("%d:%d", l.line, l.column)
-	return fmt.Sprintf("Lex goblin: %s — %s", ctx, msg)
-}
-
-// lexErrMsg formats an already-formatted error message with context
+// lexErrMsg formats an already-formatted error message with context.
 func (l *Lexer) lexErrMsg(msg string) string {
 	if l.SourceFile != "" {
 		ctx := ie.FormatContext(l.SourceFile, l.line, l.column)
+
 		return fmt.Sprintf("Lex goblin: %s — %s", ctx, msg)
 	}
+
 	ctx := fmt.Sprintf("%d:%d", l.line, l.column)
+
 	return fmt.Sprintf("Lex goblin: %s — %s", ctx, msg)
 }
 
@@ -460,12 +502,15 @@ func (l *Lexer) skipWhitespace() {
 	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' || (l.ch == '/' && l.peekChar() == '/') {
 		if l.ch == '/' && l.peekChar() == '/' {
 			l.skipComment()
+
 			continue
 		}
+
 		if l.ch == '\n' {
 			l.line++
 			l.column = 0
 		}
+
 		l.readChar()
 	}
 }
@@ -474,6 +519,7 @@ func (l *Lexer) skipComment() {
 	for l.ch != '\n' && l.ch != 0 {
 		l.readChar()
 	}
+
 	if l.ch == '\n' {
 		l.line++
 		l.column = 0
@@ -485,7 +531,9 @@ func (l *Lexer) peekChar() rune {
 	if l.readPosition >= len(l.input) {
 		return 0
 	}
+
 	r, _ := utf8.DecodeRuneInString(l.input[l.readPosition:])
+
 	return r
 }
 
@@ -503,5 +551,6 @@ func containsDot(s string) bool {
 			return true
 		}
 	}
+
 	return false
 }

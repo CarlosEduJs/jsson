@@ -18,6 +18,7 @@ func TestValidateSimpleObject(t *testing.T) {
 
 	// Valid data
 	validJSON := []byte(`{"name": "John", "age": 30}`)
+
 	result := v.ValidateJSON(validJSON, schema)
 	if !result.Valid {
 		t.Errorf("Expected valid, got errors: %v", result.Errors)
@@ -25,6 +26,7 @@ func TestValidateSimpleObject(t *testing.T) {
 
 	// Missing required field
 	invalidJSON := []byte(`{"age": 30}`)
+
 	result = v.ValidateJSON(invalidJSON, schema)
 	if result.Valid {
 		t.Error("Expected invalid for missing required field")
@@ -32,6 +34,7 @@ func TestValidateSimpleObject(t *testing.T) {
 
 	// Wrong type
 	wrongTypeJSON := []byte(`{"name": 123, "age": 30}`)
+
 	result = v.ValidateJSON(wrongTypeJSON, schema)
 	if result.Valid {
 		t.Error("Expected invalid for wrong type")
@@ -54,6 +57,7 @@ func TestValidateArray(t *testing.T) {
 
 	// Valid array
 	validJSON := []byte(`["a", "b", "c"]`)
+
 	result := v.ValidateJSON(validJSON, schema)
 	if !result.Valid {
 		t.Errorf("Expected valid, got errors: %v", result.Errors)
@@ -61,6 +65,7 @@ func TestValidateArray(t *testing.T) {
 
 	// Too few items
 	tooFewJSON := []byte(`["a"]`)
+
 	result = v.ValidateJSON(tooFewJSON, schema)
 	if result.Valid {
 		t.Error("Expected invalid for too few items")
@@ -68,6 +73,7 @@ func TestValidateArray(t *testing.T) {
 
 	// Too many items
 	tooManyJSON := []byte(`["a", "b", "c", "d", "e", "f"]`)
+
 	result = v.ValidateJSON(tooManyJSON, schema)
 	if result.Valid {
 		t.Error("Expected invalid for too many items")
@@ -77,13 +83,14 @@ func TestValidateArray(t *testing.T) {
 func TestValidateEnum(t *testing.T) {
 	schema := &Schema{
 		Type: "string",
-		Enum: []interface{}{"red", "green", "blue"},
+		Enum: []any{"red", "green", "blue"},
 	}
 
 	v := New()
 
 	// Valid enum value
 	validJSON := []byte(`"red"`)
+
 	result := v.ValidateJSON(validJSON, schema)
 	if !result.Valid {
 		t.Errorf("Expected valid, got errors: %v", result.Errors)
@@ -91,6 +98,7 @@ func TestValidateEnum(t *testing.T) {
 
 	// Invalid enum value
 	invalidJSON := []byte(`"yellow"`)
+
 	result = v.ValidateJSON(invalidJSON, schema)
 	if result.Valid {
 		t.Error("Expected invalid for non-enum value")
@@ -107,6 +115,7 @@ func TestValidatePattern(t *testing.T) {
 
 	// Valid pattern
 	validJSON := []byte(`"abc"`)
+
 	result := v.ValidateJSON(validJSON, schema)
 	if !result.Valid {
 		t.Errorf("Expected valid, got errors: %v", result.Errors)
@@ -114,6 +123,7 @@ func TestValidatePattern(t *testing.T) {
 
 	// Invalid pattern
 	invalidJSON := []byte(`"ABC123"`)
+
 	result = v.ValidateJSON(invalidJSON, schema)
 	if result.Valid {
 		t.Error("Expected invalid for non-matching pattern")
@@ -121,18 +131,19 @@ func TestValidatePattern(t *testing.T) {
 }
 
 func TestValidateMinMax(t *testing.T) {
-	min := float64(0)
-	max := float64(100)
+	minVal := float64(0)
+	maxVal := float64(100)
 	schema := &Schema{
 		Type:    "number",
-		Minimum: &min,
-		Maximum: &max,
+		Minimum: &minVal,
+		Maximum: &maxVal,
 	}
 
 	v := New()
 
 	// Valid range
 	validJSON := []byte(`50`)
+
 	result := v.ValidateJSON(validJSON, schema)
 	if !result.Valid {
 		t.Errorf("Expected valid, got errors: %v", result.Errors)
@@ -140,6 +151,7 @@ func TestValidateMinMax(t *testing.T) {
 
 	// Below minimum
 	belowJSON := []byte(`-10`)
+
 	result = v.ValidateJSON(belowJSON, schema)
 	if result.Valid {
 		t.Error("Expected invalid for below minimum")
@@ -147,6 +159,7 @@ func TestValidateMinMax(t *testing.T) {
 
 	// Above maximum
 	aboveJSON := []byte(`150`)
+
 	result = v.ValidateJSON(aboveJSON, schema)
 	if result.Valid {
 		t.Error("Expected invalid for above maximum")
@@ -169,6 +182,7 @@ func TestValidateYAML(t *testing.T) {
 name: test
 enabled: true
 `)
+
 	result := v.ValidateYAML(yamlData, schema)
 	if !result.Valid {
 		t.Errorf("Expected valid YAML, got errors: %v", result.Errors)
@@ -192,7 +206,7 @@ func TestLoadSchemaFromJSON(t *testing.T) {
 		t.Fatalf("Failed to load schema: %v", err)
 	}
 
-	if schema.Type != "object" {
+	if schema.Type != typeObject {
 		t.Errorf("Expected type 'object', got '%s'", schema.Type)
 	}
 
@@ -217,6 +231,7 @@ func TestValidateAnyOf(t *testing.T) {
 
 	// String is valid
 	stringJSON := []byte(`"hello"`)
+
 	result := v.ValidateJSON(stringJSON, schema)
 	if !result.Valid {
 		t.Errorf("Expected string to be valid, got errors: %v", result.Errors)
@@ -224,6 +239,7 @@ func TestValidateAnyOf(t *testing.T) {
 
 	// Number is valid
 	numberJSON := []byte(`42`)
+
 	result = v.ValidateJSON(numberJSON, schema)
 	if !result.Valid {
 		t.Errorf("Expected number to be valid, got errors: %v", result.Errors)
@@ -231,6 +247,7 @@ func TestValidateAnyOf(t *testing.T) {
 
 	// Boolean is invalid (neither string nor number)
 	boolJSON := []byte(`true`)
+
 	result = v.ValidateJSON(boolJSON, schema)
 	if result.Valid {
 		t.Error("Expected boolean to be invalid for anyOf[string, number]")
@@ -324,6 +341,7 @@ func TestJSSonFormatValidation(t *testing.T) {
 
 	// Valid macro ID
 	validJSON := []byte(`"my_macro_1"`)
+
 	result := v.ValidateJSON(validJSON, schema)
 	if !result.Valid {
 		t.Errorf("Expected valid macro-id, got errors: %v", result.Errors)
@@ -331,6 +349,7 @@ func TestJSSonFormatValidation(t *testing.T) {
 
 	// Invalid macro ID (starts with number)
 	invalidJSON := []byte(`"123_macro"`)
+
 	result = v.ValidateJSON(invalidJSON, schema)
 	if result.Valid {
 		t.Error("Expected invalid for macro-id starting with number")

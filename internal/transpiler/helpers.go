@@ -2,8 +2,8 @@ package transpiler
 
 import ie "jsson/internal/errors"
 
-// toFloat converts a value to float64, returning true if the original was a float
-func toFloat(val interface{}) (float64, bool) {
+// toFloat converts a value to float64, returning true if the original was a float.
+func toFloat(val any) (float64, bool) {
 	switch v := val.(type) {
 	case float64:
 		return v, true
@@ -12,22 +12,24 @@ func toFloat(val interface{}) (float64, bool) {
 	case int:
 		return float64(v), false
 	}
+
 	return 0, false
 }
 
-// toInt64 converts a value to int64
-func toInt64(val interface{}) (int64, bool) {
+// toInt64 converts a value to int64.
+func toInt64(val any) (int64, bool) {
 	switch v := val.(type) {
 	case int64:
 		return v, true
 	case int:
 		return int64(v), true
 	}
+
 	return 0, false
 }
 
-// isTruthy determines if a value is truthy in JSSON
-func (t *Transpiler) isTruthy(val interface{}) bool {
+// isTruthy determines if a value is truthy in JSSON.
+func (t *Transpiler) isTruthy(val any) bool {
 	switch v := val.(type) {
 	case bool:
 		return v
@@ -44,10 +46,11 @@ func (t *Transpiler) isTruthy(val interface{}) bool {
 	}
 }
 
-// compareEqual checks equality between two values
-func (t *Transpiler) compareEqual(left, right interface{}) bool {
+// compareEqual checks equality between two values.
+func (t *Transpiler) compareEqual(left, right any) bool {
 	// Handle mixed numeric types
 	lFloat, lIsFloat := toFloat(left)
+
 	rFloat, rIsFloat := toFloat(right)
 	if lIsFloat && rIsFloat {
 		return lFloat == rFloat
@@ -72,11 +75,12 @@ func (t *Transpiler) compareEqual(left, right interface{}) bool {
 			return l == r
 		}
 	}
+
 	return false
 }
 
-// compareLess checks if left < right
-func (t *Transpiler) compareLess(left, right interface{}) (bool, error) {
+// compareLess checks if left < right.
+func (t *Transpiler) compareLess(left, right any) (bool, error) {
 	// Check if both values are numeric (int or float)
 	lIsNumeric := false
 	rIsNumeric := false
@@ -95,15 +99,16 @@ func (t *Transpiler) compareLess(left, right interface{}) (bool, error) {
 	if lIsNumeric && rIsNumeric {
 		lFloat, _ := toFloat(left)
 		rFloat, _ := toFloat(right)
+
 		return lFloat < rFloat, nil
 	}
 
 	// Handle string comparison
-	switch l := left.(type) {
-	case string:
+	if l, ok := left.(string); ok {
 		if r, ok := right.(string); ok {
 			return l < r, nil
 		}
 	}
+
 	return false, t.errMsg(ie.UnsupportedComparison(left, right))
 }

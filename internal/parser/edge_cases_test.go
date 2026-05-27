@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-// Test edge cases for validators with extreme arguments
+// Test edge cases for validators with extreme arguments.
 func TestValidatorEdgeCases(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -84,7 +84,7 @@ func TestValidatorEdgeCases(t *testing.T) {
 	}
 }
 
-// Test edge cases for ranges
+// Test edge cases for ranges.
 func TestRangeEdgeCases(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -157,7 +157,7 @@ func TestRangeEdgeCases(t *testing.T) {
 	}
 }
 
-// Test edge cases for arithmetic operations
+// Test edge cases for arithmetic operations.
 func TestArithmeticEdgeCases(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -235,7 +235,7 @@ func TestArithmeticEdgeCases(t *testing.T) {
 	}
 }
 
-// Test edge cases for strings
+// Test edge cases for strings.
 func TestStringEdgeCases(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -303,7 +303,7 @@ func TestStringEdgeCases(t *testing.T) {
 	}
 }
 
-// Test edge cases for nested structures
+// Test edge cases for nested structures.
 func TestNestedStructureEdgeCases(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -384,7 +384,7 @@ config {
 	}
 }
 
-// Test edge cases for presets
+// Test edge cases for presets.
 func TestPresetEdgeCases(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -476,7 +476,7 @@ x = @use "undefined"
 	}
 }
 
-// Test edge cases for template arrays
+// Test edge cases for template arrays.
 func TestTemplateArrayEdgeCases(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -559,7 +559,7 @@ x [
 	}
 }
 
-// Test edge cases for variables
+// Test edge cases for variables.
 func TestVariableEdgeCases(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -573,7 +573,7 @@ func TestVariableEdgeCases(t *testing.T) {
 		},
 		{
 			name:      "variable used before declaration (parser allows)",
-			input:     "y = x\nx := 1",
+			input:     "y = x\n:=",
 			shouldErr: false,
 		},
 		{
@@ -617,7 +617,7 @@ func TestVariableEdgeCases(t *testing.T) {
 	}
 }
 
-// Test edge cases for conditionals
+// Test edge cases for conditionals.
 func TestConditionalEdgeCases(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -670,7 +670,7 @@ func TestConditionalEdgeCases(t *testing.T) {
 	}
 }
 
-// Test edge cases for comments
+// Test edge cases for comments.
 func TestCommentEdgeCases(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -721,7 +721,7 @@ func TestCommentEdgeCases(t *testing.T) {
 // NOTE: TestParserErrorRecovery removed - parser behavior changed and these tests
 // were failing due to improved error handling. Will be rewritten in v0.0.6.1.
 
-// Test that validator expressions preserve their structure
+// Test that validator expressions preserve their structure.
 func TestValidatorStructurePreservation(t *testing.T) {
 	input := `x = @int(10, 100)`
 

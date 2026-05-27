@@ -13,9 +13,9 @@ import (
 	"strings"
 )
 
-// TranspileToTypeScript converts the transpiled data to TypeScript format with types
+// TranspileToTypeScript converts the transpiled data to TypeScript format with types.
 func (t *Transpiler) TranspileToTypeScript() ([]byte, error) {
-	root := make(map[string]interface{})
+	root := make(map[string]any)
 
 	for _, stmt := range t.program.Statements {
 		switch s := stmt.(type) {
@@ -28,17 +28,21 @@ func (t *Transpiler) TranspileToTypeScript() ([]byte, error) {
 			if err != nil {
 				return nil, err
 			}
+
 			t.symbolTable[s.Name.Value] = val
 		case *ast.AssignmentStatement:
 			key := s.Name.Value
+
 			val, err := t.evalExpression(s.Value, nil)
 			if err != nil {
 				return nil, err
 			}
+
 			root[key] = val
 		case *ast.IncludeStatement:
 			// Handle includes (same logic as other transpilers)
 			includePath := s.Path.Value
+
 			var includeAbs string
 			if filepath.IsAbs(includePath) {
 				includeAbs = filepath.Clean(includePath)
@@ -56,6 +60,7 @@ func (t *Transpiler) TranspileToTypeScript() ([]byte, error) {
 						root[k] = v
 					}
 				}
+
 				break
 			}
 
@@ -64,15 +69,19 @@ func (t *Transpiler) TranspileToTypeScript() ([]byte, error) {
 			data, err := os.ReadFile(includeAbs)
 			if err != nil {
 				t.inProgress[includeAbs] = false
+
 				return nil, t.errfNode(s, "could not read include file %q — gremlin can't find it: %v", s.Path.Value, err)
 			}
 
 			l := lexer.New(string(data))
 			l.SetSourceFile(includeAbs)
 			p := parser.New(l)
+
 			prog := p.ParseProgram()
+
 			if len(p.Errors()) > 0 {
 				t.inProgress[includeAbs] = false
+
 				return nil, t.errfNode(s, "parser errors in included file %q — wizard got confused: %v", s.Path.Value, p.Errors())
 			}
 
@@ -84,12 +93,14 @@ func (t *Transpiler) TranspileToTypeScript() ([]byte, error) {
 			incJSON, err := incT.Transpile()
 			if err != nil {
 				t.inProgress[includeAbs] = false
+
 				return nil, t.errfNode(s, "transpile error in included file %q: %v", s.Path.Value, err)
 			}
 
-			var incRoot map[string]interface{}
+			var incRoot map[string]any
 			if err := json.Unmarshal(incJSON, &incRoot); err != nil {
 				t.inProgress[includeAbs] = false
+
 				return nil, t.errfNode(s, "invalid json from include %q: %v", s.Path.Value, err)
 			}
 
@@ -98,16 +109,17 @@ func (t *Transpiler) TranspileToTypeScript() ([]byte, error) {
 
 			for k, v := range incRoot {
 				switch t.mergeMode {
-				case "keep":
+				case mergeModeKeep:
 					if _, exists := root[k]; !exists {
 						root[k] = v
 					}
-				case "overwrite":
+				case mergeModeOverwrite:
 					root[k] = v
-				case "error":
+				case mergeModeError:
 					if _, exists := root[k]; exists {
 						return nil, t.errfNode(s, "include merge conflict for key %q from %s", k, includeAbs)
 					}
+
 					root[k] = v
 				default:
 					if _, exists := root[k]; !exists {
@@ -119,74 +131,86 @@ func (t *Transpiler) TranspileToTypeScript() ([]byte, error) {
 	}
 
 	// Convert any RangeResult to plain arrays
-	root = t.convertRangeResults(root).(map[string]interface{})
+	if r, ok := t.convertRangeResults(root).(map[string]any); ok {
+		root = r
+	}
 
 	// Generate TypeScript code
 	var buf bytes.Buffer
 
 	// Write exports for each top-level key
 	for key, value := range root {
-		buf.WriteString(fmt.Sprintf("export const %s = ", key))
+		fmt.Fprintf(&buf, "export const %s = ", key)
 		writeTypeScriptValue(&buf, value, 0)
 		buf.WriteString(" as const;\n\n")
 	}
 
 	// Generate type exports
 	buf.WriteString("// Generated types\n")
+
 	for key := range root {
-		buf.WriteString(fmt.Sprintf("export type %s = typeof %s;\n", capitalize(key), key))
+		fmt.Fprintf(&buf, "export type %s = typeof %s;\n", capitalize(key), key)
 	}
 
 	return buf.Bytes(), nil
 }
 
-func writeTypeScriptValue(buf *bytes.Buffer, value interface{}, indent int) {
+func writeTypeScriptValue(buf *bytes.Buffer, value any, indent int) {
 	indentStr := strings.Repeat("  ", indent)
 
 	switch v := value.(type) {
 	case string:
 		// Escape quotes and write as string literal
 		escaped := strings.ReplaceAll(v, "\"", "\\\"")
-		buf.WriteString(fmt.Sprintf("\"%s\"", escaped))
+		fmt.Fprintf(buf, "\"%s\"", escaped)
 	case int64:
-		buf.WriteString(fmt.Sprintf("%d", v))
+		fmt.Fprintf(buf, "%d", v)
 	case float64:
-		buf.WriteString(fmt.Sprintf("%v", v))
+		fmt.Fprintf(buf, "%v", v)
 	case bool:
-		buf.WriteString(fmt.Sprintf("%t", v))
+		fmt.Fprintf(buf, "%t", v)
 	case nil:
 		buf.WriteString("null")
-	case map[string]interface{}:
+	case map[string]any:
 		buf.WriteString("{\n")
+
 		first := true
 		for k, val := range v {
 			if !first {
 				buf.WriteString(",\n")
 			}
+
 			first = false
-			buf.WriteString(fmt.Sprintf("%s  %s: ", indentStr, k))
+
+			fmt.Fprintf(buf, "%s  %s: ", indentStr, k)
 			writeTypeScriptValue(buf, val, indent+1)
 		}
-		buf.WriteString(fmt.Sprintf("\n%s}", indentStr))
-	case []interface{}:
+
+		fmt.Fprintf(buf, "\n%s}", indentStr)
+	case []any:
 		buf.WriteString("[\n")
+
 		for i, val := range v {
 			buf.WriteString(indentStr + "  ")
 			writeTypeScriptValue(buf, val, indent+1)
+
 			if i < len(v)-1 {
 				buf.WriteString(",")
 			}
+
 			buf.WriteString("\n")
 		}
+
 		buf.WriteString(indentStr + "]")
 	default:
-		buf.WriteString(fmt.Sprintf("%v", v))
+		fmt.Fprintf(buf, "%v", v)
 	}
 }
 
 func capitalize(s string) string {
-	if len(s) == 0 {
+	if s == "" {
 		return s
 	}
+
 	return strings.ToUpper(s[:1]) + s[1:]
 }

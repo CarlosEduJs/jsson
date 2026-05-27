@@ -31,17 +31,17 @@ const (
 
 func (s *Server) publishDiagnostics(uri, content string) error {
 	errors := s.parseDocument(content)
-	diagnostics := []Diagnostic{}
+	diagnostics := make([]Diagnostic, 0, len(errors))
 
 	for _, err := range errors {
 		diag := s.errorToDiagnostic(err, content)
 		diagnostics = append(diagnostics, diag)
 	}
 
-	notification := map[string]interface{}{
+	notification := map[string]any{
 		"jsonrpc": "2.0",
 		"method":  "textDocument/publishDiagnostics",
-		"params": map[string]interface{}{
+		"params": map[string]any{
 			"uri":         uri,
 			"diagnostics": diagnostics,
 		},
@@ -50,8 +50,8 @@ func (s *Server) publishDiagnostics(uri, content string) error {
 	return s.writeMessage(notification)
 }
 
-// errorToDiagnostic converts a parser error to an LSP diagnostic
-func (s *Server) errorToDiagnostic(errMsg string, content string) Diagnostic {
+// errorToDiagnostic converts a parser error to an LSP diagnostic.
+func (s *Server) errorToDiagnostic(errMsg, content string) Diagnostic {
 	line, col := s.extractErrorPosition(errMsg, content)
 
 	// Extract just the error message (remove the "Syntax wizard: file:line:col — " prefix)
@@ -71,11 +71,10 @@ func (s *Server) errorToDiagnostic(errMsg string, content string) Diagnostic {
 	}
 }
 
-// extractErrorPosition extracts line and column from error message
-func (s *Server) extractErrorPosition(errMsg, content string) (int, int) {
+// extractErrorPosition extracts line and column from error message.
+func (s *Server) extractErrorPosition(errMsg, _ string) (line, col int) {
 	// Format: "Syntax wizard: file:line:col — message" or "Syntax wizard: line:col — message"
 	// Example: "Syntax wizard: test.jsson:20:1 — expected '}' - wizard can't find the closing bracket"
-
 	parts := strings.Split(errMsg, " ")
 	for _, part := range parts {
 		// Look for pattern like "20:1" or "file.jsson:20:1"
@@ -85,7 +84,6 @@ func (s *Server) extractErrorPosition(errMsg, content string) (int, int) {
 				lineStr := colonParts[len(colonParts)-2]
 				colStr := colonParts[len(colonParts)-1]
 
-				var line, col int
 				if _, err := fmt.Sscanf(lineStr, "%d", &line); err == nil {
 					if _, err := fmt.Sscanf(colStr, "%d", &col); err == nil {
 						// LSP uses 0-based indexing
@@ -97,7 +95,6 @@ func (s *Server) extractErrorPosition(errMsg, content string) (int, int) {
 	}
 
 	// Format: "error at line X: message" or similar
-	var line int
 	if _, err := fmt.Sscanf(errMsg, "error at line %d", &line); err == nil {
 		return line - 1, 0 // LSP uses 0-based indexing
 	}

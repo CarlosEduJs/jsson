@@ -48,20 +48,25 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"jsson/internal/lexer"
+	"jsson/internal/parser"
+	"jsson/internal/transpiler"
+	"jsson/internal/validator"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+)
 
-	"jsson/internal/lexer"
-	"jsson/internal/parser"
-	"jsson/internal/transpiler"
-	"jsson/internal/validator"
+const (
+	formatTypeScript = "typescript"
+	formatJSON       = "json"
+	formatYAML       = "yaml"
 )
 
 const (
@@ -75,12 +80,15 @@ func main() {
 		switch os.Args[1] {
 		case "serve", "server":
 			runServer(os.Args[2:])
+
 			return
 		case "help", "-h", "--help":
 			printHelp()
+
 			return
 		case "version", "-v", "--version":
 			fmt.Printf("JSSON v%s\n", Version)
+
 			return
 		}
 	}
@@ -133,6 +141,7 @@ func runTranspiler() {
 	minifyPtr := flag.Bool("m", false, "Minify output (no whitespace)")
 	minifyLong := flag.Bool("minify", false, "Minify output (no whitespace)")
 	indentPtr := flag.Int("indent", 2, "Number of spaces for indentation (default 2)")
+
 	flag.Parse()
 
 	if *inputPtr == "" {
@@ -154,10 +163,10 @@ func runTranspiler() {
 	}
 
 	if format == "ts" {
-		format = "typescript"
+		format = formatTypeScript
 	}
 
-	data, err := ioutil.ReadFile(*inputPtr)
+	data, err := os.ReadFile(*inputPtr)
 	if err != nil {
 		fmt.Printf("Error reading file: %v\n", err)
 		os.Exit(1)
@@ -168,6 +177,7 @@ func runTranspiler() {
 		fmt.Printf("Error resolving input path: %v\n", err)
 		os.Exit(1)
 	}
+
 	baseDir := filepath.Dir(absInput)
 
 	l := lexer.New(string(data))
@@ -177,28 +187,32 @@ func runTranspiler() {
 
 	if len(p.Errors()) > 0 {
 		fmt.Println("Parser errors:")
+
 		for _, msg := range p.Errors() {
 			fmt.Println("\t" + msg)
 		}
+
 		os.Exit(1)
 	}
 
 	t := transpiler.New(program, baseDir, *mergeMode, absInput)
 	t.SetStreamingMode(*streamingPtr, *streamThreshold)
+
 	minify := *minifyPtr || *minifyLong
 	t.SetOutputFormat(minify, *indentPtr)
 
 	startTime := time.Now()
 
 	var output []byte
+
 	switch format {
-	case "json":
+	case formatJSON:
 		output, err = t.Transpile()
-	case "yaml":
+	case formatYAML:
 		output, err = t.TranspileToYAML()
 	case "toml":
 		output, err = t.TranspileToTOML()
-	case "typescript":
+	case formatTypeScript:
 		output, err = t.TranspileToTypeScript()
 	}
 
@@ -211,13 +225,14 @@ func runTranspiler() {
 
 	// Schema validation (optional)
 	if *schemaPtr != "" {
-		schemaData, err := ioutil.ReadFile(*schemaPtr)
+		schemaData, err := os.ReadFile(*schemaPtr)
 		if err != nil {
 			fmt.Printf("Error reading schema file: %v\n", err)
 			os.Exit(1)
 		}
 
 		v := validator.New()
+
 		schema, schemaFormat, err := v.LoadSchemaAuto(string(schemaData))
 		if err != nil {
 			fmt.Printf("Error parsing schema: %v\n", err)
@@ -228,15 +243,19 @@ func runTranspiler() {
 
 		if !result.Valid {
 			fmt.Fprintf(os.Stderr, "\n❌ Validation failed against schema (%s format):\n", schemaFormat)
+
 			for _, verr := range result.Errors {
 				fmt.Fprintf(os.Stderr, "  • %s: %s\n", verr.Path, verr.Message)
+
 				if verr.Value != nil {
 					fmt.Fprintf(os.Stderr, "    Got: %v\n", verr.Value)
 				}
+
 				if verr.Expected != "" {
 					fmt.Fprintf(os.Stderr, "    Expected: %s\n", verr.Expected)
 				}
 			}
+
 			os.Exit(2)
 		}
 
@@ -266,7 +285,9 @@ func runServer(args []string) {
 	serverFlags := flag.NewFlagSet("serve", flag.ExitOnError)
 	serverFlags.IntVar(&serverPort, "port", 8090, "Port to listen on")
 	serverFlags.BoolVar(&serverCORS, "cors", true, "Enable CORS for all origins")
-	serverFlags.Parse(args)
+	if err := serverFlags.Parse(args); err != nil {
+		log.Fatalf("Failed to parse server flags: %v", err)
+	}
 
 	// Routes
 	http.HandleFunc("/health", corsMiddleware(healthHandler))
@@ -288,7 +309,13 @@ func runServer(args []string) {
 	log.Printf("  GET  /version          - Version info")
 	log.Printf("")
 
-	if err := http.ListenAndServe(addr, nil); err != nil {
+	server := &http.Server{
+		Addr:              addr,
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      30 * time.Second,
+	}
+	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("❌ Server failed: %v", err)
 	}
 }
@@ -304,12 +331,12 @@ type TranspileRequest struct {
 }
 
 type TranspileResponse struct {
-	Success         bool        `json:"success"`
-	Output          interface{} `json:"output,omitempty"`
-	OutputRaw       string      `json:"output_raw,omitempty"`
-	Format          string      `json:"format"`
-	Errors          []string    `json:"errors,omitempty"`
-	TranspileTimeMs float64     `json:"transpile_time_ms"`
+	Success         bool     `json:"success"`
+	Output          any      `json:"output,omitempty"`
+	OutputRaw       string   `json:"output_raw,omitempty"`
+	Format          string   `json:"format"`
+	Errors          []string `json:"errors,omitempty"`
+	TranspileTimeMs float64  `json:"transpile_time_ms"`
 }
 
 type ValidateRequest struct {
@@ -332,7 +359,7 @@ type ValidateWithSchemaResponse struct {
 	Valid           bool              `json:"valid"`
 	Errors          []ValidationError `json:"errors,omitempty"`
 	Warnings        []ValidationError `json:"warnings,omitempty"`
-	TranspiledData  interface{}       `json:"transpiled_data,omitempty"`
+	TranspiledData  any               `json:"transpiled_data,omitempty"`
 	Format          string            `json:"format"`
 	SchemaType      string            `json:"schema_type"`
 	TranspileTimeMs float64           `json:"transpile_time_ms"`
@@ -361,7 +388,7 @@ type VersionResponse struct {
 	GoVersion     string `json:"go_version"`
 }
 
-// HTTP Handlers
+// HTTP Handlers.
 func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if serverCORS {
@@ -370,8 +397,9 @@ func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		}
 
-		if r.Method == "OPTIONS" {
+		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
+
 			return
 		}
 
@@ -379,13 +407,16 @@ func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func jsonResponse(w http.ResponseWriter, status int, data interface{}) {
+func jsonResponse(w http.ResponseWriter, status int, data any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(data)
+
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		log.Printf("Error encoding JSON response: %v", err)
+	}
 }
 
-func healthHandler(w http.ResponseWriter, r *http.Request) {
+func healthHandler(w http.ResponseWriter, _ *http.Request) {
 	jsonResponse(w, http.StatusOK, HealthResponse{
 		Status:       "healthy",
 		Service:      "jsson",
@@ -395,7 +426,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func versionHandler(w http.ResponseWriter, r *http.Request) {
+func versionHandler(w http.ResponseWriter, _ *http.Request) {
 	jsonResponse(w, http.StatusOK, VersionResponse{
 		ServerVersion: ServerVersion,
 		JssonVersion:  Version,
@@ -404,10 +435,11 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func transpileHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
+	if r.Method != http.MethodPost {
 		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{
 			"error": "Method not allowed. Use POST.",
 		})
+
 		return
 	}
 
@@ -422,6 +454,7 @@ func transpileHandler(w http.ResponseWriter, r *http.Request) {
 			Format:          "json",
 			TranspileTimeMs: elapsed,
 		})
+
 		return
 	}
 
@@ -433,24 +466,27 @@ func transpileHandler(w http.ResponseWriter, r *http.Request) {
 			Format:          req.Format,
 			TranspileTimeMs: elapsed,
 		})
+
 		return
 	}
 
-	output, errors, err := transpileSource(req.Source, req.Format, req.IncludeMerge, req.Streaming, req.StreamThreshold)
+	output, errs, err := transpileSource(req.Source, req.Format, req.IncludeMerge, req.Streaming, req.StreamThreshold)
 
 	elapsed := float64(time.Since(start).Microseconds()) / 1000
+
 	format := req.Format
 	if format == "" {
-		format = "json"
+		format = formatJSON
 	}
 
 	if err != nil {
 		jsonResponse(w, http.StatusOK, TranspileResponse{
 			Success:         false,
-			Errors:          errors,
+			Errors:          errs,
 			Format:          format,
 			TranspileTimeMs: elapsed,
 		})
+
 		return
 	}
 
@@ -460,8 +496,8 @@ func transpileHandler(w http.ResponseWriter, r *http.Request) {
 		TranspileTimeMs: elapsed,
 	}
 
-	if format == "json" {
-		var jsonOutput interface{}
+	if format == formatJSON {
+		var jsonOutput any
 		if err := json.Unmarshal(output, &jsonOutput); err != nil {
 			response.OutputRaw = string(output)
 		} else {
@@ -475,10 +511,11 @@ func transpileHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func validateHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
+	if r.Method != http.MethodPost {
 		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{
 			"error": "Method not allowed. Use POST.",
 		})
+
 		return
 	}
 
@@ -488,22 +525,24 @@ func validateHandler(w http.ResponseWriter, r *http.Request) {
 			Valid:  false,
 			Errors: []string{"Invalid JSON: " + err.Error()},
 		})
+
 		return
 	}
 
-	valid, errors := validateSyntax(req.Source)
+	valid, errs := validateSyntax(req.Source)
 
 	jsonResponse(w, http.StatusOK, ValidateResponse{
 		Valid:  valid,
-		Errors: errors,
+		Errors: errs,
 	})
 }
 
 func validateWithSchemaHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
+	if r.Method != http.MethodPost {
 		jsonResponse(w, http.StatusMethodNotAllowed, map[string]string{
 			"error": "Method not allowed. Use POST.",
 		})
+
 		return
 	}
 
@@ -513,6 +552,7 @@ func validateWithSchemaHandler(w http.ResponseWriter, r *http.Request) {
 			Valid:  false,
 			Errors: []ValidationError{{Path: "$", Message: "Invalid JSON request: " + err.Error()}},
 		})
+
 		return
 	}
 
@@ -521,6 +561,7 @@ func validateWithSchemaHandler(w http.ResponseWriter, r *http.Request) {
 			Valid:  false,
 			Errors: []ValidationError{{Path: "$", Message: "Source is required"}},
 		})
+
 		return
 	}
 
@@ -529,12 +570,13 @@ func validateWithSchemaHandler(w http.ResponseWriter, r *http.Request) {
 			Valid:  false,
 			Errors: []ValidationError{{Path: "$", Message: "Schema is required"}},
 		})
+
 		return
 	}
 
 	outputFormat := req.OutputFormat
 	if outputFormat == "" {
-		outputFormat = "json"
+		outputFormat = formatJSON
 	}
 
 	transpileStart := time.Now()
@@ -548,24 +590,29 @@ func validateWithSchemaHandler(w http.ResponseWriter, r *http.Request) {
 			Format:          outputFormat,
 			TranspileTimeMs: transpileTime,
 		})
+
 		return
 	}
 
 	validateStart := time.Now()
 	v := validator.New()
 
-	var schema *validator.Schema
-	var schemaType string
+	var (
+		schema     *validator.Schema
+		schemaType string
+	)
 
 	schemaFormat := req.SchemaFormat
-	if schemaFormat == "" {
+	switch schemaFormat {
+	case "":
 		var detectedFormat string
+
 		schema, detectedFormat, err = v.LoadSchemaAuto(req.Schema)
 		schemaType = detectedFormat + "-schema"
-	} else if schemaFormat == "yaml" {
+	case "yaml":
 		schema, err = v.LoadSchemaFromYAML(req.Schema)
 		schemaType = "yaml-schema"
-	} else {
+	default:
 		schema, err = v.LoadSchemaFromJSON(req.Schema)
 		schemaType = "json-schema"
 	}
@@ -577,6 +624,7 @@ func validateWithSchemaHandler(w http.ResponseWriter, r *http.Request) {
 			Format:          outputFormat,
 			TranspileTimeMs: transpileTime,
 		})
+
 		return
 	}
 
@@ -584,11 +632,13 @@ func validateWithSchemaHandler(w http.ResponseWriter, r *http.Request) {
 	validateTime := float64(time.Since(validateStart).Microseconds()) / 1000
 
 	var validationErrors []ValidationError
+
 	for _, e := range result.Errors {
 		var valueStr string
 		if e.Value != nil {
 			valueStr = fmt.Sprintf("%v", e.Value)
 		}
+
 		validationErrors = append(validationErrors, ValidationError{
 			Path:       e.Path,
 			Message:    e.Message,
@@ -608,7 +658,7 @@ func validateWithSchemaHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if result.Valid && outputFormat == "json" {
-		var jsonData interface{}
+		var jsonData any
 		if json.Unmarshal(output, &jsonData) == nil {
 			response.TranspiledData = jsonData
 		}
@@ -619,13 +669,15 @@ func validateWithSchemaHandler(w http.ResponseWriter, r *http.Request) {
 
 // Core Functions
 
-func transpileSource(source string, format string, includeMerge string, streaming bool, streamThreshold int64) ([]byte, []string, error) {
+func transpileSource(source, format, includeMerge string, streaming bool, streamThreshold int64) (output []byte, errs []string, err error) {
 	if format == "" {
 		format = "json"
 	}
+
 	if includeMerge == "" {
 		includeMerge = "keep"
 	}
+
 	if streamThreshold == 0 {
 		streamThreshold = 10000
 	}
@@ -647,49 +699,48 @@ func transpileSource(source string, format string, includeMerge string, streamin
 	program := p.ParseProgram()
 
 	if len(p.Errors()) > 0 {
-		return nil, p.Errors(), fmt.Errorf("parser errors")
+		return nil, p.Errors(), errors.New("parser errors")
 	}
 
 	t := transpiler.New(program, "", includeMerge, "")
 	t.SetStreamingMode(streaming, streamThreshold)
 
-	var output []byte
-	var err error
-
 	switch format {
-	case "json":
+	case formatJSON:
 		output, err = t.Transpile()
-	case "yaml":
+	case formatYAML:
 		output, err = t.TranspileToYAML()
 	case "toml":
 		output, err = t.TranspileToTOML()
-	case "typescript":
+	case formatTypeScript:
 		output, err = t.TranspileToTypeScript()
 	}
 
 	if err != nil {
-		return nil, []string{err.Error()}, err
+		return output, []string{err.Error()}, err
 	}
 
-	return output, nil, nil
+	return output, errs, err
 }
 
-func validateSyntax(source string) (bool, []string) {
+func validateSyntax(source string) (valid bool, errs []string) {
 	l := lexer.New(source)
 	p := parser.New(l)
 	p.ParseProgram()
 
-	errors := p.Errors()
-	return len(errors) == 0, errors
+	errs = p.Errors()
+
+	return len(errs) == 0, errs
 }
 
-func convertToValidationErrors(errors []string) []ValidationError {
-	var result []ValidationError
-	for _, e := range errors {
+func convertToValidationErrors(errs []string) []ValidationError {
+	result := make([]ValidationError, 0, len(errs))
+	for _, e := range errs {
 		result = append(result, ValidationError{
 			Path:    "$",
 			Message: e,
 		})
 	}
+
 	return result
 }

@@ -27,7 +27,7 @@ const (
 	INDEX       // array[index] or obj.prop
 )
 
-var precedences = map[token.TokenType]int{
+var precedences = map[token.Type]int{
 	token.LAND:     LOGICAL,
 	token.LOR:      LOGICAL,
 	token.EQ:       EQUALS,
@@ -61,6 +61,7 @@ func (p *Parser) addError(msg string) {
 	} else {
 		loc = fmt.Sprintf("%d:%d", p.curToken.Line, p.curToken.Column)
 	}
+
 	fun := "Syntax wizard:"
 	p.errors = append(p.errors, fmt.Sprintf("%s %s — %s", fun, loc, msg))
 }
@@ -69,6 +70,7 @@ func New(l *lexer.Lexer) *Parser {
 	p := &Parser{l: l, errors: []string{}}
 	p.nextToken()
 	p.nextToken()
+
 	return p
 }
 
@@ -81,6 +83,7 @@ func (p *Parser) peekPrecedence() int {
 	if p, ok := precedences[p.peekToken.Type]; ok {
 		return p
 	}
+
 	return LOWEST
 }
 
@@ -88,6 +91,7 @@ func (p *Parser) curPrecedence() int {
 	if p, ok := precedences[p.curToken.Type]; ok {
 		return p
 	}
+
 	return LOWEST
 }
 
@@ -100,8 +104,10 @@ func (p *Parser) ParseProgram() *ast.Program {
 		if stmt != nil {
 			program.Statements = append(program.Statements, stmt)
 		}
+
 		p.nextToken()
 	}
+
 	return program
 }
 
@@ -112,15 +118,16 @@ func (p *Parser) parseStatement() ast.Statement {
 		token.IPV4, token.IPV6, token.FILEPATH,
 		token.DATE, token.DATETIME, token.REGEX:
 		// Could be Assignment (key = val), VariableDeclaration (key := val), Object (key { ... }) or ArrayTemplate (key [ ... ])
-		if p.peekToken.Type == token.DECLARE {
+		switch p.peekToken.Type {
+		case token.DECLARE:
 			return p.parseVariableDeclaration()
-		} else if p.peekToken.Type == token.ASSIGN {
+		case token.ASSIGN:
 			return p.parseAssignment()
-		} else if p.peekToken.Type == token.LBRACE {
+		case token.LBRACE:
 			return p.parseObjectStatement()
-		} else if p.peekToken.Type == token.LBRACKET {
+		case token.LBRACKET:
 			return p.parseArrayTemplateStatement()
-		} else {
+		default:
 			return nil
 		}
 	case token.AT:
@@ -144,14 +151,16 @@ func (p *Parser) parseIncludeStatement() *ast.IncludeStatement {
 
 	if p.curToken.Type != token.STRING && p.curToken.Type != token.RAWSTRING {
 		p.addError(ie.IncludePathExpected())
+
 		return nil
 	}
 
 	stmt.Path = &ast.StringLiteral{Token: p.curToken, Value: p.curToken.Literal}
+
 	return stmt
 }
 
-// parsePresetStatement parses: @preset "name" { ... }
+// parsePresetStatement parses: @preset "name" { ... }.
 func (p *Parser) parsePresetStatement() ast.Statement {
 	stmt := &ast.PresetStatement{Token: p.curToken}
 
@@ -160,6 +169,7 @@ func (p *Parser) parsePresetStatement() ast.Statement {
 	// Expect 'preset' keyword
 	if p.curToken.Type != token.PRESET {
 		p.addError(ie.ExpectedToken(token.PRESET, p.curToken.Literal))
+
 		return nil
 	}
 
@@ -168,8 +178,10 @@ func (p *Parser) parsePresetStatement() ast.Statement {
 	// Expect string literal for preset name
 	if p.curToken.Type != token.STRING && p.curToken.Type != token.RAWSTRING {
 		p.addError("expected preset name as string")
+
 		return nil
 	}
+
 	stmt.Name = &ast.StringLiteral{Token: p.curToken, Value: p.curToken.Literal}
 
 	p.nextToken() // consume preset name
@@ -177,6 +189,7 @@ func (p *Parser) parsePresetStatement() ast.Statement {
 	// Expect object literal for preset body
 	if p.curToken.Type != token.LBRACE {
 		p.addError(ie.ExpectedToken(token.LBRACE, p.curToken.Literal))
+
 		return nil
 	}
 
@@ -185,41 +198,11 @@ func (p *Parser) parsePresetStatement() ast.Statement {
 		stmt.Body = obj
 	} else {
 		p.addError("expected object literal for preset body")
+
 		return nil
 	}
 
 	return stmt
-}
-
-// parsePresetReference parses: @use "name" or @use "name" { overrides }
-// Also supports legacy syntax: @"name" or @"name" { overrides }
-func (p *Parser) parsePresetReference() ast.Expression {
-	ref := &ast.PresetReference{Token: p.curToken}
-
-	p.nextToken() // consume @
-
-	// Check for @use syntax
-	if p.curToken.Type == token.USE {
-		p.nextToken() // consume 'use'
-	}
-
-	// Expect string literal for preset name
-	if p.curToken.Type != token.STRING && p.curToken.Type != token.RAWSTRING {
-		p.addError("expected preset name as string after @use")
-		return nil
-	}
-	ref.Name = &ast.StringLiteral{Token: p.curToken, Value: p.curToken.Literal}
-
-	// Check for optional overrides
-	if p.peekToken.Type == token.LBRACE {
-		p.nextToken() // move to {
-		overridesExpr := p.parseObjectLiteral()
-		if obj, ok := overridesExpr.(*ast.ObjectLiteral); ok {
-			ref.Overrides = obj
-		}
-	}
-
-	return ref
 }
 
 func (p *Parser) parseAtExpression() ast.Expression {
@@ -233,6 +216,7 @@ func (p *Parser) parseAtExpression() ast.Expression {
 	case token.USE:
 		// @use "preset"
 		p.nextToken()
+
 		return p.parsePresetReferenceAfterAt()
 	case token.UUID, token.EMAIL, token.URL, token.IPV4, token.IPV6,
 		token.FILEPATH, token.DATE, token.DATETIME, token.REGEX,
@@ -240,7 +224,8 @@ func (p *Parser) parseAtExpression() ast.Expression {
 		// @uuid, @email, @int(min, max), etc - validators
 		return p.parseValidator()
 	default:
-		p.addError(fmt.Sprintf("unexpected token after @: %s", p.curToken.Literal))
+		p.addError("unexpected token after @: " + p.curToken.Literal)
+
 		return nil
 	}
 }
@@ -252,6 +237,7 @@ func (p *Parser) parsePresetReferenceAfterAt() ast.Expression {
 	// Check for optional overrides
 	if p.peekToken.Type == token.LBRACE {
 		p.nextToken() // move to {
+
 		overridesExpr := p.parseObjectLiteral()
 		if obj, ok := overridesExpr.(*ast.ObjectLiteral); ok {
 			ref.Overrides = obj
@@ -273,19 +259,21 @@ func (p *Parser) parseValidator() ast.Expression {
 		p.nextToken() // consume (
 
 		// Parse arguments
-		args := []interface{}{}
+		args := []any{}
+
 		for p.curToken.Type != token.RPAREN && p.curToken.Type != token.EOF {
 			// Handle string arguments (for @regex)
-			if p.curToken.Type == token.STRING || p.curToken.Type == token.RAWSTRING {
+			switch p.curToken.Type {
+			case token.STRING, token.RAWSTRING:
 				validator.Pattern = p.curToken.Literal
 				args = append(args, p.curToken.Literal)
-			} else if p.curToken.Type == token.INT {
+			case token.INT:
 				// Parse integer argument
 				val, err := strconv.ParseInt(p.curToken.Literal, 10, 64)
 				if err == nil {
 					args = append(args, val)
 				}
-			} else if p.curToken.Type == token.FLOAT {
+			case token.FLOAT:
 				// Parse float argument
 				val, err := strconv.ParseFloat(p.curToken.Literal, 64)
 				if err == nil {
@@ -337,6 +325,7 @@ func (p *Parser) parseObjectStatement() *ast.AssignmentStatement {
 
 	p.nextToken() // consume IDENT
 	stmt.Value = p.parseExpression(LOWEST)
+
 	return stmt
 }
 
@@ -346,6 +335,7 @@ func (p *Parser) parseArrayTemplateStatement() *ast.AssignmentStatement {
 
 	p.nextToken() // consume IDENT
 	stmt.Value = p.parseArrayTemplate()
+
 	return stmt
 }
 
@@ -360,6 +350,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 		if infix == nil {
 			return prefix
 		}
+
 		prefix = infix
 	}
 
@@ -401,18 +392,23 @@ func (p *Parser) parseInfix(left ast.Expression) ast.Expression {
 		token.EQ, token.NEQ, token.LT, token.GT, token.LTE, token.GTE,
 		token.LAND, token.LOR:
 		p.nextToken()
+
 		return p.parseBinaryExpression(left)
 	case token.QUESTION:
 		p.nextToken()
+
 		return p.parseConditionalExpression(left)
 	case token.DOT:
 		p.nextToken()
+
 		return p.parseMemberExpression(left)
 	case token.RANGE:
 		p.nextToken()
+
 		return p.parseRangeExpression(left)
 	case token.MAP:
 		p.nextToken()
+
 		return p.parseMapExpression(left)
 	default:
 		return nil
@@ -435,11 +431,12 @@ func (p *Parser) parseRangeExpression(left ast.Expression) ast.Expression {
 		p.nextToken() // move to step value
 
 		// Handle negative step values
-		if p.curToken.Type == token.MINUS {
+		switch p.curToken.Type {
+		case token.MINUS:
 			expr.Step = p.parsePrefixExpression()
-		} else if p.curToken.Type == token.INT {
+		case token.INT:
 			expr.Step = p.parseIntegerLiteral()
-		} else {
+		default:
 			// try parsing any expression as step
 			expr.Step = p.parseExpression(LOWEST)
 		}
@@ -468,10 +465,12 @@ func (p *Parser) parseMemberExpression(left ast.Expression) ast.Expression {
 
 	if p.curToken.Type != token.IDENT {
 		p.addError(ie.ExpectedIdentifierAfterDot())
+
 		return nil
 	}
 
 	expr.Property = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+
 	return expr
 }
 
@@ -487,6 +486,7 @@ func (p *Parser) parseConditionalExpression(condition ast.Expression) ast.Expres
 
 	if p.peekToken.Type != token.COLON {
 		p.addError(ie.MissingColonInTernary())
+
 		return nil
 	}
 
@@ -500,12 +500,17 @@ func (p *Parser) parseConditionalExpression(condition ast.Expression) ast.Expres
 
 func (p *Parser) parseGroupedExpression() ast.Expression {
 	p.nextToken()
+
 	exp := p.parseExpression(LOWEST)
+
 	if p.peekToken.Type != token.RPAREN {
 		p.addError(ie.MissingClosingParen())
+
 		return nil
 	}
+
 	p.nextToken()
+
 	return exp
 }
 
@@ -514,23 +519,32 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 	p.nextToken() // consume MINUS
 
 	// Check if next token is a number
-	if p.curToken.Type == token.INT {
+	switch p.curToken.Type {
+	case token.INT:
 		lit := &ast.IntegerLiteral{Token: p.curToken}
+
 		value, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
 		if err != nil {
 			p.addError(ie.IntegerTooSpicy(p.curToken.Literal))
+
 			return nil
 		}
+
 		lit.Value = -value // Negate the value
+
 		return lit
-	} else if p.curToken.Type == token.FLOAT {
+	case token.FLOAT:
 		lit := &ast.FloatLiteral{Token: p.curToken}
+
 		value, err := strconv.ParseFloat(p.curToken.Literal, 64)
 		if err != nil {
 			p.addError(fmt.Sprintf("could not parse %q as float", p.curToken.Literal))
+
 			return nil
 		}
+
 		lit.Value = -value // Negate the value
+
 		return lit
 	}
 
@@ -541,6 +555,7 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 		Left:     &ast.IntegerLiteral{Token: p.curToken, Value: 0}, // 0 - value
 		Right:    p.parseExpression(PREFIX),
 	}
+
 	return expr
 }
 
@@ -553,7 +568,15 @@ func (p *Parser) parseArrayTemplate() ast.Expression {
 
 	if hasTemplate {
 		p.nextToken() // consume template
-		at.Template = p.parseObjectLiteral().(*ast.ObjectLiteral)
+		templateObj := p.parseObjectLiteral()
+
+		var templateOk bool
+
+		at.Template, templateOk = templateObj.(*ast.ObjectLiteral)
+		if !templateOk {
+			return at
+		}
+
 		p.nextToken() // consume }
 	}
 
@@ -577,6 +600,7 @@ func (p *Parser) parseArrayTemplate() ast.Expression {
 	// If still no template, this is an error case
 	if at.Template == nil {
 		p.addError("array must have either 'template' definition or 'map' clause")
+
 		return at
 	}
 
@@ -588,23 +612,30 @@ func (p *Parser) parseArrayTemplate() ast.Expression {
 		for p.curToken.Type == token.RBRACE {
 			p.nextToken()
 		}
+
 		row := []ast.Expression{}
-		for i := 0; i < expectedCols; i++ {
+
+		for range expectedCols {
 			if p.curToken.Type == token.COMMA {
 				p.nextToken()
 			}
+
 			if p.curToken.Type == token.RBRACKET {
 				break
 			}
+
 			expr := p.parseExpression(LOWEST)
 			if expr != nil {
 				row = append(row, expr)
 			}
+
 			p.nextToken()
 		}
+
 		if len(row) > 0 {
 			at.Rows = append(at.Rows, row)
 		}
+
 		if p.curToken.Type == token.COMMA {
 			p.nextToken()
 		}
@@ -621,30 +652,47 @@ func (p *Parser) parseMapClause() *ast.MapClause {
 	p.nextToken() // consume param
 	p.nextToken() // consume )
 	p.nextToken() // consume =
-	mc.Body = p.parseObjectLiteral().(*ast.ObjectLiteral)
+	bodyExpr := p.parseObjectLiteral()
+
+	var bodyOk bool
+
+	mc.Body, bodyOk = bodyExpr.(*ast.ObjectLiteral)
+	if !bodyOk {
+		return mc
+	}
+
 	p.nextToken() // consume }
+
 	return mc
 }
 
 func (p *Parser) parseIntegerLiteral() ast.Expression {
 	lit := &ast.IntegerLiteral{Token: p.curToken}
+
 	value, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
 	if err != nil {
 		p.addError(ie.IntegerTooSpicy(p.curToken.Literal))
+
 		return nil
 	}
+
 	lit.Value = value
+
 	return lit
 }
 
 func (p *Parser) parseFloatLiteral() ast.Expression {
 	lit := &ast.FloatLiteral{Token: p.curToken}
+
 	value, err := strconv.ParseFloat(p.curToken.Literal, 64)
 	if err != nil {
 		p.addError(fmt.Sprintf("could not parse %q as float", p.curToken.Literal))
+
 		return nil
 	}
+
 	lit.Value = value
+
 	return lit
 }
 
@@ -670,14 +718,15 @@ func (p *Parser) parseStringLiteral() ast.Expression {
 	}
 }
 
-// parseTemplateString parses a template string with ${var} interpolations
+// parseTemplateString parses a template string with ${var} interpolations.
 func (p *Parser) parseTemplateString(content string) ast.Expression {
 	interp := &ast.InterpolatedString{
 		Token: p.curToken,
-		Parts: []interface{}{},
+		Parts: []any{},
 	}
 
 	var currentText strings.Builder
+
 	i := 0
 
 	for i < len(content) {
@@ -691,13 +740,16 @@ func (p *Parser) parseTemplateString(content string) ast.Expression {
 			// Find matching }
 			depth := 1
 			start := i + 2 // skip ${
+
 			i += 2
 			for i < len(content) && depth > 0 {
-				if content[i] == '{' {
+				switch content[i] {
+				case '{':
 					depth++
-				} else if content[i] == '}' {
+				case '}':
 					depth--
 				}
+
 				i++
 			}
 
@@ -723,6 +775,7 @@ func (p *Parser) parseTemplateString(content string) ast.Expression {
 			}
 		} else {
 			currentText.WriteByte(content[i])
+
 			i++
 		}
 	}
@@ -735,14 +788,15 @@ func (p *Parser) parseTemplateString(content string) ast.Expression {
 	return interp
 }
 
-// parseInterpolatedString parses a raw string with {var} interpolations
+// parseInterpolatedString parses a raw string with {var} interpolations.
 func (p *Parser) parseInterpolatedString(content string) ast.Expression {
 	interp := &ast.InterpolatedString{
 		Token: p.curToken,
-		Parts: []interface{}{},
+		Parts: []any{},
 	}
 
 	var currentText strings.Builder
+
 	i := 0
 
 	for i < len(content) {
@@ -756,13 +810,16 @@ func (p *Parser) parseInterpolatedString(content string) ast.Expression {
 			// Find matching }
 			depth := 1
 			start := i + 1
+
 			i++
 			for i < len(content) && depth > 0 {
-				if content[i] == '{' {
+				switch content[i] {
+				case '{':
 					depth++
-				} else if content[i] == '}' {
+				case '}':
 					depth--
 				}
+
 				i++
 			}
 
@@ -787,6 +844,7 @@ func (p *Parser) parseInterpolatedString(content string) ast.Expression {
 			}
 		} else {
 			currentText.WriteByte(content[i])
+
 			i++
 		}
 	}
@@ -803,6 +861,7 @@ func (p *Parser) parseBooleanLiteral() ast.Expression {
 	value := p.curToken.Type == token.TRUE ||
 		p.curToken.Type == token.YES ||
 		p.curToken.Type == token.ON
+
 	return &ast.BooleanLiteral{Token: p.curToken, Value: value}
 }
 
@@ -818,6 +877,7 @@ func (p *Parser) parseObjectLiteral() ast.Expression {
 		// Accept IDENT or keywords as property names
 		if !p.isValidPropertyName() {
 			p.nextToken()
+
 			continue
 		}
 
@@ -828,10 +888,12 @@ func (p *Parser) parseObjectLiteral() ast.Expression {
 				key = key[1 : len(key)-1]
 			}
 		}
+
 		p.nextToken() // consume key
 
 		// Check if it's a variable declaration (:=) or property assignment (=)
-		if p.curToken.Type == token.DECLARE {
+		switch p.curToken.Type {
+		case token.DECLARE:
 			// Variable declaration: key := value
 			p.nextToken() // consume :=
 			val := p.parseExpression(LOWEST)
@@ -841,26 +903,31 @@ func (p *Parser) parseObjectLiteral() ast.Expression {
 				Value: val,
 			}
 			obj.Declarations = append(obj.Declarations, decl)
+
 			p.nextToken() // consume value
-		} else if p.curToken.Type == token.ASSIGN || p.curToken.Type == token.COLON {
+		case token.ASSIGN, token.COLON:
 			// Property assignment: key = value
 			obj.Keys = append(obj.Keys, key)
+
 			p.nextToken() // consume = or :
 			val := p.parseExpression(LOWEST)
 			obj.Properties[key] = val
+
 			p.nextToken() // consume value
-		} else if p.curToken.Type == token.LBRACE {
+		case token.LBRACE:
 			obj.Keys = append(obj.Keys, key)
 			val := p.parseExpression(LOWEST)
 			obj.Properties[key] = val
+
 			p.nextToken()
-		} else if p.curToken.Type == token.LBRACKET {
+		case token.LBRACKET:
 			// Support array templates as object property values
 			obj.Keys = append(obj.Keys, key)
 			val := p.parseArrayTemplate()
 			obj.Properties[key] = val
+
 			p.nextToken()
-		} else {
+		default:
 			obj.Keys = append(obj.Keys, key)
 			obj.Properties[key] = nil
 		}
@@ -888,6 +955,7 @@ func (p *Parser) parseArrayLiteral() ast.Expression {
 		if elem != nil {
 			array.Elements = append(array.Elements, elem)
 		}
+
 		p.nextToken()
 
 		if p.curToken.Type == token.COMMA {
@@ -908,30 +976,38 @@ func (p *Parser) parseMapExpression(left ast.Expression) ast.Expression {
 	// Expect '('
 	if p.peekToken.Type != token.LPAREN {
 		p.addError(ie.ExpectedToken(token.LPAREN, p.peekToken.Literal))
+
 		return nil
 	}
+
 	p.nextToken() // consume map, now cur is (
 
 	// Expect Identifier (iterator variable)
 	if p.peekToken.Type != token.IDENT {
 		p.addError(ie.ExpectedToken(token.IDENT, p.peekToken.Literal))
+
 		return nil
 	}
+
 	p.nextToken() // consume (, now cur is IDENT
 	expression.Iterator = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 
 	// Expect ')'
 	if p.peekToken.Type != token.RPAREN {
 		p.addError(ie.ExpectedToken(token.RPAREN, p.peekToken.Literal))
+
 		return nil
 	}
+
 	p.nextToken() // consume IDENT, now cur is )
 
 	// Expect '='
 	if p.peekToken.Type != token.ASSIGN {
 		p.addError(ie.ExpectedToken(token.ASSIGN, p.peekToken.Literal))
+
 		return nil
 	}
+
 	p.nextToken() // consume ), now cur is =
 
 	p.nextToken() // consume =, now cur is start of expression

@@ -22,37 +22,52 @@ const (
 	CompletionItemKindSnippet  = 15
 )
 
-func (s *Server) handleCompletion(id interface{}, params interface{}) error {
-	p, ok := params.(map[string]interface{})
+func (s *Server) handleCompletion(id, params any) error {
+	p, ok := params.(map[string]any)
 	if !ok {
-		return s.sendError(id, -32602, "Invalid params")
+		return s.sendError(id, "Invalid params")
 	}
 
-	textDoc, ok := p["textDocument"].(map[string]interface{})
+	textDoc, ok := p["textDocument"].(map[string]any)
 	if !ok {
-		return s.sendError(id, -32602, "Invalid textDocument")
+		return s.sendError(id, "Invalid textDocument")
 	}
 
-	position, ok := p["position"].(map[string]interface{})
+	position, ok := p["position"].(map[string]any)
 	if !ok {
-		return s.sendError(id, -32602, "Invalid position")
+		return s.sendError(id, "Invalid position")
 	}
 
-	uri := textDoc["uri"].(string)
-	line := int(position["line"].(float64))
-	character := int(position["character"].(float64))
+	uri, ok := textDoc["uri"].(string)
+	if !ok {
+		return s.sendError(id, "Invalid uri")
+	}
+
+	lineFloat, ok := position["line"].(float64)
+	if !ok {
+		return s.sendError(id, "Invalid line")
+	}
+
+	line := int(lineFloat)
+
+	charFloat, ok := position["character"].(float64)
+	if !ok {
+		return s.sendError(id, "Invalid character")
+	}
+
+	character := int(charFloat)
 
 	doc, ok := s.getDocument(uri)
 	if !ok {
-		return s.sendError(id, -32602, "Document not found")
+		return s.sendError(id, "Document not found")
 	}
 
 	items := s.getCompletionItems(doc.Content, line, character)
 
-	response := map[string]interface{}{
+	response := map[string]any{
 		"jsonrpc": "2.0",
 		"id":      id,
-		"result": map[string]interface{}{
+		"result": map[string]any{
 			"isIncomplete": false,
 			"items":        items,
 		},
@@ -70,6 +85,7 @@ func (s *Server) getCompletionItems(content string, line, character int) []Compl
 	}
 
 	currentLine := lines[line]
+
 	beforeCursor := ""
 	if character <= len(currentLine) {
 		beforeCursor = currentLine[:character]
@@ -77,6 +93,7 @@ func (s *Server) getCompletionItems(content string, line, character int) []Compl
 
 	if strings.HasSuffix(beforeCursor, "..") || strings.HasSuffix(beforeCursor, ".. ") {
 		items = append(items, s.getRangeCompletions(content, line)...)
+
 		return items
 	}
 
@@ -108,9 +125,10 @@ func (s *Server) getScopeVariables(content string, currentLine int) []Completion
 		line := lines[i]
 
 		for _, ch := range line {
-			if ch == '(' {
+			switch ch {
+			case '(':
 				openParens++
-			} else if ch == ')' {
+			case ')':
 				openParens--
 			}
 		}
@@ -120,9 +138,11 @@ func (s *Server) getScopeVariables(content string, currentLine int) []Completion
 			if startIdx == -1 {
 				startIdx = strings.Index(line, " zip (")
 			}
+
 			if startIdx != -1 {
 				rest := line[startIdx:]
 				parenStart := strings.Index(rest, "(")
+
 				parenEnd := strings.Index(rest, ")")
 				if parenStart != -1 && parenEnd != -1 && parenEnd > parenStart {
 					paramsStr := rest[parenStart+1 : parenEnd]
@@ -152,7 +172,7 @@ func (s *Server) getScopeVariables(content string, currentLine int) []Completion
 	return items
 }
 
-func (s *Server) getRangeCompletions(content string, currentLine int) []CompletionItem {
+func (s *Server) getRangeCompletions(content string, _ int) []CompletionItem {
 	items := []CompletionItem{}
 
 	lines := strings.Split(content, "\n")
@@ -168,9 +188,11 @@ func (s *Server) getRangeCompletions(content string, currentLine int) []Completi
 				if varName != "" && isValidIdentifier(varName) {
 					// Check if value is numeric or contains numbers
 					isNumeric := false
+
 					for _, ch := range value {
 						if ch >= '0' && ch <= '9' {
 							isNumeric = true
+
 							break
 						}
 					}
@@ -193,9 +215,7 @@ func (s *Server) getRangeCompletions(content string, currentLine int) []Completi
 		Kind:       CompletionItemKindText,
 		Detail:     "Range: 0..10",
 		InsertText: "10",
-	})
-
-	items = append(items, CompletionItem{
+	}, CompletionItem{
 		Label:      "100",
 		Kind:       CompletionItemKindText,
 		Detail:     "Range: 0..100",
@@ -313,7 +333,7 @@ func (s *Server) getSnippetCompletions() []CompletionItem {
 	}
 }
 
-// getPropertyCompletions returns property completions (for obj.prop)
+// getPropertyCompletions returns property completions (for obj.prop).
 func (s *Server) getPropertyCompletions() []CompletionItem {
 	// Common properties that might be used
 	return []CompletionItem{
@@ -326,7 +346,7 @@ func (s *Server) getPropertyCompletions() []CompletionItem {
 	}
 }
 
-// getVariableCompletions extracts variable declarations from the document
+// getVariableCompletions extracts variable declarations from the document.
 func (s *Server) getVariableCompletions(content string) []CompletionItem {
 	items := []CompletionItem{}
 	lines := strings.Split(content, "\n")
@@ -351,21 +371,21 @@ func (s *Server) getVariableCompletions(content string) []CompletionItem {
 	return items
 }
 
-// isValidIdentifier checks if a string is a valid identifier
+// isValidIdentifier checks if a string is a valid identifier.
 func isValidIdentifier(s string) bool {
 	if s == "" {
 		return false
 	}
 
 	// First character must be letter or underscore
-	if !((s[0] >= 'a' && s[0] <= 'z') || (s[0] >= 'A' && s[0] <= 'Z') || s[0] == '_') {
+	if (s[0] < 'a' || s[0] > 'z') && (s[0] < 'A' || s[0] > 'Z') && s[0] != '_' {
 		return false
 	}
 
 	// Rest can be letters, digits, or underscores
 	for i := 1; i < len(s); i++ {
 		c := s[i]
-		if !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_') {
+		if (c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && (c < '0' || c > '9') && c != '_' {
 			return false
 		}
 	}
@@ -373,13 +393,13 @@ func isValidIdentifier(s string) bool {
 	return true
 }
 
-// sendError sends an error response
-func (s *Server) sendError(id interface{}, code int, message string) error {
-	response := map[string]interface{}{
+// sendError sends an error response.
+func (s *Server) sendError(id any, message string) error {
+	response := map[string]any{
 		"jsonrpc": "2.0",
 		"id":      id,
-		"error": map[string]interface{}{
-			"code":    code,
+		"error": map[string]any{
+			"code":    -32602,
 			"message": message,
 		},
 	}

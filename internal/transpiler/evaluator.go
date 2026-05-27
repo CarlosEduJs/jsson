@@ -5,11 +5,12 @@ import (
 	"jsson/internal/ast"
 	ie "jsson/internal/errors"
 	"jsson/internal/token"
+	"maps"
 	"strings"
 )
 
-// evalExpression evaluates an AST expression and returns its value
-func (t *Transpiler) evalExpression(expr ast.Expression, ctx map[string]interface{}) (interface{}, error) {
+// evalExpression evaluates an AST expression and returns its value.
+func (t *Transpiler) evalExpression(expr ast.Expression, ctx map[string]any) (any, error) {
 	switch e := expr.(type) {
 	case *ast.IntegerLiteral:
 		return e.Value, nil
@@ -48,9 +49,10 @@ func (t *Transpiler) evalExpression(expr ast.Expression, ctx map[string]interfac
 	}
 }
 
-// evalPresetReference evaluates a preset reference expression
-func (t *Transpiler) evalPresetReference(e *ast.PresetReference, ctx map[string]interface{}) (interface{}, error) {
+// evalPresetReference evaluates a preset reference expression.
+func (t *Transpiler) evalPresetReference(e *ast.PresetReference, ctx map[string]any) (any, error) {
 	presetName := e.Name.Value
+
 	presetBody, exists := t.presetTable[presetName]
 	if !exists {
 		return nil, t.errfNode(e, "preset %q not found — define it with @preset %q { ... }", presetName, presetName)
@@ -62,7 +64,7 @@ func (t *Transpiler) evalPresetReference(e *ast.PresetReference, ctx map[string]
 		return nil, err
 	}
 
-	baseObj, ok := baseVal.(map[string]interface{})
+	baseObj, ok := baseVal.(map[string]any)
 	if !ok {
 		return nil, t.errfNode(e, "preset %q did not evaluate to an object", presetName)
 	}
@@ -74,32 +76,28 @@ func (t *Transpiler) evalPresetReference(e *ast.PresetReference, ctx map[string]
 			return nil, err
 		}
 
-		overridesObj, ok := overridesVal.(map[string]interface{})
+		overridesObj, ok := overridesVal.(map[string]any)
 		if !ok {
 			return nil, t.errfNode(e, "preset overrides must be an object")
 		}
 
 		// Merge: overrides take precedence
-		result := make(map[string]interface{})
-		for k, v := range baseObj {
-			result[k] = v
-		}
-		for k, v := range overridesObj {
-			result[k] = v
-		}
+		result := make(map[string]any, len(baseObj)+len(overridesObj))
+		maps.Copy(result, baseObj)
+		maps.Copy(result, overridesObj)
+
 		return result, nil
 	}
 
 	// Return a copy to avoid mutation issues
-	result := make(map[string]interface{})
-	for k, v := range baseObj {
-		result[k] = v
-	}
+	result := make(map[string]any, len(baseObj))
+	maps.Copy(result, baseObj)
+
 	return result, nil
 }
 
-// evalMapExpression evaluates a map expression
-func (t *Transpiler) evalMapExpression(e *ast.MapExpression, ctx map[string]interface{}) (interface{}, error) {
+// evalMapExpression evaluates a map expression.
+func (t *Transpiler) evalMapExpression(e *ast.MapExpression, ctx map[string]any) (any, error) {
 	// Evaluate the array to be mapped
 	leftVal, err := t.evalExpression(e.Left, ctx)
 	if err != nil {
@@ -107,9 +105,10 @@ func (t *Transpiler) evalMapExpression(e *ast.MapExpression, ctx map[string]inte
 	}
 
 	// Ensure it's an array (slice). Accept RangeResult (wraps generated slice) as well.
-	var items []interface{}
+	var items []any
+
 	switch v := leftVal.(type) {
-	case []interface{}:
+	case []any:
 		items = v
 	case RangeResult:
 		items = v.Values
@@ -117,18 +116,15 @@ func (t *Transpiler) evalMapExpression(e *ast.MapExpression, ctx map[string]inte
 		return nil, t.errfNode(e, "map target is not an array, it's a %T — gremlin is confused", leftVal)
 	}
 
-	var result []interface{}
+	var result []any
 
 	// Iterate and map
 	for _, item := range items {
 		// Create a new scope for the iteration
 		// Copy the current context to allow access to outer variables (for nested maps)
-		newCtx := make(map[string]interface{})
-		if ctx != nil {
-			for k, v := range ctx {
-				newCtx[k] = v
-			}
-		}
+		newCtx := make(map[string]any, len(ctx))
+
+		maps.Copy(newCtx, ctx)
 		// Bind the iterator variable
 		newCtx[e.Iterator.Value] = item
 		// Evaluate the body
@@ -136,14 +132,17 @@ func (t *Transpiler) evalMapExpression(e *ast.MapExpression, ctx map[string]inte
 		if err != nil {
 			return nil, err
 		}
+
 		result = append(result, mappedVal)
 	}
+
 	return result, nil
 }
 
-// evalInterpolatedString evaluates an interpolated string
-func (t *Transpiler) evalInterpolatedString(e *ast.InterpolatedString, ctx map[string]interface{}) (interface{}, error) {
+// evalInterpolatedString evaluates an interpolated string.
+func (t *Transpiler) evalInterpolatedString(e *ast.InterpolatedString, ctx map[string]any) (any, error) {
 	var result strings.Builder
+
 	for _, part := range e.Parts {
 		switch p := part.(type) {
 		case string:
@@ -166,6 +165,7 @@ func (t *Transpiler) evalInterpolatedString(e *ast.InterpolatedString, ctx map[s
 						result.WriteString(ident.Value)
 						result.WriteString("}")
 					}
+
 					continue
 				}
 			}
@@ -174,20 +174,23 @@ func (t *Transpiler) evalInterpolatedString(e *ast.InterpolatedString, ctx map[s
 			if err != nil {
 				return nil, err
 			}
-			result.WriteString(fmt.Sprintf("%v", val))
+
+			fmt.Fprintf(&result, "%v", val)
 		}
 	}
+
 	return result.String(), nil
 }
 
-// evalIdentifier evaluates an identifier
-func (t *Transpiler) evalIdentifier(e *ast.Identifier, ctx map[string]interface{}) (interface{}, error) {
+// evalIdentifier evaluates an identifier.
+func (t *Transpiler) evalIdentifier(e *ast.Identifier, ctx map[string]any) (any, error) {
 	// Variable lookup: check context (local) first, then symbol table (global)
 	if ctx != nil {
 		if val, ok := ctx[e.Value]; ok {
 			return val, nil
 		}
 	}
+
 	if val, ok := t.symbolTable[e.Value]; ok {
 		return val, nil
 	}
@@ -195,17 +198,13 @@ func (t *Transpiler) evalIdentifier(e *ast.Identifier, ctx map[string]interface{
 	return nil, t.errfNodeMsg(e, ie.UndefinedVariable(e.Value))
 }
 
-// evalObjectLiteral evaluates an object literal
-func (t *Transpiler) evalObjectLiteral(e *ast.ObjectLiteral, ctx map[string]interface{}) (interface{}, error) {
-	obj := make(map[string]interface{})
+// evalObjectLiteral evaluates an object literal.
+func (t *Transpiler) evalObjectLiteral(e *ast.ObjectLiteral, ctx map[string]any) (any, error) {
+	obj := make(map[string]any)
 
 	// Create local context, copying parent context first to allow access to outer variables
-	localCtx := make(map[string]interface{})
-	if ctx != nil {
-		for k, v := range ctx {
-			localCtx[k] = v
-		}
-	}
+	localCtx := make(map[string]any, len(ctx))
+	maps.Copy(localCtx, ctx)
 
 	// Evaluate local declarations and add to context
 	for _, decl := range e.Declarations {
@@ -213,6 +212,7 @@ func (t *Transpiler) evalObjectLiteral(e *ast.ObjectLiteral, ctx map[string]inte
 		if err != nil {
 			return nil, err
 		}
+
 		localCtx[decl.Name.Value] = val
 	}
 
@@ -222,18 +222,22 @@ func (t *Transpiler) evalObjectLiteral(e *ast.ObjectLiteral, ctx map[string]inte
 		if valExpr == nil {
 			continue
 		}
+
 		val, err := t.evalExpression(valExpr, localCtx)
 		if err != nil {
 			return nil, err
 		}
+
 		obj[key] = val
 	}
+
 	return obj, nil
 }
 
-// evalArrayLiteral evaluates an array literal
-func (t *Transpiler) evalArrayLiteral(e *ast.ArrayLiteral, ctx map[string]interface{}) (interface{}, error) {
-	arr := make([]interface{}, 0, len(e.Elements))
+// evalArrayLiteral evaluates an array literal.
+func (t *Transpiler) evalArrayLiteral(e *ast.ArrayLiteral, ctx map[string]any) (any, error) {
+	arr := make([]any, 0, len(e.Elements))
+
 	for _, el := range e.Elements {
 		val, err := t.evalExpression(el, ctx)
 		if err != nil {
@@ -246,22 +250,24 @@ func (t *Transpiler) evalArrayLiteral(e *ast.ArrayLiteral, ctx map[string]interf
 			arr = append(arr, val)
 		}
 	}
+
 	return arr, nil
 }
 
-// evalRangeExpression evaluates a range expression
-func (t *Transpiler) evalRangeExpression(e *ast.RangeExpression, ctx map[string]interface{}) (interface{}, error) {
+// evalRangeExpression evaluates a range expression.
+func (t *Transpiler) evalRangeExpression(e *ast.RangeExpression, ctx map[string]any) (any, error) {
 	// Evaluate start, end and optional step
 	startV, err := t.evalExpression(e.Start, ctx)
 	if err != nil {
 		return nil, err
 	}
+
 	endV, err := t.evalExpression(e.End, ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	var stepV interface{}
+	var stepV any
 	if e.Step != nil {
 		stepV, err = t.evalExpression(e.Step, ctx)
 		if err != nil {
@@ -279,6 +285,7 @@ func (t *Transpiler) evalRangeExpression(e *ast.RangeExpression, ctx map[string]
 
 	// Integer Range (original behavior)
 	sInt, ok1 := startV.(int64)
+
 	eInt, ok2 := endV.(int64)
 	if !ok1 || !ok2 {
 		return nil, t.errfNodeMsg(e, ie.RangeBoundsNotIntegers(startV, endV))
@@ -287,25 +294,24 @@ func (t *Transpiler) evalRangeExpression(e *ast.RangeExpression, ctx map[string]
 	return t.evalIntegerRange(sInt, eInt, stepV, e)
 }
 
-// evalArrayTemplate evaluates an array template expression
-func (t *Transpiler) evalArrayTemplate(e *ast.ArrayTemplate, ctx map[string]interface{}) (interface{}, error) {
-	result := make([]interface{}, 0, len(e.Rows))
+// evalArrayTemplate evaluates an array template expression.
+func (t *Transpiler) evalArrayTemplate(e *ast.ArrayTemplate, ctx map[string]any) (any, error) {
+	result := make([]any, 0, len(e.Rows))
 	keys := e.Template.Keys
 
 	// Detect if this is an implicit template (single field matching map parameter)
-	isImplicitTemplate := false
-	if e.Map != nil && len(keys) == 1 && keys[0] == e.Map.Param.Value {
-		isImplicitTemplate = true
-	}
+	isImplicitTemplate := e.Map != nil && len(keys) == 1 && keys[0] == e.Map.Param.Value
 
 	for _, row := range e.Rows {
 		// First, evaluate all expressions in the row
-		evaluatedRow := make([]interface{}, len(row))
+		evaluatedRow := make([]any, len(row))
+
 		for i, expr := range row {
 			val, err := t.evalExpression(expr, ctx)
 			if err != nil {
 				return nil, err
 			}
+
 			if rr, ok := val.(RangeResult); ok {
 				evaluatedRow[i] = rr.Values
 			} else {
@@ -318,16 +324,18 @@ func (t *Transpiler) evalArrayTemplate(e *ast.ArrayTemplate, ctx map[string]inte
 		minArrayLength := -1
 
 		for _, val := range evaluatedRow {
-			if arr, ok := val.([]interface{}); ok {
+			if arr, ok := val.([]any); ok {
 				isObjectArray := false
+
 				if len(arr) > 0 {
-					if _, isMap := arr[0].(map[string]interface{}); isMap {
+					if _, isMap := arr[0].(map[string]any); isMap {
 						isObjectArray = true
 					}
 				}
 
 				if !isObjectArray {
 					hasArrays = true
+
 					if minArrayLength == -1 || len(arr) < minArrayLength {
 						minArrayLength = len(arr)
 					}
@@ -337,44 +345,47 @@ func (t *Transpiler) evalArrayTemplate(e *ast.ArrayTemplate, ctx map[string]inte
 
 		// Range Zipping: if we have arrays, zip them
 		if hasArrays && minArrayLength > 0 {
-			for idx := 0; idx < minArrayLength; idx++ {
-				var itemValue interface{}
+			for idx := range minArrayLength {
+				var itemValue any
 
 				if isImplicitTemplate {
-					if arr, ok := evaluatedRow[0].([]interface{}); ok {
+					if arr, ok := evaluatedRow[0].([]any); ok {
 						itemValue = arr[idx]
 					} else {
 						itemValue = evaluatedRow[0]
 					}
 				} else {
-					rowObj := make(map[string]interface{})
+					rowObj := make(map[string]any)
+
 					for i, val := range evaluatedRow {
 						if i >= len(keys) {
 							break
 						}
+
 						key := keys[i]
 
-						if arr, ok := val.([]interface{}); ok {
+						if arr, ok := val.([]any); ok {
 							rowObj[key] = arr[idx]
 						} else {
 							rowObj[key] = val
 						}
 					}
+
 					itemValue = rowObj
 				}
 
 				// Apply Map Clause if present
 				if e.Map != nil {
-					mapCtx := make(map[string]interface{})
-					for k, v := range ctx {
-						mapCtx[k] = v
-					}
+					mapCtx := make(map[string]any, len(ctx))
+					maps.Copy(mapCtx, ctx)
+
 					mapCtx[e.Map.Param.Value] = itemValue
 
 					mappedVal, err := t.evalExpression(e.Map.Body, mapCtx)
 					if err != nil {
 						return nil, err
 					}
+
 					result = append(result, mappedVal)
 				} else {
 					result = append(result, itemValue)
@@ -382,49 +393,54 @@ func (t *Transpiler) evalArrayTemplate(e *ast.ArrayTemplate, ctx map[string]inte
 			}
 		} else {
 			// No zipping needed
-			var itemValue interface{}
+			var itemValue any
 
 			if isImplicitTemplate {
 				itemValue = evaluatedRow[0]
 			} else {
-				rowObj := make(map[string]interface{})
+				rowObj := make(map[string]any)
+
 				for i, val := range evaluatedRow {
 					if i >= len(keys) {
 						break
 					}
+
 					key := keys[i]
 					rowObj[key] = val
 				}
+
 				itemValue = rowObj
 			}
 
 			// Apply Map Clause if present
 			if e.Map != nil {
-				mapCtx := make(map[string]interface{})
-				for k, v := range ctx {
-					mapCtx[k] = v
-				}
+				mapCtx := make(map[string]any, len(ctx))
+				maps.Copy(mapCtx, ctx)
+
 				mapCtx[e.Map.Param.Value] = itemValue
 
 				mappedVal, err := t.evalExpression(e.Map.Body, mapCtx)
 				if err != nil {
 					return nil, err
 				}
+
 				result = append(result, mappedVal)
 			} else {
 				result = append(result, itemValue)
 			}
 		}
 	}
+
 	return result, nil
 }
 
-// evalBinaryExpression evaluates a binary expression
-func (t *Transpiler) evalBinaryExpression(e *ast.BinaryExpression, ctx map[string]interface{}) (interface{}, error) {
+// evalBinaryExpression evaluates a binary expression.
+func (t *Transpiler) evalBinaryExpression(e *ast.BinaryExpression, ctx map[string]any) (any, error) {
 	left, err := t.evalExpression(e.Left, ctx)
 	if err != nil {
 		return nil, err
 	}
+
 	right, err := t.evalExpression(e.Right, ctx)
 	if err != nil {
 		return nil, err
@@ -433,8 +449,8 @@ func (t *Transpiler) evalBinaryExpression(e *ast.BinaryExpression, ctx map[strin
 	return t.evalBinary(left, e.Operator, right)
 }
 
-// evalConditionalExpression evaluates a ternary conditional expression
-func (t *Transpiler) evalConditionalExpression(e *ast.ConditionalExpression, ctx map[string]interface{}) (interface{}, error) {
+// evalConditionalExpression evaluates a ternary conditional expression.
+func (t *Transpiler) evalConditionalExpression(e *ast.ConditionalExpression, ctx map[string]any) (any, error) {
 	condition, err := t.evalExpression(e.Condition, ctx)
 	if err != nil {
 		return nil, err
@@ -445,24 +461,26 @@ func (t *Transpiler) evalConditionalExpression(e *ast.ConditionalExpression, ctx
 
 	if isTruthy {
 		return t.evalExpression(e.Consequence, ctx)
-	} else {
-		return t.evalExpression(e.Alternative, ctx)
 	}
+
+	return t.evalExpression(e.Alternative, ctx)
 }
 
-// evalMemberExpression evaluates a member access expression
-func (t *Transpiler) evalMemberExpression(e *ast.MemberExpression, ctx map[string]interface{}) (interface{}, error) {
+// evalMemberExpression evaluates a member access expression.
+func (t *Transpiler) evalMemberExpression(e *ast.MemberExpression, ctx map[string]any) (any, error) {
 	leftVal, err := t.evalExpression(e.Left, ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	// Handle map access
-	if obj, ok := leftVal.(map[string]interface{}); ok {
+	if obj, ok := leftVal.(map[string]any); ok {
 		if val, ok := obj[e.Property.Value]; ok {
 			return val, nil
 		}
+
 		return nil, t.errfNode(e, "property %q not found — gremlin searched everywhere", e.Property.Value)
 	}
+
 	return nil, t.errfNodeMsg(e, ie.NotAnObject())
 }

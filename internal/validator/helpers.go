@@ -4,37 +4,52 @@ import (
 	"reflect"
 )
 
-// getType returns the JSON type of a value
+const (
+	typeNull    = "null"
+	typeString  = "string"
+	typeBoolean = "boolean"
+	typeInteger = "integer"
+	typeNumber  = "number"
+	typeArray   = "array"
+	typeObject  = "object"
+)
+
+// getType returns the JSON type of a value.
 func getType(value any) string {
 	if value == nil {
-		return "null"
+		return typeNull
 	}
 
 	v := reflect.ValueOf(value)
 	switch v.Kind() {
 	case reflect.String:
-		return "string"
+		return typeString
 	case reflect.Bool:
-		return "boolean"
+		return typeBoolean
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return "integer"
+		return typeInteger
 	case reflect.Float32, reflect.Float64:
 		f := v.Float()
 		if f == float64(int64(f)) {
-			return "integer"
+			return typeInteger
 		}
-		return "number"
+
+		return typeNumber
 	case reflect.Slice, reflect.Array:
-		return "array"
+		return typeArray
 	case reflect.Map:
-		return "object"
+		return typeObject
+	case reflect.Invalid, reflect.Uintptr, reflect.Complex64, reflect.Complex128,
+		reflect.Chan, reflect.Func, reflect.Interface, reflect.Pointer,
+		reflect.Struct, reflect.UnsafePointer:
+		return "unknown"
 	default:
 		return "unknown"
 	}
 }
 
-// isInteger checks if a value is an integer
+// isInteger checks if a value is an integer.
 func isInteger(value any) bool {
 	switch v := value.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
@@ -48,7 +63,7 @@ func isInteger(value any) bool {
 	}
 }
 
-// toFloat64 converts a numeric value to float64
+// toFloat64 converts a numeric value to float64.
 func toFloat64(value any) float64 {
 	switch v := value.(type) {
 	case int:
@@ -80,12 +95,12 @@ func toFloat64(value any) float64 {
 	}
 }
 
-// deepEqual compares two values for equality
+// deepEqual compares two values for equality.
 func deepEqual(a, b any) bool {
 	return reflect.DeepEqual(a, b)
 }
 
-// normalizeData converts YAML-specific types to JSON-compatible types
+// normalizeData converts YAML-specific types to JSON-compatible types.
 func normalizeData(data any) any {
 	switch v := data.(type) {
 	case map[string]any:
@@ -93,20 +108,24 @@ func normalizeData(data any) any {
 		for key, value := range v {
 			result[key] = normalizeData(value)
 		}
+
 		return result
 	case map[any]any:
 		result := make(map[string]any)
+
 		for key, value := range v {
 			if strKey, ok := key.(string); ok {
 				result[strKey] = normalizeData(value)
 			}
 		}
+
 		return result
 	case []any:
 		result := make([]any, len(v))
 		for i, item := range v {
 			result[i] = normalizeData(item)
 		}
+
 		return result
 	default:
 		return data

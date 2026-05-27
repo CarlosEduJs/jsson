@@ -4,8 +4,8 @@ package lexer
 
 import "jsson/internal/lexer"
 
-// Re-export types
+// Re-export types.
 type Lexer = lexer.Lexer
 
-// Re-export functions
+// Re-export functions.
 var New = lexer.New

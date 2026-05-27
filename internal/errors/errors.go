@@ -19,6 +19,7 @@ func FormatContext(sourceFile string, line, col int) string {
 	}
 
 	lines := strings.Split(string(data), "\n")
+
 	idx := line - 1
 	if idx < 0 || idx >= len(lines) {
 		return fmt.Sprintf("%s:%d:%d", filepath.Base(sourceFile), line, col)
@@ -27,10 +28,12 @@ func FormatContext(sourceFile string, line, col int) string {
 	srcLine := lines[idx]
 	// Build caret line: use rune count to handle multi-byte characters
 	caretPos := 0
-	for i, _ := range []rune(srcLine) {
+
+	for i := range []rune(srcLine) {
 		if i >= col-1 {
 			break
 		}
+
 		caretPos++
 	}
 

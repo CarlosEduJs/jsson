@@ -22,6 +22,7 @@ func TestParser_UnclosedBracket(t *testing.T) {
 	if len(p.Errors()) == 0 {
 		t.Skip("Parser is tolerant and doesn't detect this error - this is expected behavior")
 	}
+
 	t.Logf("Parser errors (if any): %v", p.Errors())
 }
 
@@ -34,6 +35,7 @@ func TestParser_UnclosedBrace(t *testing.T) {
 	if len(p.Errors()) == 0 {
 		t.Error("Expected parser errors for unclosed brace")
 	}
+
 	t.Logf("Parser errors (expected): %v", p.Errors())
 }
 
@@ -47,6 +49,7 @@ func TestParser_InvalidSyntax(t *testing.T) {
 	if len(p.Errors()) == 0 {
 		t.Skip("Parser is tolerant and doesn't detect this error - this is expected behavior")
 	}
+
 	t.Logf("Parser errors (if any): %v", p.Errors())
 }
 
@@ -60,6 +63,7 @@ func TestParser_MissingValue(t *testing.T) {
 	if len(p.Errors()) == 0 {
 		t.Skip("Parser is tolerant and doesn't detect this error - this is expected behavior")
 	}
+
 	t.Logf("Parser errors (if any): %v", p.Errors())
 }
 
@@ -84,6 +88,7 @@ func TestTemplate_EmptyTemplate(t *testing.T) {
 	}
 
 	tr := New(prog, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
@@ -108,9 +113,11 @@ func TestTemplate_MismatchedColumns(t *testing.T) {
 	}
 
 	tr := New(prog, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Logf("Transpile error (may be expected): %v", err)
+
 		return
 	}
 
@@ -133,6 +140,7 @@ func TestTemplate_WithMapAndNoData(t *testing.T) {
 	}
 
 	tr := New(prog, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
@@ -160,6 +168,7 @@ func TestArithmetic_IntegerOverflow(t *testing.T) {
 	}
 
 	tr := New(prog, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
@@ -179,6 +188,7 @@ func TestArithmetic_FloatPrecision(t *testing.T) {
 	}
 
 	tr := New(prog, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
@@ -199,6 +209,7 @@ func TestArithmetic_NegativeModulo(t *testing.T) {
 	}
 
 	tr := New(prog, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
@@ -222,6 +233,7 @@ func TestInterpolation_UndefinedVariable(t *testing.T) {
 	}
 
 	tr := New(prog, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
@@ -242,6 +254,7 @@ func TestInterpolation_NestedBraces(t *testing.T) {
 	}
 
 	tr := New(prog, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
@@ -261,6 +274,7 @@ func TestInterpolation_ExpressionInString(t *testing.T) {
 	}
 
 	tr := New(prog, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
@@ -296,6 +310,7 @@ data = obj.nonexistent
 	if err == nil {
 		t.Error("Expected error for non-existent property")
 	}
+
 	t.Logf("Non-existent property error: %v", err)
 }
 
@@ -316,6 +331,7 @@ func TestMemberAccess_OnNonObject(t *testing.T) {
 	if err == nil {
 		t.Error("Expected error for member access on non-object")
 	}
+
 	t.Logf("Member access on non-object error: %v", err)
 }
 
@@ -334,6 +350,7 @@ func TestComparison_StringComparison(t *testing.T) {
 	}
 
 	tr := New(prog, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
@@ -356,6 +373,7 @@ func TestComparison_MixedTypes(t *testing.T) {
 	}
 
 	tr := New(prog, "", "keep", "")
+
 	output, err := tr.Transpile()
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
