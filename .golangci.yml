@@ -1,0 +1,300 @@
+version: "2"
+
+linters:
+  default: none
+  enable:
+    # Bugs & correctness
+    - errcheck
+    - govet
+    - staticcheck
+    - bodyclose
+    - contextcheck
+    - durationcheck
+    - errchkjson
+    - errorlint
+    - gosec
+    - nilerr
+    - nilnesserr
+    - nilnil
+    - noctx
+    - reassign
+    - unconvert
+    - unparam
+    - wastedassign
+    # Unused
+    - ineffassign
+    - unused
+    # Style & maintainability
+    - asciicheck
+    - bidichk
+    - canonicalheader
+    - copyloopvar
+    - decorder
+    - dogsled
+    - dupword
+    - errname
+    - exhaustive
+    - exptostd
+    - fatcontext
+    - forcetypeassert
+    - funlen
+    - gocheckcompilerdirectives
+    - gochecknoglobals
+    - gochecknoinits
+    - gochecksumtype
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    - godox
+    - goprintffuncname
+    - grouper
+    - iface
+    - importas
+    - inamedparam
+    - interfacebloat
+    - intrange
+    - ireturn
+    - lll
+    - maintidx
+    - makezero
+    - mirror
+    - misspell
+    - mnd
+    - modernize
+    - musttag
+    - nakedret
+    - nestif
+    - nlreturn
+    - nolintlint
+    - nonamedreturns
+    - nosprintfhostport
+    - perfsprint
+    - prealloc
+    - predeclared
+    - recvcheck
+    - revive
+    - sloglint
+    - tagalign
+    - tagliatelle
+    - testifylint
+    - testpackage
+    - thelper
+    - tparallel
+    - usestdlibvars
+    - usetesting
+    - varnamelen
+    - whitespace
+    - wrapcheck
+    - wsl
+
+  settings:
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+    govet:
+      enable-all: true
+      disable:
+        - fieldalignment
+    staticcheck:
+      checks:
+        - all
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - experimental
+        - opinionated
+        - performance
+        - style
+    funlen:
+      lines: 80
+      statements: 50
+    gocyclo:
+      min-complexity: 15
+    gocognit:
+      min-complexity: 30
+    maintidx:
+      under: 20
+    lll:
+      line-length: 140
+    nestif:
+      min-complexity: 5
+    revive:
+      rules:
+        - name: blank-imports
+        - name: context-as-argument
+        - name: context-keys-type
+        - name: dot-imports
+        - name: error-return
+        - name: error-strings
+        - name: error-naming
+        - name: exported
+        - name: if-return
+        - name: increment-decrement
+        - name: var-naming
+        - name: var-declaration
+        - name: package-comments
+        - name: range
+        - name: receiver-naming
+        - name: time-naming
+        - name: unexported-return
+        - name: indent-error-flow
+        - name: empty-block
+        - name: superfluous-else
+        - name: unused-parameter
+        - name: unreachable-code
+        - name: redefines-builtin-id
+    varnamelen:
+      min-name-length: 2
+      max-distance: 5
+      ignore-type-assert-ok: true
+      ignore-map-index-ok: true
+      ignore-chan-recv-ok: true
+      ignore-decls:
+        - w http.ResponseWriter
+        - r *http.Request
+        - r *http.ServeMux
+        - tr *http.Transport
+        - t testing.T
+        - b testing.B
+        - tb testing.TB
+        - f *os.File
+        - i int
+        - j int
+        - k int
+        - n int
+        - m int
+        - v any
+        - ok bool
+        - err error
+        - wg sync.WaitGroup
+        - mu sync.Mutex
+        - rw sync.RWMutex
+        - ch chan
+    misspell:
+      locale: US
+    mnd:
+      checks:
+        - argument
+        - case
+        - condition
+        - operation
+        - return
+      ignored-numbers:
+        - "0"
+        - "1"
+        - "2"
+        - "64"
+        - "128"
+        - "256"
+        - "512"
+        - "1024"
+        - "2048"
+        - "4096"
+      ignored-functions:
+        - "strings.SplitN"
+        - "make"
+        - "len"
+        - "cap"
+    wrapcheck:
+      ignore-sig-expr:
+        - ".Errorf("
+    tagliatelle:
+      case:
+        rules:
+          json: snake
+          yaml: kebab
+          toml: kebab
+    importas:
+      no-unaliased: true
+      alias:
+        - pkg: gopkg.in/yaml.v3
+          alias: yamlv3
+    forcetypeassert:
+      # Enable only for test files
+      enable: false
+    grouper:
+      import- Groups: true
+    recvcheck:
+      disable-builtin: true
+    gochecksumtype:
+      enable: true
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+
+  exclusions:
+    generated: lax
+    warn-unused: true
+    presets:
+      - comments
+      - std-error-handling
+      - common-false-positives
+      - legacy
+    rules:
+      - path: _test\.go
+        linters:
+          - gocyclo
+          - errcheck
+          - dupl
+          - gosec
+          - funlen
+          - gocognit
+          - lll
+          - mnd
+          - wrapcheck
+      - path: _test\.go
+        text: "gochecknoglobals"
+      - path: internal/lsp/
+        linters:
+          - lll
+      - linters:
+          - staticcheck
+        text: "SA9003:"
+      - linters:
+          - lll
+        source: "^//go:generate "
+    paths:
+      - "third_party/"
+      - "vendor/"
+      - ".*\\.pb\\.go$"
+      - ".*\\.pb\\.gw\\.go$"
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+    - gofumpt
+  exclusions:
+    generated: strict
+    paths:
+      - "third_party/"
+      - "vendor/"
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  uniq-by-line: false
+  fix: false
+
+output:
+  formats:
+    text:
+      path: stdout
+      print-linter-name: true
+      print-issued-lines: true
+      colors: true
+  sort-order:
+    - linter
+    - file
+  show-stats: true
+
+run:
+  timeout: 5m
+  relative-path-mode: gomod
+  issues-exit-code: 1
+  tests: true
+  go: "1.22"
+  concurrency: 4
+  allow-parallel-runners: true
