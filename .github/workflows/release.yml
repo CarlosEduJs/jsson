@@ -28,6 +28,9 @@ jobs:
       - name: Run tests
         run: go test -v -race -count=1 ./...
 
+      - name: Run e2e tests
+        run: go test -tags=e2e -count=1 ./cmd/jsson/
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # v6.4.0
         with:
