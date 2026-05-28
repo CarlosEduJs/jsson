@@ -1,6 +1,7 @@
 package transpiler
 
 import (
+	"context"
 	"jsson/internal/lexer"
 	"jsson/internal/parser"
 	"strings"
@@ -23,7 +24,7 @@ func TestEdgeCase_EmptyRange(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -46,7 +47,7 @@ func TestEdgeCase_SingleItemRange(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -68,7 +69,7 @@ func TestEdgeCase_ZeroStep(t *testing.T) {
 	}
 
 	tr := New(prog, "", "keep", "")
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 
 	// Should error with step zero
 	if err == nil {
@@ -92,7 +93,7 @@ func TestEdgeCase_NegativeRange(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -115,7 +116,7 @@ func TestEdgeCase_VeryLargeNumber(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -138,7 +139,7 @@ func TestEdgeCase_VeryLongString(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -160,7 +161,7 @@ func TestEdgeCase_SpecialCharactersInString(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -185,7 +186,7 @@ func TestEdgeCase_EmptyArray(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -207,7 +208,7 @@ func TestEdgeCase_EmptyObject(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -233,7 +234,7 @@ func TestEdgeCase_MapOnEmptyArray(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -256,7 +257,7 @@ func TestEdgeCase_TripleNestedMap(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -278,7 +279,7 @@ func TestEdgeCase_UndefinedVariable(t *testing.T) {
 	}
 
 	tr := New(prog, "", "keep", "")
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 
 	// Currently JSSON treats undefined vars as identifiers (strings)
 	// This might be the expected behavior
@@ -307,7 +308,7 @@ data = {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -334,7 +335,7 @@ func TestEdgeCase_NestedTernary(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -364,7 +365,7 @@ func TestStress_LargeRange_100k(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -388,7 +389,7 @@ func TestStress_LargeMatrix_100x100(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -417,7 +418,7 @@ func TestStress_ManyProperties(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Logf("Transpile error: %v", err)
 	}
@@ -439,7 +440,7 @@ func TestEdgeCase_ValidatorIntSameBoundaries(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle int with same min/max: %v", err)
 	}
@@ -457,7 +458,7 @@ func TestEdgeCase_ValidatorIntNegativeRange(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle negative int range: %v", err)
 	}
@@ -475,7 +476,7 @@ func TestEdgeCase_ValidatorIntZeroBoundaries(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle zero boundaries: %v", err)
 	}
@@ -493,7 +494,7 @@ func TestEdgeCase_ValidatorFloatSameBoundaries(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle float with same min/max: %v", err)
 	}
@@ -511,7 +512,7 @@ func TestEdgeCase_ValidatorFloatNegativeRange(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle negative float range: %v", err)
 	}
@@ -529,7 +530,7 @@ func TestEdgeCase_ValidatorFloatVerySmallRange(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle very small float range: %v", err)
 	}
@@ -553,7 +554,7 @@ func TestEdgeCase_ValidatorBoolMultiple(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should generate multiple booleans: %v", err)
 	}
@@ -571,7 +572,7 @@ func TestEdgeCase_ValidatorsInArray(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle validators in array: %v", err)
 	}
@@ -594,7 +595,7 @@ func TestEdgeCase_ValidatorsInTemplate(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle validators in template: %v", err)
 	}
@@ -616,7 +617,7 @@ func TestEdgeCase_DivisionByZero(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err == nil {
 		t.Fatal("Should error on division by zero")
 	}
@@ -638,7 +639,7 @@ func TestEdgeCase_ModuloByZero(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err == nil {
 		t.Fatal("Should error on modulo by zero")
 	}
@@ -660,7 +661,7 @@ func TestEdgeCase_FloatDivision(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle float division: %v", err)
 	}
@@ -678,7 +679,7 @@ func TestEdgeCase_NegativeDivision(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle negative division: %v", err)
 	}
@@ -702,7 +703,7 @@ func TestEdgeCase_EmptyPreset(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle empty preset: %v", err)
 	}
@@ -728,7 +729,7 @@ func TestEdgeCase_PresetAllOverrides(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle all overrides: %v", err)
 	}
@@ -746,7 +747,7 @@ func TestEdgeCase_PresetUndefined(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err == nil {
 		t.Fatal("Should error on undefined preset")
 	}
@@ -774,7 +775,7 @@ func TestEdgeCase_PresetWithValidators(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle preset with validators: %v", err)
 	}
@@ -807,7 +808,7 @@ func TestEdgeCase_DeeplyNestedObjects(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle deeply nested objects: %v", err)
 	}
@@ -825,7 +826,7 @@ func TestEdgeCase_DeeplyNestedArrays(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle deeply nested arrays: %v", err)
 	}
@@ -843,7 +844,7 @@ func TestEdgeCase_NestedMaps3Levels(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle 3-level nested maps: %v", err)
 	}
@@ -865,7 +866,7 @@ func TestEdgeCase_RangeStepLargerThanRange(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle step larger than range: %v", err)
 	}
@@ -883,7 +884,7 @@ func TestEdgeCase_RangeZeroStep(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err == nil {
 		t.Fatal("Should error on zero step")
 	}
@@ -901,7 +902,7 @@ func TestEdgeCase_RangeSingleElement(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle single element range: %v", err)
 	}
@@ -923,7 +924,7 @@ func TestEdgeCase_EmptyString(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle empty string: %v", err)
 	}
@@ -941,7 +942,7 @@ func TestEdgeCase_StringConcatenationWithNumber(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle string + number: %v", err)
 	}
@@ -959,7 +960,7 @@ func TestEdgeCase_UnicodeString(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle unicode: %v", err)
 	}
@@ -982,7 +983,7 @@ func TestEdgeCase_LessThanComparison(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle less than: %v", err)
 	}
@@ -1004,7 +1005,7 @@ func TestEdgeCase_GreaterThanComparison(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle greater than: %v", err)
 	}
@@ -1026,7 +1027,7 @@ func TestEdgeCase_EqualityComparison(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle equality: %v", err)
 	}
@@ -1048,7 +1049,7 @@ func TestEdgeCase_NotEqualComparison(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle not equal: %v", err)
 	}
@@ -1070,7 +1071,7 @@ func TestEdgeCase_StringComparison(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle string comparison: %v", err)
 	}
@@ -1096,7 +1097,7 @@ func TestEdgeCase_BasicZip(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle zip: %v", err)
 	}
@@ -1121,7 +1122,7 @@ func TestEdgeCase_ZipDifferentLengths(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle zip with different lengths: %v", err)
 	}
@@ -1141,7 +1142,7 @@ func TestEdgeCase_TripleZip(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle triple zip: %v", err)
 	}
@@ -1174,7 +1175,7 @@ func TestEdgeCase_EmailValidatorUniqueness(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should generate multiple emails: %v", err)
 	}
@@ -1197,7 +1198,7 @@ func TestEdgeCase_UUIDUniquenessInLargeArray(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should generate 100 UUIDs: %v", err)
 	}
@@ -1232,7 +1233,7 @@ func TestEdgeCase_ValidatorsInNestedContext(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle validators in nested objects: %v", err)
 	}
@@ -1254,7 +1255,7 @@ func TestEdgeCase_MapWithTernary(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle map with ternary: %v", err)
 	}
@@ -1276,7 +1277,7 @@ func TestEdgeCase_MapWithObjectCreation(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle map with object creation: %v", err)
 	}
@@ -1298,7 +1299,7 @@ func TestEdgeCase_MapWithValidators(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle map with validators: %v", err)
 	}
@@ -1318,7 +1319,7 @@ func TestEdgeCase_VeryLargeInt64(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle max int64: %v", err)
 	}
@@ -1340,7 +1341,7 @@ func TestEdgeCase_VerySmallInt64(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle very negative int64: %v", err)
 	}
@@ -1362,7 +1363,7 @@ func TestEdgeCase_FloatingPointPrecision(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle float precision: %v", err)
 	}
@@ -1383,7 +1384,7 @@ func TestEdgeCase_VerySmallDecimal(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle very small decimal: %v", err)
 	}
@@ -1407,7 +1408,7 @@ func TestEdgeCase_ArrayWithMixedValidators(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle mixed validators in array: %v", err)
 	}
@@ -1425,7 +1426,7 @@ func TestEdgeCase_MultidimensionalArrayLiteral(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle multidimensional array: %v", err)
 	}
@@ -1456,7 +1457,7 @@ func TestEdgeCase_TemplateWithExpressions(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle template with expressions: %v", err)
 	}
@@ -1484,7 +1485,7 @@ func TestEdgeCase_TemplateWithTernary(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle template with ternary: %v", err)
 	}
@@ -1511,7 +1512,7 @@ func TestEdgeCase_TemplateWithNestedObjects(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Should handle template with nested objects: %v", err)
 	}

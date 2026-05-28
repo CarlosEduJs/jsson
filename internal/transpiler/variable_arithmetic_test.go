@@ -1,6 +1,7 @@
 package transpiler
 
 import (
+	"context"
 	"jsson/internal/lexer"
 	"jsson/internal/parser"
 	"strings"
@@ -27,7 +28,7 @@ final = total - discount
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -63,7 +64,7 @@ mod = a % b
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -99,7 +100,7 @@ result = z - 5
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -127,7 +128,7 @@ doubled = withDiscount * 2
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}

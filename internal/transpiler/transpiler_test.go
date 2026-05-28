@@ -1,6 +1,7 @@
 package transpiler
 
 import (
+	"context"
 	"encoding/json"
 	"jsson/internal/lexer"
 	"jsson/internal/parser"
@@ -27,7 +28,7 @@ func TestTranspileRangeAndFlatten(t *testing.T) {
 	tDir, _ := os.Getwd()
 	tr := New(prog, tDir, "keep", "")
 
-	out, err := tr.Transpile()
+	out, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("transpile error: %v", err)
 	}
@@ -75,7 +76,7 @@ func TestIncludeCyclicDetection(t *testing.T) {
 
 	tr := New(prog, dir, "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err == nil {
 		t.Fatalf("expected cyclic include error, got nil")
 	}
@@ -106,7 +107,7 @@ func TestIncludeResolvesRelative(t *testing.T) {
 
 	tr := New(prog, dir, "keep", "")
 
-	out, err := tr.Transpile()
+	out, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("transpile error: %v", err)
 	}
@@ -142,7 +143,7 @@ func TestIncludeDoesNotOverwriteExisting(t *testing.T) {
 
 	tr := New(prog, dir, "keep", "")
 
-	out, err := tr.Transpile()
+	out, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("transpile error: %v", err)
 	}
@@ -182,7 +183,7 @@ func TestIncludeMergeOverwriteMode(t *testing.T) {
 
 	tr := New(prog, dir, "overwrite", "")
 
-	out, err := tr.Transpile()
+	out, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("transpile error: %v", err)
 	}
@@ -221,7 +222,7 @@ func TestIncludeMergeErrorMode(t *testing.T) {
 
 	tr := New(prog, dir, "error", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err == nil {
 		t.Fatalf("expected merge conflict error, got nil")
 	}

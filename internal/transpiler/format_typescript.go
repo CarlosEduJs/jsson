@@ -2,13 +2,14 @@ package transpiler
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"strings"
 )
 
 // TranspileToTypeScript converts the transpiled data to TypeScript format with types.
-func (t *Transpiler) TranspileToTypeScript() ([]byte, error) {
-	root, err := t.buildRootMap()
+func (t *Transpiler) TranspileToTypeScript(ctx context.Context) ([]byte, error) {
+	root, err := t.buildRootMap(ctx)
 	if err != nil {
 		return nil, err
 	}

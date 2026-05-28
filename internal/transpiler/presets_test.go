@@ -1,6 +1,7 @@
 package transpiler
 
 import (
+	"context"
 	"encoding/json"
 	"jsson/internal/lexer"
 	"jsson/internal/parser"
@@ -29,7 +30,7 @@ dev_server = @use "server-defaults"
 
 	tr := New(program, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("transpiler error: %v", err)
 	}
@@ -84,7 +85,7 @@ prod_server = @use "server-defaults" {
 
 	tr := New(program, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("transpiler error: %v", err)
 	}
@@ -138,7 +139,7 @@ api = @"api-config"
 
 	tr := New(program, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("transpiler error: %v", err)
 	}
@@ -187,7 +188,7 @@ service {
 
 	tr := New(program, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("transpiler error: %v", err)
 	}
@@ -249,7 +250,7 @@ service {
 
 	tr := New(program, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("transpiler error: %v", err)
 	}
@@ -304,7 +305,7 @@ app = @use "config"
 	tr := New(program, "", "keep", "")
 
 	// First transpile to JSON to verify it works
-	jsonOutput, err := tr.Transpile()
+	jsonOutput, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("transpiler error (JSON): %v", err)
 	}
@@ -325,7 +326,7 @@ app = @use "config"
 	}
 
 	// Now test YAML output
-	yamlOutput, err := tr.TranspileToYAML()
+	yamlOutput, err := tr.TranspileToYAML(context.Background())
 	if err != nil {
 		t.Fatalf("transpiler error (YAML): %v", err)
 	}
@@ -359,7 +360,7 @@ db = @use "database"
 	tr := New(program, "", "keep", "")
 
 	// First transpile to JSON to verify it works
-	jsonOutput, err := tr.Transpile()
+	jsonOutput, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("transpiler error (JSON): %v", err)
 	}
@@ -380,7 +381,7 @@ db = @use "database"
 	}
 
 	// Now test TOML output
-	tomlOutput, err := tr.TranspileToTOML()
+	tomlOutput, err := tr.TranspileToTOML(context.Background())
 	if err != nil {
 		t.Fatalf("transpiler error (TOML): %v", err)
 	}
@@ -406,7 +407,7 @@ func TestUndefinedPresetReference(t *testing.T) {
 	}
 
 	tr := New(program, "", "keep", "")
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 
 	// Should produce an error for undefined preset
 	if err == nil {

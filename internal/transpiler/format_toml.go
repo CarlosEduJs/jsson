@@ -2,13 +2,14 @@ package transpiler
 
 import (
 	"bytes"
+	"context"
 
 	"github.com/BurntSushi/toml"
 )
 
 // TranspileToTOML converts the transpiled data to TOML format.
-func (t *Transpiler) TranspileToTOML() ([]byte, error) {
-	root, err := t.buildRootMap()
+func (t *Transpiler) TranspileToTOML(ctx context.Context) ([]byte, error) {
+	root, err := t.buildRootMap(ctx)
 	if err != nil {
 		return nil, err
 	}

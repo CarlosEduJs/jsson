@@ -1,6 +1,7 @@
 package transpiler
 
 import (
+	"context"
 	"encoding/json"
 	"jsson/internal/ast"
 	ie "jsson/internal/errors"
@@ -21,6 +22,8 @@ type RangeResult struct {
 type Transpiler struct {
 	program *ast.Program
 	baseDir string
+	// ctx is set by Transpile/format methods for cancellation support in deep eval.
+	ctx context.Context
 	// includeCache stores previously transpiled include outputs keyed by absolute path
 	includeCache map[string]map[string]any
 	// inProgress marks includes currently being processed to detect cycles
@@ -72,7 +75,7 @@ func (t *Transpiler) SetOutputFormat(minify bool, indentSize int) {
 }
 
 // buildRootMap processes all statements and builds the output map, converting any RangeResult.
-func (t *Transpiler) buildRootMap() (map[string]any, error) {
+func (t *Transpiler) buildRootMap(ctx context.Context) (map[string]any, error) {
 	root := make(map[string]any)
 
 	for _, stmt := range t.program.Statements {
@@ -97,7 +100,7 @@ func (t *Transpiler) buildRootMap() (map[string]any, error) {
 			t.symbolTable[key] = val
 			root[key] = val
 		case *ast.IncludeStatement:
-			if err := t.processInclude(s, root); err != nil {
+			if err := t.processInclude(ctx, s, root); err != nil {
 				return nil, err
 			}
 		}
@@ -111,8 +114,9 @@ func (t *Transpiler) buildRootMap() (map[string]any, error) {
 }
 
 // Transpile converts the JSSON program to JSON bytes.
-func (t *Transpiler) Transpile() ([]byte, error) {
-	root, err := t.buildRootMap()
+func (t *Transpiler) Transpile(ctx context.Context) ([]byte, error) {
+	t.ctx = ctx
+	root, err := t.buildRootMap(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +141,7 @@ func (t *Transpiler) Transpile() ([]byte, error) {
 }
 
 // processInclude handles include statements.
-func (t *Transpiler) processInclude(s *ast.IncludeStatement, root map[string]any) error {
+func (t *Transpiler) processInclude(ctx context.Context, s *ast.IncludeStatement, root map[string]any) error {
 	includePath := s.Path.Value
 
 	// Resolve path relative to the current Transpiler baseDir when not absolute
@@ -193,7 +197,7 @@ func (t *Transpiler) processInclude(s *ast.IncludeStatement, root map[string]any
 	incT.includeCache = t.includeCache
 	incT.inProgress = t.inProgress
 
-	incJSON, err := incT.Transpile()
+	incJSON, err := incT.Transpile(ctx)
 	if err != nil {
 		t.inProgress[includeAbs] = false
 
