@@ -2,6 +2,7 @@ package lsp
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -33,10 +34,18 @@ func NewServer(reader io.Reader, writer io.Writer) *Server {
 	}
 }
 
-func (s *Server) Start() error {
+func (s *Server) Start(ctx context.Context) error {
 	log.Println("JSSON Language Server starting...")
 
+	defer log.Println("JSSON Language Server stopped")
+
 	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
 		msg, err := s.readMessage()
 		if err != nil {
 			if errors.Is(err, io.EOF) {
@@ -87,6 +96,12 @@ func (s *Server) readMessage() (*RequestMessage, error) {
 	contentLength, err := strconv.Atoi(contentLengthStr)
 	if err != nil || contentLength == 0 {
 		return nil, fmt.Errorf("invalid Content-Length: %s", contentLengthStr)
+	}
+
+	const maxMessageSize = 100 * 1024 * 1024 // 100 MB
+
+	if contentLength > maxMessageSize {
+		return nil, fmt.Errorf("message too large: %d bytes exceeds maximum of %d", contentLength, maxMessageSize)
 	}
 
 	content := make([]byte, contentLength)

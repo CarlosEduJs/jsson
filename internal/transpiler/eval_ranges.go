@@ -130,6 +130,8 @@ func (t *Transpiler) evalStringRange(start, end string, stepV *int64, node ast.N
 	return res, nil
 }
 
+const maxRangeElements = 10_000_000
+
 // evalIntegerRange evaluates an integer range expression.
 func (t *Transpiler) evalIntegerRange(sInt, eInt int64, stepV *int64, node ast.Node) (any, error) {
 	var step int64
@@ -152,7 +154,20 @@ func (t *Transpiler) evalIntegerRange(sInt, eInt int64, stepV *int64, node ast.N
 		return nil, t.errfNodeMsg(node, ie.StepCannotBeZero())
 	}
 
-	res := make([]any, 0)
+	// Prevent OOM: calculate approximate count before allocating
+	var count int64
+
+	if step > 0 && eInt >= sInt {
+		count = ((eInt - sInt) / step) + 1
+	} else if step < 0 && sInt >= eInt {
+		count = ((sInt - eInt) / (-step)) + 1
+	}
+
+	if count > maxRangeElements {
+		return nil, t.errfNode(node, "range with %d elements exceeds maximum of %d — that's too much data for me", count, maxRangeElements)
+	}
+
+	res := make([]any, 0, count)
 
 	if step > 0 {
 		for i := sInt; i <= eInt; i += step {
