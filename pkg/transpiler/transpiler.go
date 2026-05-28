@@ -6,9 +6,8 @@ import "jsson/internal/transpiler"
 
 // Re-export types.
 type (
-	Transpiler  = transpiler.Transpiler
-	RangeResult = transpiler.RangeResult
-	MergeMode   = transpiler.MergeMode
+	Transpiler = transpiler.Transpiler
+	MergeMode  = transpiler.MergeMode
 )
 
 const (

@@ -106,7 +106,7 @@ func (t *Transpiler) evalStringRange(start, end string, stepV *int64, node ast.N
 	padding := len(startStr)
 
 	// Generate range
-	res := make([]any, 0)
+	res := make([]string, 0)
 
 	checkCancelled := t.ctx != nil
 
@@ -144,7 +144,7 @@ func (t *Transpiler) evalStringRange(start, end string, stepV *int64, node ast.N
 		}
 	}
 
-	return res, nil
+	return RangeResult[string]{Values: res}, nil
 }
 
 const maxRangeElements = 10_000_000
@@ -184,7 +184,7 @@ func (t *Transpiler) evalIntegerRange(sInt, eInt int64, stepV *int64, node ast.N
 		return nil, t.errfNode(node, "range with %d elements exceeds maximum of %d — that's too much data for me", count, maxRangeElements)
 	}
 
-	res := make([]any, 0, count)
+	res := make([]int64, 0, count)
 
 	checkCancelled := t.ctx != nil
 
@@ -214,7 +214,7 @@ func (t *Transpiler) evalIntegerRange(sInt, eInt int64, stepV *int64, node ast.N
 		}
 	}
 
-	return RangeResult{Values: res}, nil
+	return RangeResult[int64]{Values: res}, nil
 }
 
 // evalRangeExpression evaluates a range expression.

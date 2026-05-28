@@ -7,12 +7,12 @@ import (
 
 // evalBinary evaluates a binary expression.
 func (t *Transpiler) evalBinary(left any, op string, right any) (any, error) {
-	// Prevent applying numeric/string operators directly to a RangeResult
-	if _, ok := left.(RangeResult); ok {
+	// Prevent applying numeric/string operators directly to a range
+	if _, ok := left.(rangeFlattener); ok {
 		return nil, t.errMsg(fmt.Sprintf("cannot apply operator %q to a range — expand it or use in an array context", op))
 	}
 
-	if _, ok := right.(RangeResult); ok {
+	if _, ok := right.(rangeFlattener); ok {
 		return nil, t.errMsg(fmt.Sprintf("cannot apply operator %q to a range — expand it or use in an array context", op))
 	}
 
