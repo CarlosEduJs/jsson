@@ -196,7 +196,7 @@ func (p *Parser) parseMapClause() *ast.MapClause {
 	return mc
 }
 
-func (p *Parser) parseTemplateString(content string) ast.Expression {
+func (p *Parser) parseInterpolatedCommon(content string, isTemplate bool) ast.Expression {
 	interp := &ast.InterpolatedString{
 		Token: p.curToken,
 		Parts: []ast.InterpolatedPart{},
@@ -207,15 +207,27 @@ func (p *Parser) parseTemplateString(content string) ast.Expression {
 	i := 0
 
 	for i < len(content) {
-		if i < len(content)-1 && content[i] == '$' && content[i+1] == '{' {
+		found := false
+		openLen := 0
+
+		if isTemplate && i < len(content)-1 && content[i] == '$' && content[i+1] == '{' {
+			found = true
+			openLen = 2
+		} else if !isTemplate && content[i] == '{' {
+			found = true
+			openLen = 1
+		}
+
+		if found {
 			if currentText.Len() > 0 {
 				interp.Parts = append(interp.Parts, ast.TextPart{Value: currentText.String()})
 				currentText.Reset()
 			}
 
 			depth := 1
-			start := i + 2
-			i += 2
+			start := i + openLen
+			i += openLen
+
 			for i < len(content) && depth > 0 {
 				switch content[i] {
 				case '{':
@@ -223,8 +235,10 @@ func (p *Parser) parseTemplateString(content string) ast.Expression {
 				case '}':
 					depth--
 				}
+
 				i++
 			}
+
 			if depth == 0 {
 				exprText := content[start:i]
 				exprLexer := lexer.New(exprText)
@@ -234,12 +248,17 @@ func (p *Parser) parseTemplateString(content string) ast.Expression {
 				if expr != nil && len(exprParser.Errors()) == 0 {
 					interp.Parts = append(interp.Parts, ast.ExprPart{Expr: expr})
 				} else {
-					currentText.WriteString("${")
+					if isTemplate {
+						currentText.WriteString("${")
+					} else {
+						currentText.WriteString("{")
+					}
+
 					currentText.WriteString(exprText)
 					currentText.WriteString("}")
 				}
 			} else {
-				currentText.WriteString(content[start-2 : i])
+				currentText.WriteString(content[start-openLen : i])
 			}
 		} else {
 			currentText.WriteByte(content[i])
@@ -254,64 +273,10 @@ func (p *Parser) parseTemplateString(content string) ast.Expression {
 	return interp
 }
 
+func (p *Parser) parseTemplateString(content string) ast.Expression {
+	return p.parseInterpolatedCommon(content, true)
+}
+
 func (p *Parser) parseInterpolatedString(content string) ast.Expression {
-	interp := &ast.InterpolatedString{
-		Token: p.curToken,
-		Parts: []ast.InterpolatedPart{},
-	}
-
-	var currentText strings.Builder
-
-	i := 0
-
-	for i < len(content) {
-		if content[i] == '{' {
-			if currentText.Len() > 0 {
-				interp.Parts = append(interp.Parts, ast.TextPart{Value: currentText.String()})
-				currentText.Reset()
-			}
-
-			depth := 1
-			start := i + 1
-
-			i++
-			for i < len(content) && depth > 0 {
-				switch content[i] {
-				case '{':
-					depth++
-				case '}':
-					depth--
-				}
-
-				i++
-			}
-
-			if depth == 0 {
-				exprText := content[start:i]
-				exprLexer := lexer.New(exprText)
-				exprParser := New(exprLexer)
-				expr := exprParser.parseExpression(LOWEST)
-
-				if expr != nil && len(exprParser.Errors()) == 0 {
-					interp.Parts = append(interp.Parts, ast.ExprPart{Expr: expr})
-				} else {
-					currentText.WriteString("{")
-					currentText.WriteString(exprText)
-					currentText.WriteString("}")
-				}
-			} else {
-				currentText.WriteString(content[start-1 : i])
-			}
-		} else {
-			currentText.WriteByte(content[i])
-
-			i++
-		}
-	}
-
-	if currentText.Len() > 0 {
-		interp.Parts = append(interp.Parts, ast.TextPart{Value: currentText.String()})
-	}
-
-	return interp
+	return p.parseInterpolatedCommon(content, false)
 }
