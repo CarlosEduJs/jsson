@@ -13,12 +13,12 @@ type Lexer struct {
 	ch           rune
 	line         int
 	column       int
-	errors       []string
+	errors       []error
 	SourceFile   string
 }
 
 func New(input string) *Lexer {
-	l := &Lexer{input: input, line: 1, column: 0, errors: []string{}}
+	l := &Lexer{input: input, line: 1, column: 0, errors: []error{}}
 	l.readChar()
 
 	return l
@@ -57,9 +57,9 @@ func (l *Lexer) NextToken() token.Token {
 			l.readChar()
 			tok = token.Token{Type: token.NEQ, Literal: string(ch) + string(l.ch), Line: l.line, Column: l.column}
 		} else {
-			msg := l.lexErrMsg(ie.IllegalCharacter(l.ch))
-			l.errors = append(l.errors, msg)
-			tok = l.newToken(token.ILLEGAL, msg)
+			err := l.lexErr(ie.IllegalCharacter(l.ch))
+			l.errors = append(l.errors, err)
+			tok = l.newToken(token.ILLEGAL, err.Error())
 		}
 	case '<':
 		if l.peekChar() == '=' {
@@ -117,9 +117,9 @@ func (l *Lexer) NextToken() token.Token {
 			l.readChar()
 			tok = token.Token{Type: token.LAND, Literal: string(ch) + string(l.ch), Line: l.line, Column: l.column}
 		} else {
-			msg := l.lexErrMsg(ie.IllegalCharacter(l.ch))
-			l.errors = append(l.errors, msg)
-			tok = l.newToken(token.ILLEGAL, msg)
+			err := l.lexErr(ie.IllegalCharacter(l.ch))
+			l.errors = append(l.errors, err)
+			tok = l.newToken(token.ILLEGAL, err.Error())
 		}
 	case '|':
 		if l.peekChar() == '|' {
@@ -127,9 +127,9 @@ func (l *Lexer) NextToken() token.Token {
 			l.readChar()
 			tok = token.Token{Type: token.LOR, Literal: string(ch) + string(l.ch), Line: l.line, Column: l.column}
 		} else {
-			msg := l.lexErrMsg(ie.IllegalCharacter(l.ch))
-			l.errors = append(l.errors, msg)
-			tok = l.newToken(token.ILLEGAL, msg)
+			err := l.lexErr(ie.IllegalCharacter(l.ch))
+			l.errors = append(l.errors, err)
+			tok = l.newToken(token.ILLEGAL, err.Error())
 		}
 	case '"':
 		return l.lexQuotedString()
@@ -175,9 +175,9 @@ func (l *Lexer) NextToken() token.Token {
 			return tok
 		}
 
-		msg := l.lexErrMsg(ie.IllegalCharacter(l.ch))
-		l.errors = append(l.errors, msg)
-		tok = l.newToken(token.ILLEGAL, msg)
+		err := l.lexErr(ie.IllegalCharacter(l.ch))
+		l.errors = append(l.errors, err)
+		tok = l.newToken(token.ILLEGAL, err.Error())
 	}
 
 	l.readChar()

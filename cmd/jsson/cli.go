@@ -70,8 +70,8 @@ func runTranspiler() {
 	if len(p.Errors()) > 0 {
 		fmt.Println("Parser errors:")
 
-		for _, msg := range p.Errors() {
-			fmt.Println("\t" + msg)
+		for _, err := range p.Errors() {
+			fmt.Println("\t" + err.Error())
 		}
 
 		os.Exit(1)
