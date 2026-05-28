@@ -1,0 +1,12 @@
+[[routes]]
+  method = "GET"
+  path = "/api/users"
+
+[[routes]]
+  method = "POST"
+  path = "/api/posts"
+
+[[routes]]
+  method = "DELETE"
+  path = "/api/comments"
+

@@ -1,0 +1,24 @@
+[[users]]
+  age = 19
+  height = 1.75
+  job = "Student"
+  name = "João"
+
+[[users]]
+  age = 25
+  height = 1.65
+  job = "Teacher"
+  name = "Maria"
+
+[[users]]
+  age = 30
+  height = 1.8
+  job = "Doctor"
+  name = "Pedro"
+
+[[users]]
+  age = 22
+  height = 1.68
+  job = "Nurse"
+  name = "Ana"
+

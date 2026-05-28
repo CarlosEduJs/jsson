@@ -1,0 +1,19 @@
+{
+  "company": {
+    "address": {
+      "city": "São Paulo",
+      "country": "Brazil",
+      "street": "Rua Principal, 123"
+    },
+    "contact": {
+      "email": "contact@techcorp.com",
+      "phone": "+55 11 1234-5678"
+    },
+    "name": "TechCorp"
+  },
+  "user": {
+    "active": true,
+    "age": 25,
+    "name": "João"
+  }
+}

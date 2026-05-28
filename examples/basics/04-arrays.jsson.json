@@ -1,0 +1,36 @@
+{
+  "colors": [
+    "red",
+    "green",
+    "blue"
+  ],
+  "mixed": [
+    1,
+    "two",
+    true,
+    {
+      "nested": "object"
+    }
+  ],
+  "numbers": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "users": [
+    {
+      "age": 25,
+      "name": "Alice"
+    },
+    {
+      "age": 30,
+      "name": "Bob"
+    },
+    {
+      "age": 35,
+      "name": "Charlie"
+    }
+  ]
+}

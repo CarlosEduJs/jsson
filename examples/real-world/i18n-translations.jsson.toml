@@ -1,0 +1,264 @@
+[[errorMessages]]
+  category = "errors"
+  errorCode = "AUTH_001"
+  helpUrl = "https://docs.example.com/en/errors/AUTH_001"
+  language = "en"
+  message = "Invalid credentials"
+  severity = "error"
+
+[[errorMessages]]
+  category = "errors"
+  errorCode = "AUTH_001"
+  helpUrl = "https://docs.example.com/pt/errors/AUTH_001"
+  language = "pt"
+  message = "Credenciais inválidas"
+  severity = "error"
+
+[[errorMessages]]
+  category = "errors"
+  errorCode = "AUTH_001"
+  helpUrl = "https://docs.example.com/es/errors/AUTH_001"
+  language = "es"
+  message = "Credenciales inválidas"
+  severity = "error"
+
+[[errorMessages]]
+  category = "errors"
+  errorCode = "AUTH_002"
+  helpUrl = "https://docs.example.com/en/errors/AUTH_002"
+  language = "en"
+  message = "Session expired"
+  severity = "warning"
+
+[[errorMessages]]
+  category = "errors"
+  errorCode = "AUTH_002"
+  helpUrl = "https://docs.example.com/pt/errors/AUTH_002"
+  language = "pt"
+  message = "Sessão expirada"
+  severity = "warning"
+
+[[errorMessages]]
+  category = "errors"
+  errorCode = "AUTH_002"
+  helpUrl = "https://docs.example.com/es/errors/AUTH_002"
+  language = "es"
+  message = "Sesión expirada"
+  severity = "warning"
+
+[[errorMessages]]
+  category = "errors"
+  errorCode = "PAY_001"
+  helpUrl = "https://docs.example.com/en/errors/PAY_001"
+  language = "en"
+  message = "Payment failed"
+  severity = "error"
+
+[[errorMessages]]
+  category = "errors"
+  errorCode = "PAY_001"
+  helpUrl = "https://docs.example.com/pt/errors/PAY_001"
+  language = "pt"
+  message = "Pagamento falhou"
+  severity = "error"
+
+[[errorMessages]]
+  category = "errors"
+  errorCode = "PAY_001"
+  helpUrl = "https://docs.example.com/es/errors/PAY_001"
+  language = "es"
+  message = "Pago fallido"
+  severity = "error"
+
+[[errorMessages]]
+  category = "errors"
+  errorCode = "PAY_002"
+  helpUrl = "https://docs.example.com/en/errors/PAY_002"
+  language = "en"
+  message = "Insufficient funds"
+  severity = "error"
+
+[[errorMessages]]
+  category = "errors"
+  errorCode = "PAY_002"
+  helpUrl = "https://docs.example.com/pt/errors/PAY_002"
+  language = "pt"
+  message = "Saldo insuficiente"
+  severity = "error"
+
+[[errorMessages]]
+  category = "errors"
+  errorCode = "PAY_002"
+  helpUrl = "https://docs.example.com/es/errors/PAY_002"
+  language = "es"
+  message = "Fondos insuficientes"
+  severity = "error"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "nav.home"
+  language = "en"
+  lastUpdated = "2025-11-25"
+  value = "Home"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "nav.home"
+  language = "pt"
+  lastUpdated = "2025-11-25"
+  value = "Início"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "nav.home"
+  language = "es"
+  lastUpdated = "2025-11-25"
+  value = "Inicio"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "nav.home"
+  language = "fr"
+  lastUpdated = "2025-11-25"
+  value = "Accueil"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "nav.products"
+  language = "en"
+  lastUpdated = "2025-11-25"
+  value = "Products"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "nav.products"
+  language = "pt"
+  lastUpdated = "2025-11-25"
+  value = "Produtos"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "nav.products"
+  language = "es"
+  lastUpdated = "2025-11-25"
+  value = "Productos"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "nav.products"
+  language = "fr"
+  lastUpdated = "2025-11-25"
+  value = "Produits"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "nav.about"
+  language = "en"
+  lastUpdated = "2025-11-25"
+  value = "About"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "nav.about"
+  language = "pt"
+  lastUpdated = "2025-11-25"
+  value = "Sobre"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "nav.about"
+  language = "es"
+  lastUpdated = "2025-11-25"
+  value = "Acerca de"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "nav.about"
+  language = "fr"
+  lastUpdated = "2025-11-25"
+  value = "À propos"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "btn.save"
+  language = "en"
+  lastUpdated = "2025-11-25"
+  value = "Save"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "btn.save"
+  language = "pt"
+  lastUpdated = "2025-11-25"
+  value = "Salvar"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "btn.save"
+  language = "es"
+  lastUpdated = "2025-11-25"
+  value = "Guardar"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "btn.save"
+  language = "fr"
+  lastUpdated = "2025-11-25"
+  value = "Enregistrer"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "btn.cancel"
+  language = "en"
+  lastUpdated = "2025-11-25"
+  value = "Cancel"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "btn.cancel"
+  language = "pt"
+  lastUpdated = "2025-11-25"
+  value = "Cancelar"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "btn.cancel"
+  language = "es"
+  lastUpdated = "2025-11-25"
+  value = "Cancelar"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "btn.cancel"
+  language = "fr"
+  lastUpdated = "2025-11-25"
+  value = "Annuler"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "btn.delete"
+  language = "en"
+  lastUpdated = "2025-11-25"
+  value = "Delete"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "btn.delete"
+  language = "pt"
+  lastUpdated = "2025-11-25"
+  value = "Excluir"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "btn.delete"
+  language = "es"
+  lastUpdated = "2025-11-25"
+  value = "Eliminar"
+
+[[uiTranslations]]
+  category = "ui"
+  key = "btn.delete"
+  language = "fr"
+  lastUpdated = "2025-11-25"
+  value = "Supprimer"
+

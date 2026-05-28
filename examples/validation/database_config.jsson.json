@@ -1,0 +1,75 @@
+{
+  "cache": {
+    "config": {
+      "port": 6379,
+      "ssl": false,
+      "type": "redis"
+    },
+    "host": "redis.internal",
+    "name": "app_cache"
+  },
+  "databases": [
+    {
+      "config": {
+        "pool": {
+          "idleTimeoutMs": 30000,
+          "max": 10,
+          "min": 2
+        },
+        "port": 5432,
+        "ssl": false,
+        "type": "postgres"
+      },
+      "environment": "development",
+      "host": "localhost",
+      "name": "app_dev",
+      "ssl": false
+    },
+    {
+      "config": {
+        "pool": {
+          "idleTimeoutMs": 30000,
+          "max": 10,
+          "min": 2
+        },
+        "port": 5432,
+        "ssl": false,
+        "type": "postgres"
+      },
+      "environment": "staging",
+      "host": "staging-db.internal",
+      "name": "app_staging",
+      "ssl": false
+    },
+    {
+      "config": {
+        "pool": {
+          "idleTimeoutMs": 30000,
+          "max": 10,
+          "min": 2
+        },
+        "port": 5432,
+        "ssl": false,
+        "type": "postgres"
+      },
+      "environment": "production",
+      "host": "db.prod.internal",
+      "name": "app_prod",
+      "ssl": true
+    }
+  ],
+  "migrations": {
+    "directory": "./migrations",
+    "enabled": true,
+    "tableName": "schema_migrations"
+  },
+  "replication": {
+    "enabled": true,
+    "primary": "app_prod",
+    "replicas": [
+      "replica_1",
+      "replica_2"
+    ],
+    "strategy": "round-robin"
+  }
+}

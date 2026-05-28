@@ -1,0 +1,6 @@
+api:
+    retries: 3
+    timeout: 30
+    url: https://api.example.com/v1
+final_price: 80
+

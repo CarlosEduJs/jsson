@@ -1,0 +1,85 @@
+[macros]
+  [macros.eagle_airstrike]
+    category = "Strategem"
+    enabled = true
+    game = "Helldivers 2"
+    hotkey = "ctrl+1"
+    name = "Eagle Airstrike"
+
+    [[macros.eagle_airstrike.actions]]
+      delay = 0
+      key = "ctrl"
+      type = "hold"
+
+    [[macros.eagle_airstrike.actions]]
+      delay = 100
+      key = "up"
+      type = "tap"
+
+    [[macros.eagle_airstrike.actions]]
+      delay = 100
+      key = "right"
+      type = "tap"
+
+    [[macros.eagle_airstrike.actions]]
+      delay = 100
+      key = "down"
+      type = "tap"
+
+    [[macros.eagle_airstrike.actions]]
+      delay = 0
+      key = "ctrl"
+      type = "release"
+  [macros.orbital_strike]
+    category = "Strategem"
+    enabled = true
+    game = "Helldivers 2"
+    hotkey = "ctrl+2"
+    name = "Orbital Strike"
+
+    [[macros.orbital_strike.actions]]
+      delay = 0
+      key = "ctrl"
+      type = "hold"
+
+    [[macros.orbital_strike.actions]]
+      delay = 100
+      key = "right"
+      type = "tap"
+
+    [[macros.orbital_strike.actions]]
+      delay = 100
+      key = "right"
+      type = "tap"
+
+    [[macros.orbital_strike.actions]]
+      delay = 100
+      key = "up"
+      type = "tap"
+
+    [[macros.orbital_strike.actions]]
+      delay = 0
+      key = "ctrl"
+      type = "release"
+  [macros.quick_heal]
+    category = "Quick Actions"
+    enabled = true
+    game = "Escape from Tarkov"
+    hotkey = "f1"
+    name = "Quick Heal"
+
+    [[macros.quick_heal.actions]]
+      delay = 0
+      key = "4"
+      type = "tap"
+
+    [[macros.quick_heal.actions]]
+      delay = 200
+      key = "mouse1"
+      type = "tap"
+
+[output]
+  format = "json"
+  minify = false
+  validate = true
+

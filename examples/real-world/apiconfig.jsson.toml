@@ -1,0 +1,8 @@
+[api]
+  timeout = 5000
+  url = "https://api.example.com"
+
+[database]
+  host = "localhost"
+  port = 5432.0
+

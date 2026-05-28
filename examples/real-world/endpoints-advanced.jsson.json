@@ -1,0 +1,48 @@
+{
+  "endpoints": [
+    {
+      "auth": "basic",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "path": "/api/v1/users",
+      "rateLimit": 100
+    },
+    {
+      "auth": "jwt",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "path": "/api/v2/posts",
+      "rateLimit": 1000
+    },
+    {
+      "auth": "jwt",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "path": "/api/v2/comments",
+      "rateLimit": 1000
+    },
+    {
+      "auth": "jwt",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "path": "/api/v3/analytics",
+      "rateLimit": 1000
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+[[employees]]
+  department = "Engineering"
+  email = "emp1001@corp.com"
+  id = 1001
+  level = "junior"
+  name = "Employee 1001"
+  salary = 50000
+
+[[employees]]
+  department = "Engineering"
+  email = "emp1002@corp.com"
+  id = 1002
+  level = "mid"
+  name = "Employee 1002"
+  salary = 80000
+
+[[employees]]
+  department = "Engineering"
+  email = "emp1003@corp.com"
+  id = 1003
+  level = "senior"
+  name = "Employee 1003"
+  salary = 120000
+
+[[employees]]
+  department = "Sales"
+  email = "emp2001@corp.com"
+  id = 2001
+  level = "junior"
+  name = "Employee 2001"
+  salary = 50000
+
+[[employees]]
+  department = "Sales"
+  email = "emp2002@corp.com"
+  id = 2002
+  level = "mid"
+  name = "Employee 2002"
+  salary = 80000
+
+[[employees]]
+  department = "HR"
+  email = "emp3001@corp.com"
+  id = 3001
+  level = "mid"
+  name = "Employee 3001"
+  salary = 80000
+
+[[employees]]
+  department = "HR"
+  email = "emp3002@corp.com"
+  id = 3002
+  level = "senior"
+  name = "Employee 3002"
+  salary = 120000
+

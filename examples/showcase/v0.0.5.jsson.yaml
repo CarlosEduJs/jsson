@@ -1,0 +1,26 @@
+projects:
+    - fullName: Alpha Launch (Ana)
+      id: 101
+      isComplete: true
+      tasks:
+        - description: Code Review
+          isUrgent: true
+        - description: Deploy Prod
+          isUrgent: false
+    - fullName: Beta Refactor (Bruno)
+      id: 102
+      isComplete: false
+      tasks:
+        - description: DB Schema Update
+          isUrgent: true
+        - description: API Doc
+          isUrgent: false
+        - description: Test Coverage
+          isUrgent: false
+    - fullName: Gamma Cleanup (Carlos)
+      id: 103
+      isComplete: false
+      tasks:
+        - description: Review backlog
+          isUrgent: false
+

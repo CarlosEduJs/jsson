@@ -1,0 +1,44 @@
+{
+  "products": [
+    {
+      "finalPrice": 899.991,
+      "hasDiscount": true,
+      "id": 1,
+      "inStock": true,
+      "name": "Laptop",
+      "price": 999.99
+    },
+    {
+      "finalPrice": 29.99,
+      "hasDiscount": false,
+      "id": 2,
+      "inStock": true,
+      "name": "Mouse",
+      "price": 29.99
+    },
+    {
+      "finalPrice": 79.99,
+      "hasDiscount": false,
+      "id": 3,
+      "inStock": true,
+      "name": "Keyboard",
+      "price": 79.99
+    },
+    {
+      "finalPrice": 269.99100000000004,
+      "hasDiscount": true,
+      "id": 4,
+      "inStock": true,
+      "name": "Monitor",
+      "price": 299.99
+    },
+    {
+      "finalPrice": 134.991,
+      "hasDiscount": true,
+      "id": 5,
+      "inStock": true,
+      "name": "Headphones",
+      "price": 149.99
+    }
+  ]
+}

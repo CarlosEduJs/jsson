@@ -1,0 +1,5 @@
+enabled = true
+name = "my-service"
+port = 8080
+tags = ["api", "production", "v1"]
+

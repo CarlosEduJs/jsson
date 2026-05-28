@@ -1,0 +1,15 @@
+[company]
+  name = "TechCorp"
+  [company.address]
+    city = "São Paulo"
+    country = "Brazil"
+    street = "Rua Principal, 123"
+  [company.contact]
+    email = "contact@techcorp.com"
+    phone = "+55 11 1234-5678"
+
+[user]
+  active = true
+  age = 25
+  name = "João"
+
