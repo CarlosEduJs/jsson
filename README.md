@@ -1,137 +1,343 @@
 # JSSON
 
-[![JSSON Banner](https://jssonlang.tech/og-image.png)](https://jssonlang.tech)
+**JavaScript Simplified Object Notation** — A configuration language that transpiles to JSON, YAML, TOML, and TypeScript.
 
-**JavaScript Simplified Object Notation** — A universal configuration meta-format.
-
-Write once, transpile to **JSON**, **YAML**, **TOML**, or **TypeScript**.
+Write config once. Ship it anywhere.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![VS Code Extension](https://img.shields.io/badge/VS%20Code-Extension-blue)](https://marketplace.visualstudio.com/items?itemName=carlosedujs.jsson)
+[![CI](https://github.com/carlosedujs/jsson/actions/workflows/ci.yml/badge.svg)](https://github.com/carlosedujs/jsson/actions/workflows/ci.yml)
 
 ---
 
-## Quick Example
+## Why JSSON?
 
-**JSSON:**
+JSON is everywhere, but writing it by hand hurts. Missing commas, no comments, no variables, no expressions. YAML is better but has whitespace nightmares and security footguns. TOML is pleasant but limited.
+
+JSSON gives you a modern, human-friendly syntax with **variables, templates, ranges, conditionals, and presets** — and transpiles to the format your tools actually expect.
+
 ```javascript
-@preset "api" {
-  timeout = 30
-  retries = 3
-}
+// config.jsson — comments, variables, expressions
+base_url := "https://api.example.com"
+timeout := 30
 
-users [
-  template { id, role }
-  map (u) = @use "api" {
-    id = @uuid
-    email = @email
-    role = u.role
-    active = yes
-  }
-  1..5, "admin"
-  6..100, "user"
-]
+server {
+  url = base_url + "/v2"
+  timeout = timeout
+  retries = retries > 5 ? 5 : retries
+  active = yes
+}
 ```
 
-**Output (100 users):**
 ```json
+// → config.json
 {
-  "users": [
-    {
-      "timeout": 30,
-      "retries": 3,
-      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-      "email": "user_kx7m@example.com",
-      "role": "admin",
-      "active": true
-    }
-    // ... 99 more
-  ]
+  "url": "https://api.example.com/v2",
+  "timeout": 30,
+  "retries": 3,
+  "active": true
 }
 ```
 
 ---
 
-## Features
+## Quick Start
 
-- **Logic-First**: Variables, ranges, maps, conditionals, arithmetic
-- **Presets**: Reusable configuration templates with `@preset` and `@use`
-- **Validators**: Auto-generate UUIDs, emails, dates with `@uuid`, `@email`, `@datetime`
-- **Multi-Format**: Transpile to JSON, YAML, TOML, TypeScript
-- **VS Code Extension**: Full LSP support (syntax highlighting, diagnostics, auto-complete)
-- **HTTP Server**: Built-in REST API for integration
-- **Schema Validation**: Validate output against JSON Schema
-- **Streaming**: Handle millions of records efficiently
-
----
-
-## Installation
-
-### CLI
+### Install
 
 ```bash
-# Download from releases
+# Download the latest binary (Linux/macOS)
 curl -L https://github.com/carlosedujs/jsson/releases/latest/download/jsson-linux-amd64 -o jsson
 chmod +x jsson && sudo mv jsson /usr/local/bin/
 
 # Or build from source
-go build -o jsson ./cmd/jsson
+git clone https://github.com/carlosedujs/jsson.git
+cd jsson
+make build
+sudo make install
 ```
 
-### VS Code Extension
+### Your first JSSON file
 
-Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=carlosedujs.jsson).
+```javascript
+// hello.jsson
+message = "Hello, JSSON!"
+version = "0.1.0"
+
+app {
+  name = "My First App"
+  language = "JSSON"
+}
+```
+
+```bash
+jsson -i hello.jsson
+```
+
+```json
+{
+  "message": "Hello, JSSON!",
+  "version": "0.1.0",
+  "app": {
+    "name": "My First App",
+    "language": "JSSON"
+  }
+}
+```
 
 ---
 
-## Usage
+## Language Tour
+
+### Variables and Expressions
+
+```javascript
+base_url := "https://api.example.com"
+version := "v1"
+timeout := 30
+retries := 3
+
+api {
+  url = base_url + "/" + version
+  timeout = timeout
+  retries = retries
+}
+
+// Arithmetic
+price := 100
+discount := 0.2
+final_price = price - (price * discount)
+```
+
+### Objects and Nesting
+
+```javascript
+company {
+  name = "TechCorp"
+
+  address {
+    street = "123 Main St"
+    city = "San Francisco"
+    zip = "94105"
+  }
+
+  contact {
+    email = "hello@techcorp.com"
+    phone = "+1 555-0123"
+  }
+}
+```
+
+### Arrays and Ranges
+
+```javascript
+// Static arrays
+colors = ["red", "green", "blue"]
+
+// Ranges (expanded at transpile time)
+ports = 8000..8005
+// → [8000, 8001, 8002, 8003, 8004, 8005]
+
+letters = "a".."f"
+// → ["a", "b", "c", "d", "e", "f"]
+```
+
+### Templates and Maps
+
+Generate repetitive structures with logic:
+
+```javascript
+users [
+  template { id, role }
+  map (u) = {
+    id = u.id
+    role = u.role
+    active = true
+  }
+  1..100, "admin"
+  101..1000, "user"
+]
+```
+
+→ Produces 1000 user objects with proper IDs and roles.
+
+### Presets
+
+Define reusable configuration blocks:
+
+```javascript
+@preset "server-defaults" {
+  port = 8080
+  host = "localhost"
+  timeout = 30
+}
+
+// Use with overrides
+production = @"server-defaults" {
+  port = 443
+  host = "0.0.0.0"
+  timeout = 60
+}
+```
+
+### Conditionals
+
+```javascript
+env := "production"
+debug = env == "development" ? true : false
+
+rate_limit = env == "production" ? 1000 : 100
+```
+
+### Validators
+
+Generate realistic data for testing and seeding:
+
+```javascript
+@preset "user-gen" {
+  id = @uuid
+  email = @email
+  created_at = @datetime
+}
+
+test_user = @"user-gen" {
+  email = "admin@test.com"
+}
+```
+
+Built-in validators: `@uuid`, `@email`, `@datetime`, `@url`, `@ipv4`, `@int`, `@float`, `@string`, and more.
+
+### Includes
+
+Split configs across files:
+
+```javascript
+// main.jsson
+server {
+  port = 3000
+}
+
+api = include "api.jsson"
+database = include "database.jsson"
+```
+
+---
+
+## CLI Reference
 
 ```bash
-# Transpile to JSON
-jsson -i config.jsson > config.json
+# Transpile to JSON (default)
+jsson -i config.jsson
 
-# Transpile to YAML
-jsson -i config.jsson -f yaml > config.yaml
+# Pick output format
+jsson -i config.jsson -f yaml
+jsson -i config.jsson -f toml
+jsson -i config.jsson -f typescript
 
-# Minified output
-jsson -i config.jsson -m > config.min.json
+# Read from stdin
+echo 'name = "JSSON"' | jsson -i -
+
+# Write to file
+jsson -i config.jsson -o output.json
+
+# Minify output
+jsson -i config.jsson -m
+
+# Format a JSSON file
+jsson fmt config.jsson          # print formatted
+jsson fmt -w config.jsson       # write in-place
+jsson fmt -check config.jsson   # validate formatting (CI)
+
+# Validate against a schema
+jsson -i config.jsson -schema schema.json
 
 # Start HTTP server
 jsson serve
+jsson serve -port 3000
+
+# Version info
+jsson --version
+# → JSSON v0.1.0 (commit=abc1234, date=2026-05-28T19:48:26Z)
 ```
+
+### Output Formats
+
+| Flag | Format | Extensions |
+|------|--------|------------|
+| `json` (default) | JSON | `.json` |
+| `yaml` | YAML | `.yaml`, `.yml` |
+| `toml` | TOML | `.toml` |
+| `typescript` | TypeScript | `.ts` |
+
+---
+
+## Development
+
+```bash
+make build       # Build the binary → bin/jsson
+make test        # Run unit tests
+make test-e2e    # Run e2e golden file tests
+make lint        # go vet + gofmt check
+make fmt         # Format all Go source files
+make run         # Build and run
+make clean       # Remove build artifacts
+make install     # Copy to GOPATH/bin
+```
+
+The project uses [GoReleaser](https://goreleaser.com) for cross-platform releases. To cut a new release:
+
+```bash
+git tag v0.2.0
+git push origin v0.2.0
+```
+
+The release workflow builds for Linux, macOS, and Windows (amd64 + arm64), creates archives, generates checksums, and publishes a GitHub release.
+
+---
+
+## When to use JSSON
+
+**Good for:**
+- Configuration files that need variables and logic
+- Generating repetitive config structures (environments, users, deployments)
+- Multi-format pipelines (same source → JSON for API + YAML for K8s + TOML for app)
+- Test data generation with validators
+- Prototyping and scaffolding
+
+**Not ideal for:**
+- Machine-to-machine data interchange (stick to JSON)
+- Performance-critical parsing (JSSON prioritizes ergonomics over speed)
+- Nested data beyond ~5 levels (flatter structures work better)
 
 ---
 
 ## Documentation
 
-📚 **Full documentation:** [docs.jssonlang.tech](https://docs.jssonlang.tech)
+Full documentation at [docs.jssonlang.tech](https://docs.jssonlang.tech)
 
 - [Getting Started](https://docs.jssonlang.tech/docs/core/guides/getting-started)
 - [Syntax Reference](https://docs.jssonlang.tech/docs/core/reference/syntax)
 - [Presets Guide](https://docs.jssonlang.tech/docs/core/guides/presets)
 - [Validators Guide](https://docs.jssonlang.tech/docs/core/guides/validators)
-- [Patterns & Anti-Patterns](https://docs.jssonlang.tech/docs/core/patterns)
 - [CLI Reference](https://docs.jssonlang.tech/docs/cli)
 - [HTTP Server API](https://docs.jssonlang.tech/docs/server)
 - [VS Code Extension](https://docs.jssonlang.tech/docs/editor)
 
 ---
 
-## What's New in v0.0.6
+## VS Code Extension
 
-- **Presets**: Reusable configuration blocks with `@preset` and `@use`
-- **Validators**: Auto-generate data with `@uuid`, `@email`, `@datetime`, `@url`, `@ipv4`, etc.
-- **Boolean Literals**: Use `yes`/`no` and `on`/`off` as alternatives to `true`/`false`
-- **Minify Flag**: `--minify` for compact JSON output
-- **Bug Fixes**: Int/float comparison, bare identifier handling
+Syntax highlighting, diagnostics, auto-complete, hover previews, and more.
 
-See the [Changelog](https://docs.jssonlang.tech/docs/changelog) for full details.
+Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=carlosedujs.jsson).
 
 ---
 
 ## Contributing
 
-Contributions are welcome! Please read the [Contributing Guide](CONTRIBUTING.md).
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+This project was refactored during a hackathon focused on improving abandonware with AI assistance. The PR tells the full story: typed AST, golden file tests, goreleaser, Makefile, and more — 17 commits, 207 files, ~45k lines changed.
 
 ---
 
