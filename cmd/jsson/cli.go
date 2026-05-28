@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"jsson/internal/lexer"
@@ -87,15 +88,17 @@ func runTranspiler() {
 
 	var output []byte
 
+	ctx := context.Background()
+
 	switch format {
 	case formatJSON:
-		output, err = t.Transpile()
+		output, err = t.Transpile(ctx)
 	case formatYAML:
-		output, err = t.TranspileToYAML()
+		output, err = t.TranspileToYAML(ctx)
 	case "toml":
-		output, err = t.TranspileToTOML()
+		output, err = t.TranspileToTOML(ctx)
 	case formatTypeScript:
-		output, err = t.TranspileToTypeScript()
+		output, err = t.TranspileToTypeScript(ctx)
 	}
 
 	elapsed := time.Since(startTime)

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"jsson/internal/lexer"
@@ -18,7 +19,7 @@ func errsToStrings(errs []error) []string {
 	return strs
 }
 
-func transpileSource(source, format, includeMerge string, streaming bool, streamThreshold int64) (output []byte, errs []string, err error) {
+func transpileSource(ctx context.Context, source, format, includeMerge string, streaming bool, streamThreshold int64) (output []byte, errs []string, err error) {
 	if format == "" {
 		format = "json"
 	}
@@ -56,13 +57,13 @@ func transpileSource(source, format, includeMerge string, streaming bool, stream
 
 	switch format {
 	case formatJSON:
-		output, err = t.Transpile()
+		output, err = t.Transpile(ctx)
 	case formatYAML:
-		output, err = t.TranspileToYAML()
+		output, err = t.TranspileToYAML(ctx)
 	case "toml":
-		output, err = t.TranspileToTOML()
+		output, err = t.TranspileToTOML(ctx)
 	case formatTypeScript:
-		output, err = t.TranspileToTypeScript()
+		output, err = t.TranspileToTypeScript(ctx)
 	}
 
 	if err != nil {

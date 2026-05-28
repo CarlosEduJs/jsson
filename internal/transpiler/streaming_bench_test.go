@@ -1,6 +1,7 @@
 package transpiler
 
 import (
+	"context"
 	"jsson/internal/lexer"
 	"jsson/internal/parser"
 	"testing"
@@ -18,7 +19,7 @@ func BenchmarkLargeRange_NoStreaming(b *testing.B) {
 		tr := New(prog, "", "keep", "")
 		tr.SetStreamingMode(false, 100000) // Disabled
 
-		_, err := tr.Transpile()
+		_, err := tr.Transpile(context.Background())
 		if err != nil {
 			b.Fatalf("Transpile error: %v", err)
 		}
@@ -37,7 +38,7 @@ func BenchmarkLargeRange_WithStreaming(b *testing.B) {
 		tr := New(prog, "", "keep", "")
 		tr.SetStreamingMode(true, 1000) // Enabled with low threshold
 
-		_, err := tr.Transpile()
+		_, err := tr.Transpile(context.Background())
 		if err != nil {
 			b.Fatalf("Transpile error: %v", err)
 		}
@@ -56,7 +57,7 @@ func BenchmarkVeryLargeRange_NoStreaming(b *testing.B) {
 		tr := New(prog, "", "keep", "")
 		tr.SetStreamingMode(false, 1000000)
 
-		_, err := tr.Transpile()
+		_, err := tr.Transpile(context.Background())
 		if err != nil {
 			b.Fatalf("Transpile error: %v", err)
 		}
@@ -75,7 +76,7 @@ func BenchmarkMapTransform_NoStreaming(b *testing.B) {
 		tr := New(prog, "", "keep", "")
 		tr.SetStreamingMode(false, 100000)
 
-		_, err := tr.Transpile()
+		_, err := tr.Transpile(context.Background())
 		if err != nil {
 			b.Fatalf("Transpile error: %v", err)
 		}
@@ -98,7 +99,7 @@ func BenchmarkTemplate_WithRange(b *testing.B) {
 		tr := New(prog, "", "keep", "")
 		tr.SetStreamingMode(false, 100000)
 
-		_, err := tr.Transpile()
+		_, err := tr.Transpile(context.Background())
 		if err != nil {
 			b.Fatalf("Transpile error: %v", err)
 		}
@@ -117,7 +118,7 @@ func BenchmarkNestedMap_SmallMatrix(b *testing.B) {
 		tr := New(prog, "", "keep", "")
 		tr.SetStreamingMode(false, 100000)
 
-		_, err := tr.Transpile()
+		_, err := tr.Transpile(context.Background())
 		if err != nil {
 			b.Fatalf("Transpile error: %v", err)
 		}

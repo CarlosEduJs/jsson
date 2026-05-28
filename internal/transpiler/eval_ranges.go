@@ -108,9 +108,18 @@ func (t *Transpiler) evalStringRange(start, end string, stepV *int64, node ast.N
 	// Generate range
 	res := make([]any, 0)
 
+	checkCancelled := t.ctx != nil
+
 	if step > 0 {
 		for i := startNum; i <= endNum; i += step {
-			// Format with zero-padding if original had it
+			if checkCancelled {
+				select {
+				case <-t.ctx.Done():
+					return nil, t.ctx.Err()
+				default:
+				}
+			}
+
 			if padding > 1 && startStr[0] == '0' {
 				res = append(res, fmt.Sprintf("%s%0*d", startPrefix, padding, i))
 			} else {
@@ -119,6 +128,14 @@ func (t *Transpiler) evalStringRange(start, end string, stepV *int64, node ast.N
 		}
 	} else {
 		for i := startNum; i >= endNum; i += step {
+			if checkCancelled {
+				select {
+				case <-t.ctx.Done():
+					return nil, t.ctx.Err()
+				default:
+				}
+			}
+
 			if padding > 1 && startStr[0] == '0' {
 				res = append(res, fmt.Sprintf("%s%0*d", startPrefix, padding, i))
 			} else {
@@ -169,12 +186,30 @@ func (t *Transpiler) evalIntegerRange(sInt, eInt int64, stepV *int64, node ast.N
 
 	res := make([]any, 0, count)
 
+	checkCancelled := t.ctx != nil
+
 	if step > 0 {
 		for i := sInt; i <= eInt; i += step {
+			if checkCancelled && i%1000 == 0 {
+				select {
+				case <-t.ctx.Done():
+					return nil, t.ctx.Err()
+				default:
+				}
+			}
+
 			res = append(res, i)
 		}
 	} else {
 		for i := sInt; i >= eInt; i += step {
+			if checkCancelled && i%1000 == 0 {
+				select {
+				case <-t.ctx.Done():
+					return nil, t.ctx.Err()
+				default:
+				}
+			}
+
 			res = append(res, i)
 		}
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"jsson/internal/lexer"
 	"jsson/internal/parser"
@@ -65,7 +66,7 @@ ports = (8080..8090)
 	// Transpile to JSON
 	tr := transpiler.New(program, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		fmt.Printf("❌ Transpile error: %v\n", err)
 
@@ -76,7 +77,7 @@ ports = (8080..8090)
 	fmt.Println(string(output))
 
 	// Transpile to YAML
-	yamlOutput, err := tr.TranspileToYAML()
+	yamlOutput, err := tr.TranspileToYAML(context.Background())
 	if err != nil {
 		fmt.Printf("❌ YAML transpile error: %v\n", err)
 
@@ -87,7 +88,7 @@ ports = (8080..8090)
 	fmt.Println(string(yamlOutput))
 
 	// Transpile to TOML
-	tomlOutput, err := tr.TranspileToTOML()
+	tomlOutput, err := tr.TranspileToTOML(context.Background())
 	if err != nil {
 		fmt.Printf("❌ TOML transpile error: %v\n", err)
 

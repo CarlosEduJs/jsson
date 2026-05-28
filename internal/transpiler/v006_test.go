@@ -1,6 +1,7 @@
 package transpiler
 
 import (
+	"context"
 	"encoding/json"
 	"jsson/internal/lexer"
 	"jsson/internal/parser"
@@ -51,7 +52,7 @@ func TestBooleanLiteralsTranspilation(t *testing.T) {
 
 		tr := New(program, "", "keep", "")
 
-		output, err := tr.Transpile()
+		output, err := tr.Transpile(context.Background())
 		if err != nil {
 			t.Fatalf("transpiler error for '%s': %v", tt.input, err)
 		}
@@ -177,7 +178,7 @@ func TestValidatorValueGeneration(t *testing.T) {
 
 		tr := New(program, "", "keep", "")
 
-		output, err := tr.Transpile()
+		output, err := tr.Transpile(context.Background())
 		if err != nil {
 			t.Fatalf("transpiler error for '%s': %v", tt.input, err)
 		}
@@ -225,7 +226,7 @@ users {
 
 	tr := New(program, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("transpiler error: %v", err)
 	}
@@ -269,7 +270,7 @@ test {
 
 	tr := New(program, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("transpiler error: %v", err)
 	}
@@ -326,7 +327,7 @@ app {
 
 	tr := New(program, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("transpiler error: %v", err)
 	}

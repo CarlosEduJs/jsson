@@ -1,6 +1,7 @@
 package transpiler
 
 import (
+	"context"
 	"encoding/json"
 	"jsson/internal/lexer"
 	"jsson/internal/parser"
@@ -23,7 +24,7 @@ func TestMultipleRangesFlatten(t *testing.T) {
 	tDir, _ := os.Getwd()
 	tr := New(prog, tDir, "keep", "")
 
-	out, err := tr.Transpile()
+	out, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("transpile error: %v", err)
 	}
@@ -54,7 +55,7 @@ func TestNestedMapOverRange(t *testing.T) {
 	tDir, _ := os.Getwd()
 	tr := New(prog, tDir, "keep", "")
 
-	out, err := tr.Transpile()
+	out, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("transpile error: %v", err)
 	}
@@ -92,7 +93,7 @@ func TestBinaryOpOnRangeReturnsError(t *testing.T) {
 	tDir, _ := os.Getwd()
 	tr := New(prog, tDir, "keep", "")
 
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 	if err == nil {
 		t.Fatalf("expected error when applying binary op to range, got nil")
 	}

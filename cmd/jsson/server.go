@@ -1,12 +1,16 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"jsson/internal/validator"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -48,9 +52,30 @@ func runServer(args []string) {
 		ReadTimeout:       30 * time.Second,
 		WriteTimeout:      30 * time.Second,
 	}
-	if err := server.ListenAndServe(); err != nil {
-		log.Fatalf("❌ Server failed: %v", err)
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("❌ Server failed: %v", err)
+		}
+	}()
+
+	log.Printf("🛑 Press Ctrl+C to stop the server")
+
+	<-quit
+
+	log.Println("🛑 Shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := server.Shutdown(ctx); err != nil {
+		log.Printf("❌ Server forced to shutdown: %v", err)
 	}
+
+	log.Println("✅ Server stopped gracefully")
 }
 
 func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
@@ -134,7 +159,7 @@ func transpileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	output, errs, err := transpileSource(req.Source, req.Format, req.IncludeMerge, req.Streaming, req.StreamThreshold)
+	output, errs, err := transpileSource(r.Context(), req.Source, req.Format, req.IncludeMerge, req.Streaming, req.StreamThreshold)
 
 	elapsed := float64(time.Since(start).Microseconds()) / 1000
 
@@ -243,7 +268,7 @@ func validateWithSchemaHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	transpileStart := time.Now()
-	output, transpileErrors, err := transpileSource(req.Source, outputFormat, "keep", false, 10000)
+	output, transpileErrors, err := transpileSource(r.Context(), req.Source, outputFormat, "keep", false, 10000)
 	transpileTime := float64(time.Since(transpileStart).Microseconds()) / 1000
 
 	if err != nil {

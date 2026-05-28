@@ -1,6 +1,7 @@
 package transpiler
 
 import (
+	"context"
 	"jsson/internal/lexer"
 	"jsson/internal/parser"
 	"strings"
@@ -89,7 +90,7 @@ func TestTemplate_EmptyTemplate(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -114,7 +115,7 @@ func TestTemplate_MismatchedColumns(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Logf("Transpile error (may be expected): %v", err)
 
@@ -141,7 +142,7 @@ func TestTemplate_WithMapAndNoData(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -169,7 +170,7 @@ func TestArithmetic_IntegerOverflow(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -189,7 +190,7 @@ func TestArithmetic_FloatPrecision(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -210,7 +211,7 @@ func TestArithmetic_NegativeModulo(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -234,7 +235,7 @@ func TestInterpolation_UndefinedVariable(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -255,7 +256,7 @@ func TestInterpolation_NestedBraces(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -275,7 +276,7 @@ func TestInterpolation_ExpressionInString(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -304,7 +305,7 @@ data = obj.nonexistent
 	}
 
 	tr := New(prog, "", "keep", "")
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 
 	// Should error
 	if err == nil {
@@ -325,7 +326,7 @@ func TestMemberAccess_OnNonObject(t *testing.T) {
 	}
 
 	tr := New(prog, "", "keep", "")
-	_, err := tr.Transpile()
+	_, err := tr.Transpile(context.Background())
 
 	// Should error
 	if err == nil {
@@ -351,7 +352,7 @@ func TestComparison_StringComparison(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -374,7 +375,7 @@ func TestComparison_MixedTypes(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 	if err != nil {
 		t.Fatalf("Transpile error: %v", err)
 	}
@@ -400,7 +401,7 @@ func TestLogical_ShortCircuitAND(t *testing.T) {
 	}
 
 	tr := New(prog, "", "keep", "")
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 
 	// Currently JSSON evaluates both sides
 	// This test documents current behavior
@@ -422,7 +423,7 @@ func TestLogical_ShortCircuitOR(t *testing.T) {
 	}
 
 	tr := New(prog, "", "keep", "")
-	output, err := tr.Transpile()
+	output, err := tr.Transpile(context.Background())
 
 	// Currently JSSON evaluates both sides
 	if err != nil {
