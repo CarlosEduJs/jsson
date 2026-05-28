@@ -1,0 +1,27 @@
+users:
+    - dept: Engineering
+      email: user_101@company.com
+      id: 101
+      role: employee
+      username: user_101
+    - dept: Engineering
+      email: user_102@company.com
+      id: 102
+      role: employee
+      username: user_102
+    - dept: Engineering
+      email: user_103@company.com
+      id: 103
+      role: employee
+      username: user_103
+    - dept: Sales
+      email: user_201@company.com
+      id: 201
+      role: employee
+      username: user_201
+    - dept: Sales
+      email: user_202@company.com
+      id: 202
+      role: employee
+      username: user_202
+

@@ -1,0 +1,8 @@
+routes:
+    - method: GET
+      path: /api/users
+    - method: POST
+      path: /api/posts
+    - method: DELETE
+      path: /api/comments
+

@@ -1,0 +1,5 @@
+{
+  "enabled": "yes",
+  "port": "not-a-number",
+  "tags": "not-an-array"
+}

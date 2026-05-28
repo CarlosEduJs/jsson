@@ -1,0 +1,17 @@
+[templates]
+  empty = []
+
+  [[templates.single]]
+    id = 1
+    name = "Alice"
+
+  [[templates.withMap]]
+    extra = true
+    id = 10
+    value = "test!"
+
+  [[templates.withMap]]
+    extra = true
+    id = 20
+    value = "demo!"
+

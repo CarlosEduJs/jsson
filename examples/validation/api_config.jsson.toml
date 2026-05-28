@@ -1,0 +1,57 @@
+version = "1.0.0"
+
+[auth]
+  expiresIn = "7d"
+  issuer = "api.example.com"
+  type = "jwt"
+
+[[endpoints]]
+  method = "GET"
+  path = "/api/users"
+  rateLimit = 1000
+  requiresAuth = true
+
+[[endpoints]]
+  method = "POST"
+  path = "/api/users"
+  rateLimit = 100
+  requiresAuth = true
+
+[[endpoints]]
+  method = "GET"
+  path = "/api/posts"
+  rateLimit = 1000
+  requiresAuth = false
+
+[[endpoints]]
+  method = "POST"
+  path = "/api/posts"
+  rateLimit = 100
+  requiresAuth = true
+
+[rateLimit]
+  maxRequests = 100
+  message = "Too many requests, please try again later"
+  windowMs = 60000
+
+[[servers]]
+  environment = "development"
+  host = "development.example.com"
+  name = "dev-server"
+  port = 3000
+  protocol = "http"
+
+[[servers]]
+  environment = "staging"
+  host = "staging.example.com"
+  name = "stage-server"
+  port = 4000
+  protocol = "http"
+
+[[servers]]
+  environment = "production"
+  host = "api.example.com"
+  name = "prod-server"
+  port = 443
+  protocol = "https"
+

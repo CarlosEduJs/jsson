@@ -1,0 +1,63 @@
+macros:
+    eagle_airstrike:
+        actions:
+            - delay: 0
+              key: ctrl
+              type: hold
+            - delay: 100
+              key: up
+              type: tap
+            - delay: 100
+              key: right
+              type: tap
+            - delay: 100
+              key: down
+              type: tap
+            - delay: 0
+              key: ctrl
+              type: release
+        category: Strategem
+        enabled: true
+        game: Helldivers 2
+        hotkey: ctrl+1
+        name: Eagle Airstrike
+    orbital_strike:
+        actions:
+            - delay: 0
+              key: ctrl
+              type: hold
+            - delay: 100
+              key: right
+              type: tap
+            - delay: 100
+              key: right
+              type: tap
+            - delay: 100
+              key: up
+              type: tap
+            - delay: 0
+              key: ctrl
+              type: release
+        category: Strategem
+        enabled: true
+        game: Helldivers 2
+        hotkey: ctrl+2
+        name: Orbital Strike
+    quick_heal:
+        actions:
+            - delay: 0
+              key: "4"
+              type: tap
+            - delay: 200
+              key: mouse1
+              type: tap
+        category: Quick Actions
+        enabled: true
+        game: Escape from Tarkov
+        hotkey: f1
+        name: Quick Heal
+output:
+    format: json
+    minify: false
+    validate: true
+

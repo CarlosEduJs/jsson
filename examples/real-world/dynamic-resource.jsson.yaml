@@ -1,0 +1,23 @@
+resources:
+    - id: ec2-web-server-us-east-1
+      name: web-server
+      region: us-east-1
+      tags:
+        env: production
+        managed_by: jsson
+      type: ec2
+    - id: rds-db-primary-us-west-2
+      name: db-primary
+      region: us-west-2
+      tags:
+        env: production
+        managed_by: jsson
+      type: rds
+    - id: redis-cache-cluster-eu-central-1
+      name: cache-cluster
+      region: eu-central-1
+      tags:
+        env: production
+        managed_by: jsson
+      type: redis
+

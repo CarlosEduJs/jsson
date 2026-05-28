@@ -1,0 +1,1254 @@
+cityGrid:
+    - id: grid-0
+      lat: -23.5505
+      lon: -46.6333
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-1
+      lat: -23.5505
+      lon: -46.6233
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-2
+      lat: -23.5505
+      lon: -46.613299999999995
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-3
+      lat: -23.5505
+      lon: -46.6033
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-4
+      lat: -23.5505
+      lon: -46.5933
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-5
+      lat: -23.5505
+      lon: -46.5833
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-6
+      lat: -23.5505
+      lon: -46.573299999999996
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-7
+      lat: -23.5505
+      lon: -46.5633
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-8
+      lat: -23.5505
+      lon: -46.5533
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-9
+      lat: -23.5505
+      lon: -46.543299999999995
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-10
+      lat: -23.540499999999998
+      lon: -46.6333
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-11
+      lat: -23.540499999999998
+      lon: -46.6233
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-12
+      lat: -23.540499999999998
+      lon: -46.613299999999995
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-13
+      lat: -23.540499999999998
+      lon: -46.6033
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-14
+      lat: -23.540499999999998
+      lon: -46.5933
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-15
+      lat: -23.540499999999998
+      lon: -46.5833
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-16
+      lat: -23.540499999999998
+      lon: -46.573299999999996
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-17
+      lat: -23.540499999999998
+      lon: -46.5633
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-18
+      lat: -23.540499999999998
+      lon: -46.5533
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-19
+      lat: -23.540499999999998
+      lon: -46.543299999999995
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-20
+      lat: -23.5305
+      lon: -46.6333
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-21
+      lat: -23.5305
+      lon: -46.6233
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-22
+      lat: -23.5305
+      lon: -46.613299999999995
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-23
+      lat: -23.5305
+      lon: -46.6033
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-24
+      lat: -23.5305
+      lon: -46.5933
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-25
+      lat: -23.5305
+      lon: -46.5833
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-26
+      lat: -23.5305
+      lon: -46.573299999999996
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-27
+      lat: -23.5305
+      lon: -46.5633
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-28
+      lat: -23.5305
+      lon: -46.5533
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-29
+      lat: -23.5305
+      lon: -46.543299999999995
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-30
+      lat: -23.5205
+      lon: -46.6333
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-31
+      lat: -23.5205
+      lon: -46.6233
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-32
+      lat: -23.5205
+      lon: -46.613299999999995
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-33
+      lat: -23.5205
+      lon: -46.6033
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-34
+      lat: -23.5205
+      lon: -46.5933
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-35
+      lat: -23.5205
+      lon: -46.5833
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-36
+      lat: -23.5205
+      lon: -46.573299999999996
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-37
+      lat: -23.5205
+      lon: -46.5633
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-38
+      lat: -23.5205
+      lon: -46.5533
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-39
+      lat: -23.5205
+      lon: -46.543299999999995
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-40
+      lat: -23.5105
+      lon: -46.6333
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-41
+      lat: -23.5105
+      lon: -46.6233
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-42
+      lat: -23.5105
+      lon: -46.613299999999995
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-43
+      lat: -23.5105
+      lon: -46.6033
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-44
+      lat: -23.5105
+      lon: -46.5933
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-45
+      lat: -23.5105
+      lon: -46.5833
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-46
+      lat: -23.5105
+      lon: -46.573299999999996
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-47
+      lat: -23.5105
+      lon: -46.5633
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-48
+      lat: -23.5105
+      lon: -46.5533
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-49
+      lat: -23.5105
+      lon: -46.543299999999995
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-50
+      lat: -23.5005
+      lon: -46.6333
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-51
+      lat: -23.5005
+      lon: -46.6233
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-52
+      lat: -23.5005
+      lon: -46.613299999999995
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-53
+      lat: -23.5005
+      lon: -46.6033
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-54
+      lat: -23.5005
+      lon: -46.5933
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-55
+      lat: -23.5005
+      lon: -46.5833
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-56
+      lat: -23.5005
+      lon: -46.573299999999996
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-57
+      lat: -23.5005
+      lon: -46.5633
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-58
+      lat: -23.5005
+      lon: -46.5533
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-59
+      lat: -23.5005
+      lon: -46.543299999999995
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-60
+      lat: -23.4905
+      lon: -46.6333
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-61
+      lat: -23.4905
+      lon: -46.6233
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-62
+      lat: -23.4905
+      lon: -46.613299999999995
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-63
+      lat: -23.4905
+      lon: -46.6033
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-64
+      lat: -23.4905
+      lon: -46.5933
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-65
+      lat: -23.4905
+      lon: -46.5833
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-66
+      lat: -23.4905
+      lon: -46.573299999999996
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-67
+      lat: -23.4905
+      lon: -46.5633
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-68
+      lat: -23.4905
+      lon: -46.5533
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-69
+      lat: -23.4905
+      lon: -46.543299999999995
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-70
+      lat: -23.4805
+      lon: -46.6333
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-71
+      lat: -23.4805
+      lon: -46.6233
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-72
+      lat: -23.4805
+      lon: -46.613299999999995
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-73
+      lat: -23.4805
+      lon: -46.6033
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-74
+      lat: -23.4805
+      lon: -46.5933
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-75
+      lat: -23.4805
+      lon: -46.5833
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-76
+      lat: -23.4805
+      lon: -46.573299999999996
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-77
+      lat: -23.4805
+      lon: -46.5633
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-78
+      lat: -23.4805
+      lon: -46.5533
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-79
+      lat: -23.4805
+      lon: -46.543299999999995
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-80
+      lat: -23.4705
+      lon: -46.6333
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-81
+      lat: -23.4705
+      lon: -46.6233
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-82
+      lat: -23.4705
+      lon: -46.613299999999995
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-83
+      lat: -23.4705
+      lon: -46.6033
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-84
+      lat: -23.4705
+      lon: -46.5933
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-85
+      lat: -23.4705
+      lon: -46.5833
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-86
+      lat: -23.4705
+      lon: -46.573299999999996
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-87
+      lat: -23.4705
+      lon: -46.5633
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-88
+      lat: -23.4705
+      lon: -46.5533
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-89
+      lat: -23.4705
+      lon: -46.543299999999995
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-90
+      lat: -23.4605
+      lon: -46.6333
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-91
+      lat: -23.4605
+      lon: -46.6233
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-92
+      lat: -23.4605
+      lon: -46.613299999999995
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-93
+      lat: -23.4605
+      lon: -46.6033
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-94
+      lat: -23.4605
+      lon: -46.5933
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-95
+      lat: -23.4605
+      lon: -46.5833
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-96
+      lat: -23.4605
+      lon: -46.573299999999996
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-97
+      lat: -23.4605
+      lon: -46.5633
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-98
+      lat: -23.4605
+      lon: -46.5533
+      precision: high
+      type: grid_point
+      zone: urban
+    - id: grid-99
+      lat: -23.4605
+      lon: -46.543299999999995
+      precision: high
+      type: grid_point
+      zone: urban
+deliveryRoute:
+    - estimatedTime: 0
+      id: wp-1-0
+      lat: -23.5505
+      lon: -46.6333
+      routeId: route-1
+      sequence: 0
+      status: pending
+    - estimatedTime: 3
+      id: wp-1-1
+      lat: -23.5495
+      lon: -46.6318
+      routeId: route-1
+      sequence: 1
+      status: pending
+    - estimatedTime: 6
+      id: wp-1-2
+      lat: -23.5485
+      lon: -46.6303
+      routeId: route-1
+      sequence: 2
+      status: pending
+    - estimatedTime: 9
+      id: wp-1-3
+      lat: -23.5475
+      lon: -46.6288
+      routeId: route-1
+      sequence: 3
+      status: pending
+    - estimatedTime: 12
+      id: wp-1-4
+      lat: -23.546499999999998
+      lon: -46.6273
+      routeId: route-1
+      sequence: 4
+      status: pending
+    - estimatedTime: 15
+      id: wp-1-5
+      lat: -23.5455
+      lon: -46.6258
+      routeId: route-1
+      sequence: 5
+      status: pending
+    - estimatedTime: 18
+      id: wp-1-6
+      lat: -23.5445
+      lon: -46.6243
+      routeId: route-1
+      sequence: 6
+      status: pending
+    - estimatedTime: 21
+      id: wp-1-7
+      lat: -23.543499999999998
+      lon: -46.6228
+      routeId: route-1
+      sequence: 7
+      status: pending
+    - estimatedTime: 24
+      id: wp-1-8
+      lat: -23.5425
+      lon: -46.6213
+      routeId: route-1
+      sequence: 8
+      status: pending
+    - estimatedTime: 27
+      id: wp-1-9
+      lat: -23.5415
+      lon: -46.6198
+      routeId: route-1
+      sequence: 9
+      status: pending
+    - estimatedTime: 30
+      id: wp-1-10
+      lat: -23.540499999999998
+      lon: -46.6183
+      routeId: route-1
+      sequence: 10
+      status: pending
+    - estimatedTime: 33
+      id: wp-1-11
+      lat: -23.5395
+      lon: -46.6168
+      routeId: route-1
+      sequence: 11
+      status: pending
+    - estimatedTime: 36
+      id: wp-1-12
+      lat: -23.5385
+      lon: -46.6153
+      routeId: route-1
+      sequence: 12
+      status: pending
+    - estimatedTime: 39
+      id: wp-1-13
+      lat: -23.537499999999998
+      lon: -46.6138
+      routeId: route-1
+      sequence: 13
+      status: pending
+    - estimatedTime: 42
+      id: wp-1-14
+      lat: -23.5365
+      lon: -46.6123
+      routeId: route-1
+      sequence: 14
+      status: pending
+    - estimatedTime: 45
+      id: wp-1-15
+      lat: -23.5355
+      lon: -46.6108
+      routeId: route-1
+      sequence: 15
+      status: pending
+    - estimatedTime: 48
+      id: wp-1-16
+      lat: -23.5345
+      lon: -46.6093
+      routeId: route-1
+      sequence: 16
+      status: pending
+    - estimatedTime: 51
+      id: wp-1-17
+      lat: -23.5335
+      lon: -46.6078
+      routeId: route-1
+      sequence: 17
+      status: pending
+    - estimatedTime: 54
+      id: wp-1-18
+      lat: -23.5325
+      lon: -46.6063
+      routeId: route-1
+      sequence: 18
+      status: pending
+    - estimatedTime: 57
+      id: wp-1-19
+      lat: -23.5315
+      lon: -46.6048
+      routeId: route-1
+      sequence: 19
+      status: pending
+    - estimatedTime: 60
+      id: wp-1-20
+      lat: -23.5305
+      lon: -46.6033
+      routeId: route-1
+      sequence: 20
+      status: pending
+    - estimatedTime: 63
+      id: wp-1-21
+      lat: -23.5295
+      lon: -46.6018
+      routeId: route-1
+      sequence: 21
+      status: pending
+    - estimatedTime: 66
+      id: wp-1-22
+      lat: -23.5285
+      lon: -46.6003
+      routeId: route-1
+      sequence: 22
+      status: pending
+    - estimatedTime: 69
+      id: wp-1-23
+      lat: -23.5275
+      lon: -46.5988
+      routeId: route-1
+      sequence: 23
+      status: pending
+    - estimatedTime: 72
+      id: wp-1-24
+      lat: -23.5265
+      lon: -46.5973
+      routeId: route-1
+      sequence: 24
+      status: pending
+    - estimatedTime: 75
+      id: wp-1-25
+      lat: -23.5255
+      lon: -46.5958
+      routeId: route-1
+      sequence: 25
+      status: pending
+    - estimatedTime: 78
+      id: wp-1-26
+      lat: -23.5245
+      lon: -46.5943
+      routeId: route-1
+      sequence: 26
+      status: pending
+    - estimatedTime: 81
+      id: wp-1-27
+      lat: -23.5235
+      lon: -46.5928
+      routeId: route-1
+      sequence: 27
+      status: pending
+    - estimatedTime: 84
+      id: wp-1-28
+      lat: -23.5225
+      lon: -46.5913
+      routeId: route-1
+      sequence: 28
+      status: pending
+    - estimatedTime: 87
+      id: wp-1-29
+      lat: -23.5215
+      lon: -46.5898
+      routeId: route-1
+      sequence: 29
+      status: pending
+    - estimatedTime: 90
+      id: wp-1-30
+      lat: -23.5205
+      lon: -46.5883
+      routeId: route-1
+      sequence: 30
+      status: pending
+    - estimatedTime: 93
+      id: wp-1-31
+      lat: -23.5195
+      lon: -46.5868
+      routeId: route-1
+      sequence: 31
+      status: pending
+    - estimatedTime: 96
+      id: wp-1-32
+      lat: -23.5185
+      lon: -46.5853
+      routeId: route-1
+      sequence: 32
+      status: pending
+    - estimatedTime: 99
+      id: wp-1-33
+      lat: -23.5175
+      lon: -46.5838
+      routeId: route-1
+      sequence: 33
+      status: pending
+    - estimatedTime: 102
+      id: wp-1-34
+      lat: -23.5165
+      lon: -46.5823
+      routeId: route-1
+      sequence: 34
+      status: pending
+    - estimatedTime: 105
+      id: wp-1-35
+      lat: -23.5155
+      lon: -46.580799999999996
+      routeId: route-1
+      sequence: 35
+      status: pending
+    - estimatedTime: 108
+      id: wp-1-36
+      lat: -23.514499999999998
+      lon: -46.579299999999996
+      routeId: route-1
+      sequence: 36
+      status: pending
+    - estimatedTime: 111
+      id: wp-1-37
+      lat: -23.5135
+      lon: -46.577799999999996
+      routeId: route-1
+      sequence: 37
+      status: pending
+    - estimatedTime: 114
+      id: wp-1-38
+      lat: -23.5125
+      lon: -46.576299999999996
+      routeId: route-1
+      sequence: 38
+      status: pending
+    - estimatedTime: 117
+      id: wp-1-39
+      lat: -23.511499999999998
+      lon: -46.574799999999996
+      routeId: route-1
+      sequence: 39
+      status: pending
+    - estimatedTime: 120
+      id: wp-1-40
+      lat: -23.5105
+      lon: -46.573299999999996
+      routeId: route-1
+      sequence: 40
+      status: pending
+    - estimatedTime: 123
+      id: wp-1-41
+      lat: -23.5095
+      lon: -46.571799999999996
+      routeId: route-1
+      sequence: 41
+      status: pending
+    - estimatedTime: 126
+      id: wp-1-42
+      lat: -23.508499999999998
+      lon: -46.570299999999996
+      routeId: route-1
+      sequence: 42
+      status: pending
+    - estimatedTime: 129
+      id: wp-1-43
+      lat: -23.5075
+      lon: -46.568799999999996
+      routeId: route-1
+      sequence: 43
+      status: pending
+    - estimatedTime: 132
+      id: wp-1-44
+      lat: -23.5065
+      lon: -46.567299999999996
+      routeId: route-1
+      sequence: 44
+      status: pending
+    - estimatedTime: 135
+      id: wp-1-45
+      lat: -23.505499999999998
+      lon: -46.565799999999996
+      routeId: route-1
+      sequence: 45
+      status: pending
+    - estimatedTime: 138
+      id: wp-1-46
+      lat: -23.5045
+      lon: -46.564299999999996
+      routeId: route-1
+      sequence: 46
+      status: pending
+    - estimatedTime: 141
+      id: wp-1-47
+      lat: -23.5035
+      lon: -46.562799999999996
+      routeId: route-1
+      sequence: 47
+      status: pending
+    - estimatedTime: 144
+      id: wp-1-48
+      lat: -23.5025
+      lon: -46.561299999999996
+      routeId: route-1
+      sequence: 48
+      status: pending
+    - estimatedTime: 147
+      id: wp-1-49
+      lat: -23.5015
+      lon: -46.559799999999996
+      routeId: route-1
+      sequence: 49
+      status: pending
+geofenceZones:
+    - alertOnEntry: true
+      alertOnExit: false
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: store
+      centerLat: -23.5505
+      centerLon: -46.6333
+      id: zone-0
+      name: store-zone-0
+      radiusMeters: 100
+    - alertOnEntry: true
+      alertOnExit: false
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: store
+      centerLat: -23.5005
+      centerLon: -46.5833
+      id: zone-1
+      name: store-zone-1
+      radiusMeters: 100
+    - alertOnEntry: true
+      alertOnExit: false
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: store
+      centerLat: -23.450499999999998
+      centerLon: -46.5333
+      id: zone-2
+      name: store-zone-2
+      radiusMeters: 100
+    - alertOnEntry: true
+      alertOnExit: false
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: store
+      centerLat: -23.4005
+      centerLon: -46.4833
+      id: zone-3
+      name: store-zone-3
+      radiusMeters: 100
+    - alertOnEntry: true
+      alertOnExit: false
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: store
+      centerLat: -23.3505
+      centerLon: -46.433299999999996
+      id: zone-4
+      name: store-zone-4
+      radiusMeters: 100
+    - alertOnEntry: true
+      alertOnExit: false
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: store
+      centerLat: -23.3005
+      centerLon: -46.3833
+      id: zone-5
+      name: store-zone-5
+      radiusMeters: 100
+    - alertOnEntry: true
+      alertOnExit: false
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: store
+      centerLat: -23.2505
+      centerLon: -46.3333
+      id: zone-6
+      name: store-zone-6
+      radiusMeters: 100
+    - alertOnEntry: true
+      alertOnExit: false
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: store
+      centerLat: -23.200499999999998
+      centerLon: -46.2833
+      id: zone-7
+      name: store-zone-7
+      radiusMeters: 100
+    - alertOnEntry: true
+      alertOnExit: false
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: store
+      centerLat: -23.1505
+      centerLon: -46.2333
+      id: zone-8
+      name: store-zone-8
+      radiusMeters: 100
+    - alertOnEntry: true
+      alertOnExit: false
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: store
+      centerLat: -23.1005
+      centerLon: -46.183299999999996
+      id: zone-9
+      name: store-zone-9
+      radiusMeters: 100
+    - alertOnEntry: true
+      alertOnExit: false
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: warehouse
+      centerLat: -23.0505
+      centerLon: -46.1333
+      id: zone-10
+      name: warehouse-zone-10
+      radiusMeters: 500
+    - alertOnEntry: true
+      alertOnExit: false
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: warehouse
+      centerLat: -23.0005
+      centerLon: -46.0833
+      id: zone-11
+      name: warehouse-zone-11
+      radiusMeters: 500
+    - alertOnEntry: true
+      alertOnExit: false
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: warehouse
+      centerLat: -22.950499999999998
+      centerLon: -46.0333
+      id: zone-12
+      name: warehouse-zone-12
+      radiusMeters: 500
+    - alertOnEntry: true
+      alertOnExit: false
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: warehouse
+      centerLat: -22.9005
+      centerLon: -45.9833
+      id: zone-13
+      name: warehouse-zone-13
+      radiusMeters: 500
+    - alertOnEntry: true
+      alertOnExit: false
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: warehouse
+      centerLat: -22.8505
+      centerLon: -45.933299999999996
+      id: zone-14
+      name: warehouse-zone-14
+      radiusMeters: 500
+    - alertOnEntry: true
+      alertOnExit: false
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: warehouse
+      centerLat: -22.8005
+      centerLon: -45.8833
+      id: zone-15
+      name: warehouse-zone-15
+      radiusMeters: 500
+    - alertOnEntry: true
+      alertOnExit: false
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: warehouse
+      centerLat: -22.7505
+      centerLon: -45.8333
+      id: zone-16
+      name: warehouse-zone-16
+      radiusMeters: 500
+    - alertOnEntry: true
+      alertOnExit: false
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: warehouse
+      centerLat: -22.700499999999998
+      centerLon: -45.7833
+      id: zone-17
+      name: warehouse-zone-17
+      radiusMeters: 500
+    - alertOnEntry: true
+      alertOnExit: false
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: warehouse
+      centerLat: -22.6505
+      centerLon: -45.7333
+      id: zone-18
+      name: warehouse-zone-18
+      radiusMeters: 500
+    - alertOnEntry: true
+      alertOnExit: false
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: warehouse
+      centerLat: -22.6005
+      centerLon: -45.683299999999996
+      id: zone-19
+      name: warehouse-zone-19
+      radiusMeters: 500
+    - alertOnEntry: true
+      alertOnExit: true
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: restricted
+      centerLat: -22.5505
+      centerLon: -45.6333
+      id: zone-20
+      name: restricted-zone-20
+      radiusMeters: 500
+    - alertOnEntry: true
+      alertOnExit: true
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: restricted
+      centerLat: -22.5005
+      centerLon: -45.5833
+      id: zone-21
+      name: restricted-zone-21
+      radiusMeters: 500
+    - alertOnEntry: true
+      alertOnExit: true
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: restricted
+      centerLat: -22.450499999999998
+      centerLon: -45.5333
+      id: zone-22
+      name: restricted-zone-22
+      radiusMeters: 500
+    - alertOnEntry: true
+      alertOnExit: true
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: restricted
+      centerLat: -22.4005
+      centerLon: -45.4833
+      id: zone-23
+      name: restricted-zone-23
+      radiusMeters: 500
+    - alertOnEntry: true
+      alertOnExit: true
+      allowedActions:
+        - entry
+        - exit
+        - dwell
+      category: restricted
+      centerLat: -22.3505
+      centerLon: -45.433299999999996
+      id: zone-24
+      name: restricted-zone-24
+      radiusMeters: 500
+

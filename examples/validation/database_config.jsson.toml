@@ -1,0 +1,61 @@
+[cache]
+  host = "redis.internal"
+  name = "app_cache"
+  [cache.config]
+    port = 6379
+    ssl = false
+    type = "redis"
+
+[[databases]]
+  environment = "development"
+  host = "localhost"
+  name = "app_dev"
+  ssl = false
+  [databases.config]
+    port = 5432
+    ssl = false
+    type = "postgres"
+    [databases.config.pool]
+      idleTimeoutMs = 30000
+      max = 10
+      min = 2
+
+[[databases]]
+  environment = "staging"
+  host = "staging-db.internal"
+  name = "app_staging"
+  ssl = false
+  [databases.config]
+    port = 5432
+    ssl = false
+    type = "postgres"
+    [databases.config.pool]
+      idleTimeoutMs = 30000
+      max = 10
+      min = 2
+
+[[databases]]
+  environment = "production"
+  host = "db.prod.internal"
+  name = "app_prod"
+  ssl = true
+  [databases.config]
+    port = 5432
+    ssl = false
+    type = "postgres"
+    [databases.config.pool]
+      idleTimeoutMs = 30000
+      max = 10
+      min = 2
+
+[migrations]
+  directory = "./migrations"
+  enabled = true
+  tableName = "schema_migrations"
+
+[replication]
+  enabled = true
+  primary = "app_prod"
+  replicas = ["replica_1", "replica_2"]
+  strategy = "round-robin"
+

@@ -1,0 +1,26 @@
+servers:
+    - id: srv-101
+      region: us-east-1
+      replicas: 5
+      tier: prod
+    - id: srv-102
+      region: us-east-1
+      replicas: 5
+      tier: prod
+    - id: srv-201
+      region: us-west-2
+      replicas: 2
+      tier: staging
+    - id: srv-202
+      region: us-west-2
+      replicas: 2
+      tier: staging
+    - id: srv-301
+      region: eu-central-1
+      replicas: 5
+      tier: prod
+    - id: srv-401
+      region: ap-south-1
+      replicas: 2
+      tier: dev
+

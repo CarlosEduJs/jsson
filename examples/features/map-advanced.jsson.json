@@ -1,0 +1,49 @@
+{
+  "products": [
+    {
+      "category": "electronics",
+      "currency": "USD",
+      "id": 1,
+      "inStock": true,
+      "name": "Laptop Pro 15",
+      "price": 1299.99,
+      "url": "/products/1"
+    },
+    {
+      "category": "accessories",
+      "currency": "USD",
+      "id": 2,
+      "inStock": true,
+      "name": "Wireless Mouse",
+      "price": 29.99,
+      "url": "/products/2"
+    },
+    {
+      "category": "accessories",
+      "currency": "USD",
+      "id": 3,
+      "inStock": true,
+      "name": "USB-C Cable",
+      "price": 12.99,
+      "url": "/products/3"
+    },
+    {
+      "category": "electronics",
+      "currency": "USD",
+      "id": 4,
+      "inStock": true,
+      "name": "Monitor 27",
+      "price": 399.99,
+      "url": "/products/4"
+    },
+    {
+      "category": "accessories",
+      "currency": "USD",
+      "id": 5,
+      "inStock": true,
+      "name": "Keyboard Mechanical",
+      "price": 89.99,
+      "url": "/products/5"
+    }
+  ]
+}

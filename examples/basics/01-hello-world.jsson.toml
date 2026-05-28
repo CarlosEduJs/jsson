@@ -1,0 +1,7 @@
+message = "Hello, JSSON!"
+version = "0.0.6"
+
+[app]
+  language = "JSSON"
+  name = "My First App"
+

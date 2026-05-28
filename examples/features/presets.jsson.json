@@ -1,0 +1,33 @@
+{
+  "api_service": {
+    "logging": {
+      "format": "json",
+      "level": "debug",
+      "output": "stdout"
+    },
+    "name": "my-api",
+    "server": {
+      "host": "localhost",
+      "maxConnections": 100,
+      "port": 3000,
+      "timeout": 30
+    }
+  },
+  "dev_server": {
+    "host": "localhost",
+    "maxConnections": 100,
+    "port": 8080,
+    "timeout": 30
+  },
+  "logging": {
+    "format": "json",
+    "level": "info",
+    "output": "stdout"
+  },
+  "prod_server": {
+    "host": "0.0.0.0",
+    "maxConnections": 10000,
+    "port": 443,
+    "timeout": 60
+  }
+}
