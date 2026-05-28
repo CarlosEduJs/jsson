@@ -6,7 +6,7 @@ Write config once. Ship it anywhere.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![VS Code Extension](https://img.shields.io/badge/VS%20Code-Extension-blue)](https://marketplace.visualstudio.com/items?itemName=carlosedujs.jsson)
-[![CI](https://github.com/carlosedujs/jsson/actions/workflows/ci.yml/badge.svg)](https://github.com/carlosedujs/jsson/actions/workflows/ci.yml)
+[![CI](https://github.com/jsson-lang/jsson/actions/workflows/ci.yml/badge.svg)](https://github.com/jsson-lang/jsson/actions/workflows/ci.yml)
 
 ---
 
@@ -47,11 +47,11 @@ server {
 
 ```bash
 # Download the latest binary (Linux/macOS)
-curl -L https://github.com/carlosedujs/jsson/releases/latest/download/jsson-linux-amd64 -o jsson
+curl -L https://github.com/jsson-lang/jsson/releases/latest/download/jsson-linux-amd64 -o jsson
 chmod +x jsson && sudo mv jsson /usr/local/bin/
 
 # Or build from source
-git clone https://github.com/carlosedujs/jsson.git
+git clone https://github.com/jsson-lang/jsson.git
 cd jsson
 make build
 sudo make install
