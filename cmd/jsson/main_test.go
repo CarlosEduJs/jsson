@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"jsson/internal/version"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -39,8 +40,8 @@ func TestHealthEndpoint(t *testing.T) {
 		t.Errorf("expected service 'jsson', got '%s'", healthResp.Service)
 	}
 
-	if healthResp.JssonVersion != Version {
-		t.Errorf("expected jsson version '%s', got '%s'", Version, healthResp.JssonVersion)
+	if healthResp.JssonVersion != version.Version {
+		t.Errorf("expected jsson version '%s', got '%s'", version.Version, healthResp.JssonVersion)
 	}
 }
 
@@ -60,8 +61,8 @@ func TestVersionEndpoint(t *testing.T) {
 		t.Fatalf("failed to decode response: %v", err)
 	}
 
-	if versionResp.JssonVersion != Version {
-		t.Errorf("expected jsson version '%s', got '%s'", Version, versionResp.JssonVersion)
+	if versionResp.JssonVersion != version.Version {
+		t.Errorf("expected jsson version '%s', got '%s'", version.Version, versionResp.JssonVersion)
 	}
 
 	if versionResp.ServerVersion != ServerVersion {

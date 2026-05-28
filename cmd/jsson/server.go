@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"jsson/internal/validator"
+	"jsson/internal/version"
 	"log"
 	"net/http"
 	"os"
@@ -35,7 +36,7 @@ func runServer(args []string) {
 
 	addr := fmt.Sprintf(":%d", serverPort)
 
-	log.Printf("🚀 JSSON HTTP Server v%s (JSSON v%s)", ServerVersion, Version)
+	log.Printf("🚀 JSSON HTTP Server v%s (JSSON v%s)", ServerVersion, version.Version)
 	log.Printf("📡 Listening on http://0.0.0.0%s", addr)
 	log.Printf("")
 	log.Printf("Endpoints:")
@@ -110,7 +111,7 @@ func healthHandler(w http.ResponseWriter, _ *http.Request) {
 		Status:       "healthy",
 		Service:      "jsson",
 		Version:      ServerVersion,
-		JssonVersion: Version,
+		JssonVersion: version.Version,
 		Timestamp:    time.Now().UTC().Format(time.RFC3339),
 	})
 }
@@ -118,7 +119,7 @@ func healthHandler(w http.ResponseWriter, _ *http.Request) {
 func versionHandler(w http.ResponseWriter, _ *http.Request) {
 	jsonResponse(w, http.StatusOK, VersionResponse{
 		ServerVersion: ServerVersion,
-		JssonVersion:  Version,
+		JssonVersion:  version.Version,
 		GoVersion:     "1.21+",
 	})
 }

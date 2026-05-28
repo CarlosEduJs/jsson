@@ -49,6 +49,8 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"jsson/internal/version"
 )
 
 const (
@@ -58,7 +60,6 @@ const (
 )
 
 const (
-	Version       = "0.0.6"
 	ServerVersion = "0.1.0"
 )
 
@@ -79,7 +80,7 @@ func main() {
 
 			return
 		case "version", "-v", "--version":
-			fmt.Printf("JSSON v%s\n", Version)
+			fmt.Printf("JSSON v%s (commit=%s, date=%s)\n", version.Version, version.Commit, version.Date)
 
 			return
 		}
@@ -129,5 +130,5 @@ Examples:
   jsson serve -port 3000                    # Server on port 3000
 
 Documentation: https://docs.jssonlang.tech/
-`, Version)
+`, version.Version)
 }

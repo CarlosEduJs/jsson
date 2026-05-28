@@ -12,53 +12,27 @@ jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.21'
+          go-version: '1.23'
           cache: true
-      
+
       - name: Run tests
-        run: go test -v ./...
-      
-      - name: Build binaries
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/}
-          
-          # Linux AMD64
-          GOOS=linux GOARCH=amd64 go build -ldflags="-X main.Version=$VERSION" -o dist/jsson-${VERSION}-linux-amd64 ./cmd/jsson
-          
-          # macOS AMD64
-          GOOS=darwin GOARCH=amd64 go build -ldflags="-X main.Version=$VERSION" -o dist/jsson-${VERSION}-darwin-amd64 ./cmd/jsson
-          
-          # macOS ARM64
-          GOOS=darwin GOARCH=arm64 go build -ldflags="-X main.Version=$VERSION" -o dist/jsson-${VERSION}-darwin-arm64 ./cmd/jsson
-          
-          # Windows AMD64
-          GOOS=windows GOARCH=amd64 go build -ldflags="-X main.Version=$VERSION" -o dist/jsson-${VERSION}-windows-amd64.exe ./cmd/jsson
-          
-          # WASM
-          GOOS=js GOARCH=wasm go build -o dist/jsson-${VERSION}.wasm ./cmd/wasm
-          
-          # Create checksums
-          cd dist
-          sha256sum * > checksums.txt
-      
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
+        run: go test -v -race -count=1 ./...
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
         with:
-          files: |
-            dist/*
-          body_path: .github/RELEASE_NOTES_${{ github.ref_name }}.md
-          draft: false
-          prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
-          fail_on_unmatched_files: false
+          distribution: goreleaser
+          version: latest
+          args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
