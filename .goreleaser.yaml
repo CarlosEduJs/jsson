@@ -1,0 +1,68 @@
+version: 2
+
+project_name: jsson
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: jsson
+    main: ./cmd/jsson
+    binary: jsson
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X jsson/internal/version.Version={{.Version}} -X jsson/internal/version.Commit={{.Commit}} -X jsson/internal/version.Date={{.Date}}
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - id: default
+    formats: ["tar.gz"]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: ["zip"]
+
+checksum:
+  disable: false
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+      - 'merge'
+      - '^ci:'
+      - '^e2e:'
+
+  groups:
+    - title: '‼️ Security Fixes'
+      regexp: '^sec(\(.+\))?!?:\s'
+      order: 0
+
+    - title: '⚠️ Breaking Changes'
+      regexp: '^.*!:.+'
+      order: 1
+
+    - title: '🚀 New Features'
+      regexp: '^feat(\(.+\))?!?:\s'
+      order: 2
+
+    - title: '🐛 Bug Fixes'
+      regexp: '^fix(\(.+\))?!?:\s'
+      order: 3
+
+    - title: '🧹 Refactoring'
+      regexp: '^refactor(\(.+\))?!?:\s'
+      order: 4
