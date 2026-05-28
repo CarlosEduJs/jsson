@@ -16,8 +16,8 @@ func (t *Transpiler) evalMapExpression(e *ast.MapExpression, ctx map[string]any)
 	switch v := leftVal.(type) {
 	case []any:
 		items = v
-	case RangeResult:
-		items = v.Values
+	case rangeFlattener:
+		items = v.Flatten()
 	default:
 		return nil, t.errfNode(e, "map target is not an array, it's a %T — gremlin is confused", leftVal)
 	}

@@ -47,8 +47,8 @@ func (t *Transpiler) evalArrayLiteral(e *ast.ArrayLiteral, ctx map[string]any) (
 			return nil, err
 		}
 
-		if rr, ok := val.(RangeResult); ok {
-			arr = append(arr, rr.Values...)
+		if rf, ok := val.(rangeFlattener); ok {
+			arr = append(arr, rf.Flatten()...)
 		} else {
 			arr = append(arr, val)
 		}
@@ -110,8 +110,8 @@ func (t *Transpiler) evalTemplateRow(row []ast.Expression, ctx map[string]any) (
 			return nil, err
 		}
 
-		if rr, ok := val.(RangeResult); ok {
-			evaluatedRow[i] = rr.Values
+		if rf, ok := val.(rangeFlattener); ok {
+			evaluatedRow[i] = rf.Flatten()
 		} else {
 			evaluatedRow[i] = val
 		}
