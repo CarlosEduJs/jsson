@@ -71,17 +71,15 @@ func (t *Transpiler) SetOutputFormat(minify bool, indentSize int) {
 	}
 }
 
-// Transpile converts the JSSON program to JSON bytes.
-func (t *Transpiler) Transpile() ([]byte, error) {
+// buildRootMap processes all statements and builds the output map, converting any RangeResult.
+func (t *Transpiler) buildRootMap() (map[string]any, error) {
 	root := make(map[string]any)
 
 	for _, stmt := range t.program.Statements {
 		switch s := stmt.(type) {
 		case *ast.PresetStatement:
-			// Preset definitions are stored in preset table but not added to output
 			t.presetTable[s.Name.Value] = s.Body
 		case *ast.VariableDeclaration:
-			// Variable declarations are stored in symbol table but not added to output
 			val, err := t.evalExpression(s.Value, nil)
 			if err != nil {
 				return nil, err
@@ -95,9 +93,8 @@ func (t *Transpiler) Transpile() ([]byte, error) {
 			if err != nil {
 				return nil, err
 			}
-			// Store in symbol table so it can be referenced by other expressions
+
 			t.symbolTable[key] = val
-			// Also add to output
 			root[key] = val
 		case *ast.IncludeStatement:
 			if err := t.processInclude(s, root); err != nil {
@@ -106,9 +103,18 @@ func (t *Transpiler) Transpile() ([]byte, error) {
 		}
 	}
 
-	// Convert any RangeResult to plain slices before JSON marshaling
 	if r, ok := t.convertRangeResults(root).(map[string]any); ok {
 		root = r
+	}
+
+	return root, nil
+}
+
+// Transpile converts the JSSON program to JSON bytes.
+func (t *Transpiler) Transpile() ([]byte, error) {
+	root, err := t.buildRootMap()
+	if err != nil {
+		return nil, err
 	}
 
 	if t.minify {

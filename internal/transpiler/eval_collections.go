@@ -68,127 +68,151 @@ func (t *Transpiler) evalArrayTemplate(e *ast.ArrayTemplate, ctx map[string]any)
 	isImplicitTemplate := e.Map != nil && len(keys) == 1 && keys[0] == e.Map.Param.Value
 
 	for _, row := range e.Rows {
-		evaluatedRow := make([]any, len(row))
-
-		for i, expr := range row {
-			val, err := t.evalExpression(expr, ctx)
-			if err != nil {
-				return nil, err
-			}
-
-			if rr, ok := val.(RangeResult); ok {
-				evaluatedRow[i] = rr.Values
-			} else {
-				evaluatedRow[i] = val
-			}
+		evaluatedRow, err := t.evalTemplateRow(row, ctx)
+		if err != nil {
+			return nil, err
 		}
 
-		hasArrays := false
-		minArrayLength := -1
+		hasArrays, minLength := t.templateRowHasArrays(evaluatedRow)
 
-		for _, val := range evaluatedRow {
-			if arr, ok := val.([]any); ok {
-				isObjectArray := false
+		if hasArrays && minLength > 0 {
+			items := t.expandArrays(evaluatedRow, keys, isImplicitTemplate, minLength)
 
-				if len(arr) > 0 {
-					if _, isMap := arr[0].(map[string]any); isMap {
-						isObjectArray = true
-					}
-				}
-
-				if !isObjectArray {
-					hasArrays = true
-
-					if minArrayLength == -1 || len(arr) < minArrayLength {
-						minArrayLength = len(arr)
-					}
-				}
-			}
-		}
-
-		if hasArrays && minArrayLength > 0 {
-			for idx := range minArrayLength {
-				var itemValue any
-
-				if isImplicitTemplate {
-					if arr, ok := evaluatedRow[0].([]any); ok {
-						itemValue = arr[idx]
-					} else {
-						itemValue = evaluatedRow[0]
-					}
-				} else {
-					rowObj := make(map[string]any)
-
-					for i, val := range evaluatedRow {
-						if i >= len(keys) {
-							break
-						}
-
-						key := keys[i]
-
-						if arr, ok := val.([]any); ok {
-							rowObj[key] = arr[idx]
-						} else {
-							rowObj[key] = val
-						}
-					}
-
-					itemValue = rowObj
-				}
-
-				if e.Map != nil {
-					mapCtx := make(map[string]any, len(ctx))
-					maps.Copy(mapCtx, ctx)
-
-					mapCtx[e.Map.Param.Value] = itemValue
-
-					mappedVal, err := t.evalExpression(e.Map.Body, mapCtx)
-					if err != nil {
-						return nil, err
-					}
-
-					result = append(result, mappedVal)
-				} else {
-					result = append(result, itemValue)
-				}
-			}
-		} else {
-			var itemValue any
-
-			if isImplicitTemplate {
-				itemValue = evaluatedRow[0]
-			} else {
-				rowObj := make(map[string]any)
-
-				for i, val := range evaluatedRow {
-					if i >= len(keys) {
-						break
-					}
-
-					key := keys[i]
-					rowObj[key] = val
-				}
-
-				itemValue = rowObj
-			}
-
-			if e.Map != nil {
-				mapCtx := make(map[string]any, len(ctx))
-				maps.Copy(mapCtx, ctx)
-
-				mapCtx[e.Map.Param.Value] = itemValue
-
-				mappedVal, err := t.evalExpression(e.Map.Body, mapCtx)
+			for _, item := range items {
+				mapped, err := t.applyTemplateMap(e.Map, item, ctx)
 				if err != nil {
 					return nil, err
 				}
 
-				result = append(result, mappedVal)
-			} else {
-				result = append(result, itemValue)
+				result = append(result, mapped)
 			}
+		} else {
+			item := t.buildRowItem(evaluatedRow, keys, isImplicitTemplate)
+
+			mapped, err := t.applyTemplateMap(e.Map, item, ctx)
+			if err != nil {
+				return nil, err
+			}
+
+			result = append(result, mapped)
 		}
 	}
 
 	return result, nil
+}
+
+func (t *Transpiler) evalTemplateRow(row []ast.Expression, ctx map[string]any) ([]any, error) {
+	evaluatedRow := make([]any, len(row))
+
+	for i, expr := range row {
+		val, err := t.evalExpression(expr, ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		if rr, ok := val.(RangeResult); ok {
+			evaluatedRow[i] = rr.Values
+		} else {
+			evaluatedRow[i] = val
+		}
+	}
+
+	return evaluatedRow, nil
+}
+
+func (t *Transpiler) templateRowHasArrays(evaluatedRow []any) (hasArrays bool, minLen int) {
+	hasArrays = false
+	minLen = -1
+
+	for _, val := range evaluatedRow {
+		arr, ok := val.([]any)
+		if !ok {
+			continue
+		}
+
+		isObjectArray := false
+
+		if len(arr) > 0 {
+			if _, isMap := arr[0].(map[string]any); isMap {
+				isObjectArray = true
+			}
+		}
+
+		if !isObjectArray {
+			hasArrays = true
+
+			if minLen == -1 || len(arr) < minLen {
+				minLen = len(arr)
+			}
+		}
+	}
+
+	return
+}
+
+func (t *Transpiler) expandArrays(evaluatedRow []any, keys []string, isImplicitTemplate bool, count int) []any {
+	items := make([]any, 0, count)
+
+	for idx := range count {
+		items = append(items, t.buildRowItemAt(evaluatedRow, keys, isImplicitTemplate, idx))
+	}
+
+	return items
+}
+
+func (t *Transpiler) buildRowItem(evaluatedRow []any, keys []string, isImplicitTemplate bool) any {
+	if isImplicitTemplate {
+		return evaluatedRow[0]
+	}
+
+	rowObj := make(map[string]any)
+
+	for i, val := range evaluatedRow {
+		if i >= len(keys) {
+			break
+		}
+
+		rowObj[keys[i]] = val
+	}
+
+	return rowObj
+}
+
+func (t *Transpiler) buildRowItemAt(evaluatedRow []any, keys []string, isImplicitTemplate bool, idx int) any {
+	if isImplicitTemplate {
+		if arr, ok := evaluatedRow[0].([]any); ok {
+			return arr[idx]
+		}
+
+		return evaluatedRow[0]
+	}
+
+	rowObj := make(map[string]any)
+
+	for i, val := range evaluatedRow {
+		if i >= len(keys) {
+			break
+		}
+
+		if arr, ok := val.([]any); ok {
+			rowObj[keys[i]] = arr[idx]
+		} else {
+			rowObj[keys[i]] = val
+		}
+	}
+
+	return rowObj
+}
+
+func (t *Transpiler) applyTemplateMap(mapClause *ast.MapClause, itemValue any, ctx map[string]any) (any, error) {
+	if mapClause == nil {
+		return itemValue, nil
+	}
+
+	mapCtx := make(map[string]any, len(ctx))
+	maps.Copy(mapCtx, ctx)
+
+	mapCtx[mapClause.Param.Value] = itemValue
+
+	return t.evalExpression(mapClause.Body, mapCtx)
 }
