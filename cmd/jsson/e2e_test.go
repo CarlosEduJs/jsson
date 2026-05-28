@@ -71,8 +71,8 @@ var requiresNoGolden = map[string]bool{
 }
 
 var streamingOnly = map[string]bool{
-	"features/streaming-large-dataset.jsson":   true,
-	"features/streaming-nested-maps.jsson":    true,
+	"features/streaming-large-dataset.jsson": true,
+	"features/streaming-nested-maps.jsson":   true,
 }
 
 func TestE2E_TranspileGolden(t *testing.T) {
@@ -213,7 +213,7 @@ func goldenFilePath(rel, format string) string {
 		ext = ".ts"
 	}
 
-	return filepath.Join(repoRoot, "examples", rel + ext)
+	return filepath.Join(repoRoot, "examples", rel+ext)
 }
 
 func testTranspileOnly(t *testing.T, path, format string) {
@@ -439,34 +439,34 @@ func TestE2E_Validation(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name       string
-		file       string
-		schema     string
-		wantValid  bool
+		name      string
+		file      string
+		schema    string
+		wantValid bool
 	}{
 		{
-			name:       "simple_config_valid",
-			file:       "examples/validation/simple_config.jsson",
-			schema:     "examples/schemas/simple.schema.json",
-			wantValid:  true,
+			name:      "simple_config_valid",
+			file:      "examples/validation/simple_config.jsson",
+			schema:    "examples/schemas/simple.schema.json",
+			wantValid: true,
 		},
 		{
-			name:       "invalid_config",
-			file:       "examples/validation/invalid_config.jsson",
-			schema:     "examples/schemas/simple.schema.json",
-			wantValid:  false,
+			name:      "invalid_config",
+			file:      "examples/validation/invalid_config.jsson",
+			schema:    "examples/schemas/simple.schema.json",
+			wantValid: false,
 		},
 		{
-			name:       "api_config",
-			file:       "examples/validation/api_config.jsson",
-			schema:     "examples/schemas/api-config.schema.json",
-			wantValid:  true,
+			name:      "api_config",
+			file:      "examples/validation/api_config.jsson",
+			schema:    "examples/schemas/api-config.schema.json",
+			wantValid: true,
 		},
 		{
-			name:       "database_config",
-			file:       "examples/validation/database_config.jsson",
-			schema:     "examples/schemas/database.schema.yaml",
-			wantValid:  true,
+			name:      "database_config",
+			file:      "examples/validation/database_config.jsson",
+			schema:    "examples/schemas/database.schema.yaml",
+			wantValid: true,
 		},
 	}
 
