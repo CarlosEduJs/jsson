@@ -7,6 +7,12 @@ import (
 
 const ipv4Pattern = `^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$`
 
+func matchString(pattern, value string) bool {
+	matched, err := regexp.MatchString(pattern, value)
+
+	return err == nil && matched
+}
+
 // validateJSSonFormat validates JSSON-specific format validators.
 func (v *Validator) validateJSSonFormat(value, format, path string, result *ValidationResult) {
 	var valid bool
@@ -14,94 +20,43 @@ func (v *Validator) validateJSSonFormat(value, format, path string, result *Vali
 
 	switch format {
 	case "email":
-		pattern := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
-		if matched, err := regexp.MatchString(pattern, value); err == nil {
-			valid = matched
-		}
-
+		valid = matchString(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`, value)
 		message = "Invalid email format"
 
 	case "uri", "url":
-		pattern := `^https?://[^\s/$.?#].[^\s]*$`
-		if matched, err := regexp.MatchString(pattern, value); err == nil {
-			valid = matched
-		}
-
+		valid = matchString(`^https?://[^\s/$.?#].[^\s]*$`, value)
 		message = "Invalid URL format"
 
 	case "uuid":
-		pattern := `^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`
-		if matched, err := regexp.MatchString(pattern, value); err == nil {
-			valid = matched
-		}
-
+		valid = matchString(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`, value)
 		message = "Invalid UUID format"
 
 	case "date":
-		patterns := []string{
-			`^\d{4}-\d{2}-\d{2}$`,
-			`^\d{2}/\d{2}/\d{4}$`,
-			`^\d{2}-\d{2}-\d{4}$`,
-		}
-		valid = false
-
-		for _, pattern := range patterns {
-			if matched, err := regexp.MatchString(pattern, value); err == nil && matched {
-				valid = true
-
-				break
-			}
-		}
-
+		valid = matchString(`^\d{4}-\d{2}-\d{2}$`, value) ||
+			matchString(`^\d{2}/\d{2}/\d{4}$`, value) ||
+			matchString(`^\d{2}-\d{2}-\d{4}$`, value)
 		message = "Invalid date format"
 
 	case "date-time", "datetime":
-		patterns := []string{
-			`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})?$`,
-			`^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$`,
-			`^\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2}$`,
-		}
-		valid = false
-
-		for _, pattern := range patterns {
-			if matched, err := regexp.MatchString(pattern, value); err == nil && matched {
-				valid = true
-
-				break
-			}
-		}
-
+		valid = matchString(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})?$`, value) ||
+			matchString(`^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$`, value) ||
+			matchString(`^\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2}$`, value)
 		message = "Invalid datetime format"
 
 	case "time":
-		pattern := `^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$`
-		if matched, err := regexp.MatchString(pattern, value); err == nil {
-			valid = matched
-		}
-
+		valid = matchString(`^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$`, value)
 		message = "Invalid time format"
 
 	case "ipv4":
-		if matched, err := regexp.MatchString(ipv4Pattern, value); err == nil {
-			valid = matched
-		}
-
+		valid = matchString(ipv4Pattern, value)
 		message = "Invalid IPv4 format"
 
 	case "ipv6":
-		pattern := `^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$`
-		if matched, err := regexp.MatchString(pattern, value); err == nil {
-			valid = matched
-		}
-
+		valid = matchString(`^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$`, value)
 		message = "Invalid IPv6 format"
 
 	case "hostname":
-		pattern := `^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$`
-		if matched, err := regexp.MatchString(pattern, value); err == nil {
-			valid = matched
-		}
-
+		valid = matchString(`^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$`, value)
 		message = "Invalid hostname format"
 
 	case "file-path", "filepath":
@@ -109,75 +64,35 @@ func (v *Validator) validateJSSonFormat(value, format, path string, result *Vali
 		message = "Invalid file path format"
 
 	case "semver":
-		pattern := `^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-((0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(\+([0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*))?$`
-		if matched, err := regexp.MatchString(pattern, value); err == nil {
-			valid = matched
-		}
-
+		valid = matchString(`^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-((0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(\+([0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*))?$`, value)
 		message = "Invalid semantic version format"
 
 	case "hex-color", "hexcolor":
-		pattern := `^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$`
-		if matched, err := regexp.MatchString(pattern, value); err == nil {
-			valid = matched
-		}
-
+		valid = matchString(`^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$`, value)
 		message = "Invalid hex color format"
 
 	case "rgb-color", "rgbcolor":
-		pattern := `^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$`
-		if matched, err := regexp.MatchString(pattern, value); err == nil {
-			valid = matched
-		}
-
+		valid = matchString(`^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$`, value)
 		message = "Invalid RGB color format"
 
 	case "port":
-		pattern := `^([1-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$`
-		if matched, err := regexp.MatchString(pattern, value); err == nil {
-			valid = matched
-		}
-
+		valid = matchString(`^([1-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$`, value)
 		message = "Invalid port number (must be 1-65535)"
 
 	case "host":
-		// Can be hostname or IP
-		hostnamePattern := `^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$`
-		matchedHostname, err := regexp.MatchString(hostnamePattern, value)
-		if err != nil {
-			matchedHostname = false
-		}
-
-		matchedIP, err := regexp.MatchString(ipv4Pattern, value)
-		if err != nil {
-			matchedIP = false
-		}
-
-		valid = matchedHostname || matchedIP
+		valid = matchString(`^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$`, value) || matchString(ipv4Pattern, value)
 		message = "Invalid host format"
 
 	case "env-var", "envvar":
-		pattern := `^[A-Z_][A-Z0-9_]*$`
-		if matched, err := regexp.MatchString(pattern, value); err == nil {
-			valid = matched
-		}
-
+		valid = matchString(`^[A-Z_][A-Z0-9_]*$`, value)
 		message = "Invalid environment variable name format"
 
 	case "template-var", "templatevar":
-		pattern := `^\{\{[a-zA-Z_][a-zA-Z0-9_]*\}\}$`
-		if matched, err := regexp.MatchString(pattern, value); err == nil {
-			valid = matched
-		}
-
+		valid = matchString(`^\{\{[a-zA-Z_][a-zA-Z0-9_]*\}\}$`, value)
 		message = "Invalid template variable format"
 
 	case "json-pointer":
-		pattern := `^(/([^/~]|~[01])*)*$`
-		if matched, err := regexp.MatchString(pattern, value); err == nil {
-			valid = matched
-		}
-
+		valid = matchString(`^(/([^/~]|~[01])*)*$`, value)
 		message = "Invalid JSON pointer format"
 
 	case "regex":
@@ -186,67 +101,35 @@ func (v *Validator) validateJSSonFormat(value, format, path string, result *Vali
 		message = "Invalid regex pattern"
 
 	case "base64":
-		pattern := `^[A-Za-z0-9+/]*={0,2}$`
-		if matched, err := regexp.MatchString(pattern, value); err == nil {
-			valid = matched && len(value)%4 == 0
-		}
-
+		valid = matchString(`^[A-Za-z0-9+/]*={0,2}$`, value) && len(value)%4 == 0
 		message = "Invalid base64 format"
 
 	case "phone":
-		pattern := `^[\+]?[(]?[0-9]{1,3}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,9}$`
-		if matched, err := regexp.MatchString(pattern, value); err == nil {
-			valid = matched
-		}
-
+		valid = matchString(`^[\+]?[(]?[0-9]{1,3}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,9}$`, value)
 		message = "Invalid phone number format"
 
 	case "credit-card", "creditcard":
-		// Remove spaces and dashes
 		cleaned := strings.ReplaceAll(strings.ReplaceAll(value, " ", ""), "-", "")
-		pattern := `^\d{13,19}$`
-
-		if matched, err := regexp.MatchString(pattern, cleaned); err == nil {
-			valid = matched
-		}
-
+		valid = matchString(`^\d{13,19}$`, cleaned)
 		message = "Invalid credit card format"
 
 	case "slug":
-		pattern := `^[a-z0-9]+(-[a-z0-9]+)*$`
-		if matched, err := regexp.MatchString(pattern, value); err == nil {
-			valid = matched
-		}
-
+		valid = matchString(`^[a-z0-9]+(-[a-z0-9]+)*$`, value)
 		message = "Invalid slug format"
 
 	case "alpha":
-		pattern := `^[a-zA-Z]+$`
-		if matched, err := regexp.MatchString(pattern, value); err == nil {
-			valid = matched
-		}
-
+		valid = matchString(`^[a-zA-Z]+$`, value)
 		message = "Must contain only alphabetic characters"
 
 	case "alphanumeric":
-		pattern := `^[a-zA-Z0-9]+$`
-		if matched, err := regexp.MatchString(pattern, value); err == nil {
-			valid = matched
-		}
-
+		valid = matchString(`^[a-zA-Z0-9]+$`, value)
 		message = "Must contain only alphanumeric characters"
 
 	case "macro-id":
-		// JSSON macro identifier: starts with letter/underscore, contains letters, numbers, underscores
-		pattern := `^[a-zA-Z_][a-zA-Z0-9_]*$`
-		if matched, err := regexp.MatchString(pattern, value); err == nil {
-			valid = matched
-		}
-
+		valid = matchString(`^[a-zA-Z_][a-zA-Z0-9_]*$`, value)
 		message = "Invalid macro-id format (must start with letter or underscore)"
 
 	default:
-		// Unknown format - allow by default
 		return
 	}
 
