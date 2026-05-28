@@ -1,6 +1,7 @@
 package transpiler
 
 import (
+	"errors"
 	"jsson/internal/ast"
 	"maps"
 )
@@ -57,6 +58,10 @@ func (t *Transpiler) evalArrayLiteral(e *ast.ArrayLiteral, ctx map[string]any) (
 }
 
 func (t *Transpiler) evalArrayTemplate(e *ast.ArrayTemplate, ctx map[string]any) (any, error) {
+	if e.Template == nil {
+		return nil, errors.New("array template has nil template")
+	}
+
 	result := make([]any, 0, len(e.Rows))
 	keys := e.Template.Keys
 

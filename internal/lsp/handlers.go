@@ -2,7 +2,6 @@ package lsp
 
 import (
 	"encoding/json"
-
 	"jsson/internal/lexer"
 	"jsson/internal/parser"
 )
