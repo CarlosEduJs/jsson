@@ -48,7 +48,7 @@ func (p *Parser) parsePresetReferenceAfterAt() ast.Expression {
 func (p *Parser) parseValidator() ast.Expression {
 	validator := &ast.ValidatorExpression{
 		Token: p.curToken,
-		Type:  strings.ToLower(p.curToken.Literal),
+		Type:  ast.ValidatorType(strings.ToLower(p.curToken.Literal)),
 	}
 
 	if p.peekToken.Type == token.LPAREN {

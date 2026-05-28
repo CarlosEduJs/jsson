@@ -18,6 +18,20 @@ type RangeResult struct {
 	Values []any
 }
 
+// MarshalJSON serializes RangeResult as a plain JSON array.
+func (r RangeResult) MarshalJSON() ([]byte, error) {
+	return json.Marshal(r.Values)
+}
+
+// MergeMode controls include merge behavior.
+type MergeMode string
+
+const (
+	MergeKeep      MergeMode = "keep"
+	MergeOverwrite MergeMode = "overwrite"
+	MergeError     MergeMode = "error"
+)
+
 // Transpiler converts JSSON AST to JSON/YAML/TOML/TypeScript.
 type Transpiler struct {
 	program *ast.Program
@@ -28,8 +42,8 @@ type Transpiler struct {
 	includeCache map[string]map[string]any
 	// inProgress marks includes currently being processed to detect cycles
 	inProgress map[string]bool
-	// mergeMode controls include merge behavior: "keep" (default), "overwrite", "error"
-	mergeMode string
+	// mergeMode controls include merge behavior
+	mergeMode MergeMode
 	// sourceFile is the path to the source file being transpiled (optional)
 	sourceFile string
 	// symbolTable stores variable declarations (name := value)
@@ -45,9 +59,9 @@ type Transpiler struct {
 }
 
 // New creates a new Transpiler instance.
-func New(program *ast.Program, baseDir, mergeMode, sourceFile string) *Transpiler {
+func New(program *ast.Program, baseDir string, mergeMode MergeMode, sourceFile string) *Transpiler {
 	if mergeMode == "" {
-		mergeMode = "keep"
+		mergeMode = MergeKeep
 	}
 
 	return &Transpiler{
@@ -219,13 +233,13 @@ func (t *Transpiler) processInclude(ctx context.Context, s *ast.IncludeStatement
 	// Merge according to mergeMode
 	for k, v := range incRoot {
 		switch t.mergeMode {
-		case "keep":
+		case MergeKeep:
 			if _, exists := root[k]; !exists {
 				root[k] = v
 			}
-		case "overwrite":
+		case MergeOverwrite:
 			root[k] = v
-		case "error":
+		case MergeError:
 			if _, exists := root[k]; exists {
 				return t.errfNode(s, "include merge conflict for key %q from %s", k, includeAbs)
 			}

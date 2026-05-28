@@ -11,36 +11,36 @@ import (
 // generateValidatorValue generates a value for a validator expression.
 func (t *Transpiler) generateValidatorValue(v *ast.ValidatorExpression) (any, error) {
 	switch v.Type {
-	case "uuid":
+	case ast.ValidatorUUID:
 		return generateUUID(), nil
-	case "email":
+	case ast.ValidatorEmail:
 		return fmt.Sprintf("user%d@example.com", time.Now().UnixNano()%10000), nil
-	case "url":
+	case ast.ValidatorURL:
 		return "https://example.com", nil
-	case "ipv4":
+	case ast.ValidatorIPv4:
 		return fmt.Sprintf("192.168.%d.%d", time.Now().UnixNano()%256, (time.Now().UnixNano()/256)%256), nil
-	case "ipv6":
+	case ast.ValidatorIPv6:
 		return "2001:0db8:85a3:0000:0000:8a2e:0370:7334", nil
-	case "filepath":
+	case ast.ValidatorFilepath:
 		return "/path/to/file.txt", nil
-	case "date":
+	case ast.ValidatorDate:
 		return time.Now().Format("2006-01-02"), nil
-	case "datetime":
+	case ast.ValidatorDatetime:
 		return time.Now().Format(time.RFC3339), nil
-	case "regex":
+	case ast.ValidatorRegex:
 		if v.Pattern != "" {
 			return "matched-value", nil
 		}
 
 		return "sample-text", nil
-	case "int":
+	case ast.ValidatorInt:
 		return generateInt(v.Args), nil
-	case "float":
+	case ast.ValidatorFloat:
 		return generateFloat(v.Args), nil
-	case "bool":
+	case ast.ValidatorBool:
 		return generateBool(), nil
 	default:
-		return nil, t.errfNode(v, "unknown validator type: %s", v.Type)
+		return nil, t.errfNode(v, "unknown validator type: %s", string(v.Type))
 	}
 }
 

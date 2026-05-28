@@ -124,7 +124,7 @@ func TestValidatorExpressions(t *testing.T) {
 				tt.input, value)
 		}
 
-		if validator.Type != tt.expectedType {
+		if validator.Type != ast.ValidatorType(tt.expectedType) {
 			t.Errorf("validator type wrong for '%s'. expected=%s got=%s",
 				tt.input, tt.expectedType, validator.Type)
 		}
@@ -208,7 +208,7 @@ func TestRegexValidatorWithPattern(t *testing.T) {
 		t.Fatalf("value not *ast.ValidatorExpression. got=%T", stmt.Value)
 	}
 
-	if validator.Type != "regex" {
+	if validator.Type != ast.ValidatorRegex {
 		t.Errorf("validator type wrong. expected=regex got=%s", validator.Type)
 	}
 

@@ -78,7 +78,7 @@ func runTranspiler() {
 		os.Exit(1)
 	}
 
-	t := transpiler.New(program, baseDir, *mergeMode, absInput)
+	t := transpiler.New(program, baseDir, transpiler.MergeMode(*mergeMode), absInput)
 	t.SetStreamingMode(*streamingPtr, *streamThreshold)
 
 	minify := *minifyPtr || *minifyLong
