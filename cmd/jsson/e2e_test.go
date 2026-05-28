@@ -213,7 +213,7 @@ func goldenFilePath(rel, format string) string {
 		ext = ".ts"
 	}
 
-	return filepath.Join(repoRoot, "examples", rel+ext)
+	return filepath.Join(repoRoot, "testdata", rel+ext)
 }
 
 func testTranspileOnly(t *testing.T, path, format string) {
