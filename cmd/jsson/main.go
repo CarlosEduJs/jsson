@@ -69,6 +69,11 @@ func main() {
 			runServer(os.Args[2:])
 
 			return
+		case "fmt", "format":
+			os.Args = append([]string{os.Args[0] + " fmt"}, os.Args[2:]...)
+			runFormatter()
+
+			return
 		case "help", "-h", "--help":
 			printHelp()
 
@@ -89,11 +94,22 @@ func printHelp() {
 Usage:
   jsson [flags]              Transpile JSSON file
   jsson serve [flags]        Start HTTP server
+  jsson fmt [flags] <file>   Format JSSON file
+
+Commands:
+  serve, server       Start HTTP server
+  fmt, format         Format JSSON files (use -w to write in-place)
+  help                Show this help
+  version             Show version
 
 Transpile Flags:
-  -i string              Input JSSON file (required)
+  -i string              Input JSSON file (required, use - for stdin)
+  -o string              Output file (default: stdout)
   -f string              Output format: json|yaml|toml|typescript (default "json")
-  -schema string         Schema file to validate output against (optional)
+  -m                     Minify output (no whitespace)
+  -minify                Minify output (no whitespace)
+  -indent int            Number of spaces for indentation (default 2)
+  -schema string         Schema file to validate output against
   -validate-only         Only validate, don't output result
   -stream                Enable streaming mode for large datasets
   -stream-threshold int  Auto-enable streaming threshold (default 10000)
@@ -104,11 +120,13 @@ Server Flags (jsson serve):
   -cors        Enable CORS for all origins (default true)
 
 Examples:
-  jsson -i config.jsson                    # Transpile to JSON
-  jsson -i config.jsson -f yaml            # Transpile to YAML
+  jsson -i config.jsson                     # Transpile to JSON
+  jsson -i config.jsson -f yaml             # Transpile to YAML
+  jsson -i config.jsson -o output.json      # Write to file
+  cat config.jsson | jsson -i -             # Read from stdin
   jsson -i config.jsson -schema schema.json # Validate output
-  jsson serve                              # Start HTTP server
-  jsson serve -port 3000                   # Server on port 3000
+  jsson serve                               # Start HTTP server
+  jsson serve -port 3000                    # Server on port 3000
 
 Documentation: https://docs.jssonlang.tech/
 `, Version)

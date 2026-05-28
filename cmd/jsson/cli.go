@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"jsson/internal/lexer"
 	"jsson/internal/parser"
 	"jsson/internal/transpiler"
@@ -15,7 +16,8 @@ import (
 )
 
 func runTranspiler() {
-	inputPtr := flag.String("i", "", "Input JSSON file")
+	inputPtr := flag.String("i", "", "Input JSSON file (use - for stdin)")
+	outputPtr := flag.String("o", "", "Output file (default stdout)")
 	formatPtr := flag.String("f", "json", "Output format: json|yaml|toml|typescript")
 	mergeMode := flag.String("include-merge", "keep", "Include merge strategy: keep|overwrite|error")
 	streamingPtr := flag.Bool("stream", false, "Enable streaming mode for large datasets")
@@ -29,8 +31,9 @@ func runTranspiler() {
 	flag.Parse()
 
 	if *inputPtr == "" {
-		fmt.Println("Please provide an input file with -i")
-		fmt.Println("Use 'jsson help' for usage information")
+		fmt.Fprintln(os.Stderr, "Please provide an input file with -i")
+		fmt.Fprintln(os.Stderr, "Use 'jsson help' for usage information")
+
 		os.Exit(1)
 	}
 
@@ -41,7 +44,8 @@ func runTranspiler() {
 	}
 
 	if !validFormats[format] {
-		fmt.Printf("Invalid format: %s. Must be json, yaml, toml or typescript\n", *formatPtr)
+		fmt.Fprintf(os.Stderr, "Invalid format: %s. Must be json, yaml, toml or typescript\n", *formatPtr)
+
 		os.Exit(1)
 	}
 
@@ -49,30 +53,62 @@ func runTranspiler() {
 		format = formatTypeScript
 	}
 
-	data, err := os.ReadFile(*inputPtr)
-	if err != nil {
-		fmt.Printf("Error reading file: %v\n", err)
-		os.Exit(1)
-	}
+	var (
+		data     []byte
+		absInput string
+		baseDir  string
+	)
 
-	absInput, err := filepath.Abs(*inputPtr)
-	if err != nil {
-		fmt.Printf("Error resolving input path: %v\n", err)
-		os.Exit(1)
-	}
+	if *inputPtr == "-" {
+		var err error
 
-	baseDir := filepath.Dir(absInput)
+		data, err = io.ReadAll(os.Stdin)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error reading stdin: %v\n", err)
+
+			os.Exit(1)
+		}
+
+		absInput = "stdin"
+
+		baseDir, err = os.Getwd()
+		if err != nil {
+			baseDir = "."
+		}
+	} else {
+		var err error
+
+		data, err = os.ReadFile(*inputPtr)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
+
+			os.Exit(1)
+		}
+
+		absInput, err = filepath.Abs(*inputPtr)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error resolving input path: %v\n", err)
+
+			os.Exit(1)
+		}
+
+		baseDir = filepath.Dir(absInput)
+	}
 
 	l := lexer.New(string(data))
-	l.SetSourceFile(absInput)
+
+	if absInput != "stdin" {
+		l.SetSourceFile(absInput)
+	}
+
 	p := parser.New(l)
 	program := p.ParseProgram()
 
 	if len(p.Errors()) > 0 {
-		fmt.Println("Parser errors:")
+		fmt.Fprintln(os.Stderr, "Parser errors:")
 
-		for _, err := range p.Errors() {
-			fmt.Println("\t" + err.Error())
+		for _, e := range p.Errors() {
+			fmt.Fprintln(os.Stderr, "\t"+e.Error())
 		}
 
 		os.Exit(1)
@@ -86,7 +122,10 @@ func runTranspiler() {
 
 	startTime := time.Now()
 
-	var output []byte
+	var (
+		output []byte
+		err    error
+	)
 
 	ctx := context.Background()
 
@@ -104,14 +143,16 @@ func runTranspiler() {
 	elapsed := time.Since(startTime)
 
 	if err != nil {
-		fmt.Printf("Transpilation error: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Transpilation error: %v\n", err)
+
 		os.Exit(1)
 	}
 
 	if *schemaPtr != "" {
 		schemaData, err := os.ReadFile(*schemaPtr)
 		if err != nil {
-			fmt.Printf("Error reading schema file: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Error reading schema file: %v\n", err)
+
 			os.Exit(1)
 		}
 
@@ -119,7 +160,8 @@ func runTranspiler() {
 
 		schema, schemaFormat, err := v.LoadSchemaAuto(string(schemaData))
 		if err != nil {
-			fmt.Printf("Error parsing schema: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Error parsing schema: %v\n", err)
+
 			os.Exit(1)
 		}
 
@@ -147,12 +189,21 @@ func runTranspiler() {
 
 		if *validateOnly {
 			fmt.Fprintf(os.Stderr, "✓ Compiled and validated in %v\n", elapsed)
+
 			os.Exit(0)
 		}
 	}
 
 	if !*validateOnly {
-		fmt.Println(string(output))
+		if *outputPtr != "" {
+			if err := os.WriteFile(*outputPtr, output, 0o600); err != nil { //nolint:gosec // user-specified path
+				fmt.Fprintf(os.Stderr, "Error writing output: %v\n", err)
+
+				os.Exit(1)
+			}
+		} else {
+			fmt.Println(string(output))
+		}
 	}
 
 	fmt.Fprintf(os.Stderr, "✓ Compiled in %v\n", elapsed)
