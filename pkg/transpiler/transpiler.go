@@ -8,6 +8,13 @@ import "jsson/internal/transpiler"
 type (
 	Transpiler  = transpiler.Transpiler
 	RangeResult = transpiler.RangeResult
+	MergeMode   = transpiler.MergeMode
+)
+
+const (
+	MergeKeep      = transpiler.MergeKeep
+	MergeOverwrite = transpiler.MergeOverwrite
+	MergeError     = transpiler.MergeError
 )
 
 // Re-export functions.

@@ -3,11 +3,9 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"jsson/internal/lexer"
 	"jsson/internal/parser"
 	"jsson/internal/transpiler"
-	"strings"
 )
 
 func errsToStrings(errs []error) []string {
@@ -20,28 +18,9 @@ func errsToStrings(errs []error) []string {
 }
 
 func transpileSource(ctx context.Context, source, format, includeMerge string, streaming bool, streamThreshold int64) (output []byte, errs []string, err error) {
-	if format == "" {
-		format = "json"
-	}
-
-	if includeMerge == "" {
-		includeMerge = "keep"
-	}
-
-	if streamThreshold == 0 {
-		streamThreshold = 10000
-	}
-
-	format = strings.ToLower(format)
-	if format == "ts" {
-		format = "typescript"
-	}
-
-	validFormats := map[string]bool{
-		"json": true, "yaml": true, "toml": true, "typescript": true,
-	}
-	if !validFormats[format] {
-		return nil, nil, fmt.Errorf("invalid format: %s", format)
+	mergeMode := transpiler.MergeMode(includeMerge)
+	if mergeMode == "" {
+		mergeMode = transpiler.MergeKeep
 	}
 
 	l := lexer.New(source)
@@ -52,7 +31,7 @@ func transpileSource(ctx context.Context, source, format, includeMerge string, s
 		return nil, errsToStrings(p.Errors()), errors.New("parser errors")
 	}
 
-	t := transpiler.New(program, "", includeMerge, "")
+	t := transpiler.New(program, "", mergeMode, "")
 	t.SetStreamingMode(streaming, streamThreshold)
 
 	switch format {

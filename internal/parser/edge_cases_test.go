@@ -747,7 +747,7 @@ func TestValidatorStructurePreservation(t *testing.T) {
 		t.Fatalf("Expected ValidatorExpression, got %T", stmt.Value)
 	}
 
-	if validator.Type != "int" {
+	if validator.Type != ast.ValidatorInt {
 		t.Errorf("Expected type 'int', got '%s'", validator.Type)
 	}
 

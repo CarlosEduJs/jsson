@@ -16,10 +16,28 @@ func (i *Identifier) TokenLiteral() string      { return i.Token.Literal }
 func (i *Identifier) Position() (line, col int) { return i.Token.Line, i.Token.Column }
 func (i *Identifier) String() string            { return i.Value }
 
+// ValidatorType represents the type of a validator expression.
+type ValidatorType string
+
+const (
+	ValidatorUUID     ValidatorType = "uuid"
+	ValidatorEmail    ValidatorType = "email"
+	ValidatorURL      ValidatorType = "url"
+	ValidatorIPv4     ValidatorType = "ipv4"
+	ValidatorIPv6     ValidatorType = "ipv6"
+	ValidatorFilepath ValidatorType = "filepath"
+	ValidatorDate     ValidatorType = "date"
+	ValidatorDatetime ValidatorType = "datetime"
+	ValidatorRegex    ValidatorType = "regex"
+	ValidatorInt      ValidatorType = "int"
+	ValidatorFloat    ValidatorType = "float"
+	ValidatorBool     ValidatorType = "bool"
+)
+
 // ValidatorExpression represents a validator call like @uuid, @int(min, max).
 type ValidatorExpression struct {
 	Token   token.Token
-	Type    string
+	Type    ValidatorType
 	Pattern string
 	Args    []Expression // For validators like @int(min, max), @float(min, max)
 }
@@ -29,14 +47,14 @@ func (ve *ValidatorExpression) TokenLiteral() string      { return ve.Token.Lite
 func (ve *ValidatorExpression) Position() (line, col int) { return ve.Token.Line, ve.Token.Column }
 func (ve *ValidatorExpression) String() string {
 	if ve.Pattern != "" {
-		return "@" + ve.Type + "(\"" + ve.Pattern + "\")"
+		return "@" + string(ve.Type) + "(\"" + ve.Pattern + "\")"
 	}
 
 	if len(ve.Args) > 0 {
-		return "@" + ve.Type + "(...)"
+		return "@" + string(ve.Type) + "(...)"
 	}
 
-	return "@" + ve.Type
+	return "@" + string(ve.Type)
 }
 
 // BinaryExpression: x + y.

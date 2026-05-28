@@ -40,10 +40,9 @@ func (b *BooleanLiteral) String() string            { return b.Token.Literal }
 
 // StringLiteral represents a string literal in the AST.
 type StringLiteral struct {
-	Token     token.Token
-	Value     string
-	IsRaw     bool
-	Validator *ValidatorExpression
+	Token token.Token
+	Value string
+	IsRaw bool
 }
 
 func (sl *StringLiteral) expressionNode()           {}

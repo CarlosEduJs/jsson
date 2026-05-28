@@ -64,7 +64,7 @@ ports = (8080..8090)
 	fmt.Println("✅ Parsing successful!")
 
 	// Transpile to JSON
-	tr := transpiler.New(program, "", "keep", "")
+	tr := transpiler.New(program, "", transpiler.MergeKeep, "")
 
 	output, err := tr.Transpile(context.Background())
 	if err != nil {
