@@ -111,5 +111,11 @@ func (s *Server) parseDocument(content string) []string {
 
 	_ = p.ParseProgram()
 
-	return p.Errors()
+	errs := p.Errors()
+	strs := make([]string, len(errs))
+	for i, err := range errs {
+		strs[i] = err.Error()
+	}
+
+	return strs
 }

@@ -1,25 +1,21 @@
 package lexer
 
 import (
-	"fmt"
 	ie "jsson/internal/errors"
 	"unicode"
 	"unicode/utf8"
 )
 
-func (l *Lexer) lexErrMsg(msg string) string {
-	if l.SourceFile != "" {
-		ctx := ie.FormatContext(l.SourceFile, l.line, l.column)
-
-		return fmt.Sprintf("Lex goblin: %s — %s", ctx, msg)
+func (l *Lexer) lexErr(msg string) *ie.LexError {
+	return &ie.LexError{
+		SourceFile: l.SourceFile,
+		Line:       l.line,
+		Col:        l.column,
+		Message:    msg,
 	}
-
-	ctx := fmt.Sprintf("%d:%d", l.line, l.column)
-
-	return fmt.Sprintf("Lex goblin: %s — %s", ctx, msg)
 }
 
-func (l *Lexer) Errors() []string {
+func (l *Lexer) Errors() []error {
 	return l.errors
 }
 

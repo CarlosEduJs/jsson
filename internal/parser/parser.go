@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"jsson/internal/ast"
 	ie "jsson/internal/errors"
 	"jsson/internal/lexer"
@@ -49,23 +48,25 @@ type Parser struct {
 	l         *lexer.Lexer
 	curToken  token.Token
 	peekToken token.Token
-	errors    []string
+	errors    []error
 }
 
 func (p *Parser) addError(msg string) {
-	var loc string
-	if p.l != nil && p.l.SourceFile != "" {
-		loc = ie.FormatContext(p.l.SourceFile, p.curToken.Line, p.curToken.Column)
-	} else {
-		loc = fmt.Sprintf("%d:%d", p.curToken.Line, p.curToken.Column)
+	sourceFile := ""
+	if p.l != nil {
+		sourceFile = p.l.SourceFile
 	}
 
-	fun := "Syntax wizard:"
-	p.errors = append(p.errors, fmt.Sprintf("%s %s — %s", fun, loc, msg))
+	p.errors = append(p.errors, &ie.ParseError{
+		SourceFile: sourceFile,
+		Line:       p.curToken.Line,
+		Col:        p.curToken.Column,
+		Message:    msg,
+	})
 }
 
 func New(l *lexer.Lexer) *Parser {
-	p := &Parser{l: l, errors: []string{}}
+	p := &Parser{l: l, errors: []error{}}
 	p.nextToken()
 	p.nextToken()
 
@@ -183,7 +184,7 @@ func (p *Parser) parseInfix(left ast.Expression) ast.Expression {
 	}
 }
 
-func (p *Parser) Errors() []string {
+func (p *Parser) Errors() []error {
 	return p.errors
 }
 

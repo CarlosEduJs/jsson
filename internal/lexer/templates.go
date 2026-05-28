@@ -80,9 +80,9 @@ func (l *Lexer) lexBacktickString() token.Token {
 			tok.Column = l.column
 
 			if !ok {
-				msg := l.lexErrMsg(ie.UnterminatedString())
-				l.errors = append(l.errors, msg)
-				tok = l.newToken(token.ILLEGAL, msg)
+				err := l.lexErr(ie.UnterminatedString())
+				l.errors = append(l.errors, err)
+				tok = l.newToken(token.ILLEGAL, err.Error())
 			} else {
 				tok.Type = token.RAWSTRING
 				tok.Literal = lit
@@ -104,9 +104,9 @@ func (l *Lexer) lexBacktickString() token.Token {
 	tok.Column = l.column
 
 	if !ok {
-		msg := l.lexErrMsg(ie.UnterminatedString())
-		l.errors = append(l.errors, msg)
-		tok = l.newToken(token.ILLEGAL, msg)
+		err := l.lexErr(ie.UnterminatedString())
+		l.errors = append(l.errors, err)
+		tok = l.newToken(token.ILLEGAL, err.Error())
 	} else {
 		tok.Type = token.TEMPLATESTR
 		tok.Literal = lit

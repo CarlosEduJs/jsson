@@ -9,6 +9,15 @@ import (
 	"strings"
 )
 
+func errsToStrings(errs []error) []string {
+	strs := make([]string, len(errs))
+	for i, e := range errs {
+		strs[i] = e.Error()
+	}
+
+	return strs
+}
+
 func transpileSource(source, format, includeMerge string, streaming bool, streamThreshold int64) (output []byte, errs []string, err error) {
 	if format == "" {
 		format = "json"
@@ -39,7 +48,7 @@ func transpileSource(source, format, includeMerge string, streaming bool, stream
 	program := p.ParseProgram()
 
 	if len(p.Errors()) > 0 {
-		return nil, p.Errors(), errors.New("parser errors")
+		return nil, errsToStrings(p.Errors()), errors.New("parser errors")
 	}
 
 	t := transpiler.New(program, "", includeMerge, "")
@@ -68,7 +77,7 @@ func validateSyntax(source string) (valid bool, errs []string) {
 	p := parser.New(l)
 	p.ParseProgram()
 
-	errs = p.Errors()
+	errs = errsToStrings(p.Errors())
 
 	return len(errs) == 0, errs
 }
